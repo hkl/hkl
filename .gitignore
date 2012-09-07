@@ -1,0 +1,20 @@
+# Objects
+*.o
+
+# Binaries
+hkl
+hklc
+*.exe
+*.out
+
+# Automake generated files and folders
+Makefile
+config.log
+config.status
+*.Po
+*.cache/
+.deps/
+
+# Temporaries that some text editors make
+*~
+
