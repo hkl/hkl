@@ -21,8 +21,8 @@ int main(int argc, const char* argv[])
 
   hkl_string_free(runes);
 
-  printf("%lu Norse runes: \"%s\"\n"
-           "Occupying %lu bytes.\n",
+  printf("%zu Norse runes: \"%s\"\n"
+           "Occupying %zu bytes.\n",
            hkl_string_get_length(copy),
            hkl_string_get_utf8(copy),
            hkl_string_get_size(copy));
