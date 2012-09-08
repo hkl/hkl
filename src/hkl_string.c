@@ -56,7 +56,9 @@ HklString* hkl_string_new()
   return string;
 }
 
-HklString* hkl_string_new_from_string(HklString* string) {
+HklString* hkl_string_new_from_string(const HklString* string)
+{
+  assert(string != NULL);
 
   HklString* copy = hkl_string_new();
   hkl_string_copy(copy, string);
@@ -67,6 +69,8 @@ HklString* hkl_string_new_from_string(HklString* string) {
 
 HklString* hkl_string_new_from_utf8(const char* utf8_data)
 {
+  assert(utf8_data != NULL);
+
   HklString* string = hkl_string_new();
   hkl_string_set_utf8(string, utf8_data);
 
@@ -76,14 +80,12 @@ HklString* hkl_string_new_from_utf8(const char* utf8_data)
 void hkl_string_set_utf8(HklString* string, const char* utf8_data)
 {
   assert(string != NULL);
+  assert(utf8_data != NULL);
 
   size_t size = strlen(utf8_data);
   
   // The input string must be null-terminated
   assert(utf8_data[size] == '\0');
-
-  // If the utf-8 string has a size of zero, then the data should be NULL
-  assert((size == 0) == (utf8_data == NULL));
 
   // Resize the string to accomidate new data
   if (string->size < size)
@@ -101,7 +103,41 @@ void hkl_string_set_utf8(HklString* string, const char* utf8_data)
   assert(string->utf8_data[size] == '\0');
 }
 
-void hkl_string_copy(HklString* string, HklString* src)
+void hkl_string_cat(HklString* string, const HklString* src)
+{
+  assert(string != NULL);
+  assert(src != NULL);
+
+  // For now this works
+  // Later this can be sped up by not relying on this function.
+  hkl_string_cat_utf8(string, src->utf8_data);
+}
+
+void hkl_string_cat_utf8(HklString* string, const char* utf8_data)
+{
+  assert(string != NULL);
+  assert(utf8_data != NULL);
+
+  size_t size = strlen(utf8_data);
+
+  // The input string must be null-terminated
+  assert(utf8_data[size] == '\0');
+
+  // Resize the string to accomidate new data
+  if (string->size < string->size + size)
+    string->utf8_data = realloc(string->utf8_data, string->size + size + 1);
+
+  string->length += utf8_length(utf8_data);
+
+  memcpy(string->utf8_data + string->size, utf8_data, string->size + size + 1);
+
+  string->size = string->size + size;
+
+  // The string must be NULL terminated by now
+  assert(string->utf8_data[string->size] == '\0');
+}
+
+void hkl_string_copy(HklString* string, const HklString* src)
 {
   assert(string != NULL);
   assert(src != NULL);
@@ -109,7 +145,7 @@ void hkl_string_copy(HklString* string, HklString* src)
   hkl_string_set_utf8(string, src->utf8_data);
 }
 
-bool hkl_string_compare(HklString* string1, HklString* string2)
+bool hkl_string_compare(const HklString* string1, const HklString* string2)
 {
   assert(string1 != NULL);
   assert(string2 != NULL);
@@ -149,14 +185,14 @@ const char* hkl_string_get_utf8(HklString* string)
   return string->utf8_data;
 }
 
-size_t hkl_string_get_size(HklString* string)
+size_t hkl_string_get_size(const HklString* string)
 {
   assert(string != NULL);
 
   return string->size;
 }
 
-size_t hkl_string_get_length(HklString* string)
+size_t hkl_string_get_length(const HklString* string)
 {
   assert(string != NULL);
 
