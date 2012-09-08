@@ -20,6 +20,7 @@ int main(int argc, const char* argv[])
   }
 
   hkl_string_free(runes);
+  runes = NULL;
 
   printf("%zu Norse runes: \"%s\"\n"
            "Occupying %zu bytes.\n",
@@ -28,6 +29,16 @@ int main(int argc, const char* argv[])
            hkl_string_get_size(copy));
 
   hkl_string_free(copy);
+  copy = NULL;
+
+  HklString* hello = hkl_string_new_from_utf8("Hello");
+
+  hkl_string_cat_utf8(hello, " World!");
+
+  printf("%s\n", hkl_string_get_utf8(hello));
+
+  hkl_string_free(hello);
+  hello = NULL;
 	
   return 0;
 }
