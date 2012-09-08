@@ -11,13 +11,13 @@ Since utf-8 internally can use anywhere between 1 and 4 bytes per character
 HklString acts as a wrapper for utf-8 data.
 
 @authors Scott LaVigne
-@date 
+@date 9/7/2012
 */
 typedef struct HklString
 {
-  char* utf8_data;
-  size_t size;
-  size_t length;
+  char* utf8_data; /* Private */
+  size_t size;        /* Private */
+  size_t length;     /* Private */
 
 } HklString;
 
@@ -35,7 +35,7 @@ Allocate a copy of another HklString.
 @param string The string to make a copy of.
 @retval HklString* A newly allocated copy of string.
 */
-HklString* hkl_string_new_from_string(HklString* string);
+HklString* hkl_string_new_from_string(const HklString* string);
 
 /**
 Allocate a new HklString using utf8 data.
@@ -56,12 +56,30 @@ Sets the utf8 data inside a HklString.
 void hkl_string_set_utf8(HklString* string, const char* utf8_data);
 
 /**
+Concatinate a HklString.
+
+@param string The HklString to add data to.
+@param src The HklString to append.
+@brief The string is modified in-place only reallocating internal data if needed.
+*/
+void hkl_string_cat(HklString* string, const HklString* src);
+
+/**
+Concatinate a HklString with utf8 data.
+
+@param string The HklString to add data to.
+@param utf8_data The null-terminated utf8 string to append.
+@brief The string is modified in-place only reallocating internal data if needed.
+*/
+void hkl_string_cat_utf8(HklString* string, const char* utf8_data);
+
+/**
 Turns a HklString into an exact copy of another.
 
 @param string The HklString to modify.
 @param src The HklString to copy.
 */
-void hkl_string_copy(HklString* string, HklString* src);
+void hkl_string_copy(HklString* string, const HklString* src);
 
 /**
 Compares two HklStrings.
@@ -70,7 +88,7 @@ Compares two HklStrings.
 @param string2 A second HklString object to compare with.
 @retval bool True if the strings are equal, false otherwise.
 */
-bool hkl_string_compare(HklString* string1, HklString* string2);
+bool hkl_string_compare(const HklString* string1, const HklString* string2);
 
 /**
 Compares a HklString with utf8 data.
@@ -83,6 +101,8 @@ Compares a HklString with utf8 data.
 
 /**
 Erase the contents of a HklString
+
+@post The internal utf8 data is freed.
 
 @param string The HklString to clear.
 */
@@ -103,7 +123,7 @@ This does not include the null byte.
 @param string The HklString object.
 @retval size_t The number of bytes in the string.
 */
-size_t hkl_string_get_size(HklString* string);
+size_t hkl_string_get_size(const HklString* string);
 
 /**
 Get the number of characters in the HklString.
@@ -112,7 +132,7 @@ This does not include the null character.
 @param string The HklString object.
 @retval size_t The number of characters in the string.
 */
-size_t hkl_string_get_length(HklString* string);
+size_t hkl_string_get_length(const HklString* string);
 
 /**
 Free a HklString and releases any allocated resources it has.
