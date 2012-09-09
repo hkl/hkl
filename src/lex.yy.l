@@ -3,6 +3,8 @@
 #include <stdio.h>      // for scan functions
 
 #include "hklc.h"
+
+extern int yyerror(const char* msg);
 %}
 
 %%
@@ -10,11 +12,14 @@
 [ \t\r]                /* Ignore Whitespace */
 "//".*[\n]             /* Ignore Comments */
 
+[\n]+                  return HKL_T_NEWLINE;
+
 "if"                   return HKL_T_IF;
 "else"                 return HKL_T_ELSE;
 "for"                  return HKL_T_FOR;
 "while"                return HKL_T_WHILE;
 "end"                  return HKL_T_END;
+"return"               return HKL_T_RETURN;
 
 "class"                return HKL_T_CLASS;
 "function"             return HKL_T_FUNCTION;
@@ -24,7 +29,7 @@
 [0-9]+ /* Integers */ {
 
   sscanf(yytext, "%i", &yylval.integer);
-  return HKL_T_INT;
+  return HKL_T_INTEGER;
 }
 
 ([0-9]+\.[0-9]+)|([0-9]+\.[0-9]*)|([0-9]*\.[0-9]+) /* Reals */ {
@@ -35,7 +40,7 @@
 
 \"(\\.|[^\"])*\" {
 
-  yylval.string = hkl_string_new_from_utf8_chunk(yytext + 1, yytext + yyleng - 2);
+  yylval.string = hkl_string_new_from_utf8_chunk(yytext + 1, yytext + yyleng - 1);
   return HKL_T_STRING;
 }
 
@@ -60,5 +65,5 @@
 ","                    return HKL_T_COMMA;
 "."                    return HKL_T_DOT;
 
-.                      printf("Bad input: \"%s\"\n", yytext);
+.                      yyerror(yytext);
 
