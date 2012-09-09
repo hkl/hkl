@@ -14,7 +14,14 @@ config.status
 *.Po
 *.cache/
 .deps/
+.libs/
 libtool
+
+# Flex and Bison generated files
+y.tab.h
+y.tab.c
+lex.yy.c
+y.tab.output
 
 # Temporaries that some text editors make
 *~

@@ -88,9 +88,6 @@ HklString* hkl_string_new_from_utf8_chunk(const char* utf8_start, const char* ut
 
   string->utf8_data = realloc(string->utf8_data, size + 1);
   string->size = size;
-
-  // If we resized to an empty string, then our new data should be NULL
-  assert((string->size == 0) == (string->utf8_data == NULL));
   
   memcpy(string->utf8_data, utf8_start, size);
 
@@ -120,9 +117,6 @@ void hkl_string_set_utf8(HklString* string, const char* utf8_data)
 
   string->size = size;
   string->length = utf8_length(utf8_data);
-
-  // If we resized to an empty string, then our new data should be NULL
-  assert((string->size == 0) == (string->utf8_data == NULL));
 
   memcpy(string->utf8_data, utf8_data, size + 1);
 
