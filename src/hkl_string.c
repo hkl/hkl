@@ -1,4 +1,3 @@
-#include <stddef.h>
 #include <assert.h>
 #include <string.h>
 
@@ -76,6 +75,34 @@ HklString* hkl_string_new_from_utf8(const char* utf8_data)
 
   return string;
 }
+
+HklString* hkl_string_new_from_utf8_chunk(const char* utf8_start, const char* utf8_end)
+{
+  assert(utf8_start != NULL);
+  assert(utf8_end != NULL);
+  assert(utf8_end >= utf8_start);
+
+  ptrdiff_t size = utf8_end - utf8_start;
+
+  HklString* string = hkl_string_new();
+
+  string->utf8_data = realloc(string->utf8_data, size + 1);
+  string->size = size;
+
+  // If we resized to an empty string, then our new data should be NULL
+  assert((string->size == 0) == (string->utf8_data == NULL));
+  
+  memcpy(string->utf8_data, utf8_start, size);
+
+  // Null terminate
+  string->utf8_data[size] = '\0';
+
+  // Recalculate length
+  string->length = utf8_length(string->utf8_data);
+
+  return string;
+}
+
 
 void hkl_string_set_utf8(HklString* string, const char* utf8_data)
 {
