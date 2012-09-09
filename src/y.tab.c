@@ -68,6 +68,9 @@
 /* Line 268 of yacc.c  */
 #line 1 "y.tab.y"
 
+
+  #include <stdio.h> // For puts and gets
+
   #include "hkl_string.h"
 
   // These will be defined at link time
@@ -76,7 +79,7 @@
 
 
 /* Line 268 of yacc.c  */
-#line 80 "y.tab.c"
+#line 83 "y.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -103,65 +106,69 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     HKL_T_IF = 258,
-     HKL_T_ELSE = 259,
-     HKL_T_FOR = 260,
-     HKL_T_WHILE = 261,
-     HKL_T_END = 262,
-     HKL_T_CLASS = 263,
-     HKL_T_FUNCTION = 264,
-     HKL_T_NIL = 265,
-     HKL_T_NULL = 266,
-     HKL_T_INT = 267,
-     HKL_T_REAL = 268,
-     HKL_T_STRING = 269,
-     HKL_T_SELF = 270,
-     HKL_T_UNIQUE = 271,
-     HKL_T_CONST = 272,
-     HKL_T_PROTOTYPE = 273,
-     HKL_T_PROTECTED = 274,
-     HKL_T_PUTS = 275,
-     HKL_T_GETS = 276,
-     HKL_T_INCLUDE = 277,
-     HKL_T_LPAREN = 278,
-     HKL_T_RPAREN = 279,
-     HKL_T_LBRACE = 280,
-     HKL_T_RBRACE = 281,
-     HKL_T_LBRACKET = 282,
-     HKL_T_RBRACKET = 283,
-     HKL_T_COMMA = 284,
-     HKL_T_DOT = 285
+     HKL_T_NEWLINE = 258,
+     HKL_T_IF = 259,
+     HKL_T_ELSE = 260,
+     HKL_T_FOR = 261,
+     HKL_T_WHILE = 262,
+     HKL_T_END = 263,
+     HKL_T_RETURN = 264,
+     HKL_T_CLASS = 265,
+     HKL_T_FUNCTION = 266,
+     HKL_T_NIL = 267,
+     HKL_T_NULL = 268,
+     HKL_T_INTEGER = 269,
+     HKL_T_REAL = 270,
+     HKL_T_STRING = 271,
+     HKL_T_SELF = 272,
+     HKL_T_UNIQUE = 273,
+     HKL_T_CONST = 274,
+     HKL_T_PROTOTYPE = 275,
+     HKL_T_PROTECTED = 276,
+     HKL_T_PUTS = 277,
+     HKL_T_GETS = 278,
+     HKL_T_INCLUDE = 279,
+     HKL_T_LPAREN = 280,
+     HKL_T_RPAREN = 281,
+     HKL_T_LBRACE = 282,
+     HKL_T_RBRACE = 283,
+     HKL_T_LBRACKET = 284,
+     HKL_T_RBRACKET = 285,
+     HKL_T_COMMA = 286,
+     HKL_T_DOT = 287
    };
 #endif
 /* Tokens.  */
-#define HKL_T_IF 258
-#define HKL_T_ELSE 259
-#define HKL_T_FOR 260
-#define HKL_T_WHILE 261
-#define HKL_T_END 262
-#define HKL_T_CLASS 263
-#define HKL_T_FUNCTION 264
-#define HKL_T_NIL 265
-#define HKL_T_NULL 266
-#define HKL_T_INT 267
-#define HKL_T_REAL 268
-#define HKL_T_STRING 269
-#define HKL_T_SELF 270
-#define HKL_T_UNIQUE 271
-#define HKL_T_CONST 272
-#define HKL_T_PROTOTYPE 273
-#define HKL_T_PROTECTED 274
-#define HKL_T_PUTS 275
-#define HKL_T_GETS 276
-#define HKL_T_INCLUDE 277
-#define HKL_T_LPAREN 278
-#define HKL_T_RPAREN 279
-#define HKL_T_LBRACE 280
-#define HKL_T_RBRACE 281
-#define HKL_T_LBRACKET 282
-#define HKL_T_RBRACKET 283
-#define HKL_T_COMMA 284
-#define HKL_T_DOT 285
+#define HKL_T_NEWLINE 258
+#define HKL_T_IF 259
+#define HKL_T_ELSE 260
+#define HKL_T_FOR 261
+#define HKL_T_WHILE 262
+#define HKL_T_END 263
+#define HKL_T_RETURN 264
+#define HKL_T_CLASS 265
+#define HKL_T_FUNCTION 266
+#define HKL_T_NIL 267
+#define HKL_T_NULL 268
+#define HKL_T_INTEGER 269
+#define HKL_T_REAL 270
+#define HKL_T_STRING 271
+#define HKL_T_SELF 272
+#define HKL_T_UNIQUE 273
+#define HKL_T_CONST 274
+#define HKL_T_PROTOTYPE 275
+#define HKL_T_PROTECTED 276
+#define HKL_T_PUTS 277
+#define HKL_T_GETS 278
+#define HKL_T_INCLUDE 279
+#define HKL_T_LPAREN 280
+#define HKL_T_RPAREN 281
+#define HKL_T_LBRACE 282
+#define HKL_T_RBRACE 283
+#define HKL_T_LBRACKET 284
+#define HKL_T_RBRACKET 285
+#define HKL_T_COMMA 286
+#define HKL_T_DOT 287
 
 
 
@@ -171,7 +178,7 @@ typedef union YYSTYPE
 {
 
 /* Line 293 of yacc.c  */
-#line 11 "y.tab.y"
+#line 14 "y.tab.y"
 
   int        integer;
   double     real;
@@ -180,7 +187,7 @@ typedef union YYSTYPE
 
 
 /* Line 293 of yacc.c  */
-#line 184 "y.tab.c"
+#line 191 "y.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -192,7 +199,7 @@ typedef union YYSTYPE
 
 
 /* Line 343 of yacc.c  */
-#line 196 "y.tab.c"
+#line 203 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -409,22 +416,22 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  3
+#define YYFINAL  4
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   0
+#define YYLAST   5
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  31
+#define YYNTOKENS  33
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  3
+#define YYNNTS  5
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  3
+#define YYNRULES  8
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  4
+#define YYNSTATES  11
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   285
+#define YYMAXUTOK   287
 
 #define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -460,7 +467,7 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
-      25,    26,    27,    28,    29,    30
+      25,    26,    27,    28,    29,    30,    31,    32
 };
 
 #if YYDEBUG
@@ -468,19 +475,21 @@ static const yytype_uint8 yytranslate[] =
    YYRHS.  */
 static const yytype_uint8 yyprhs[] =
 {
-       0,     0,     3,     5
+       0,     0,     3,     5,     9,    11,    14,    17,    20
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
-      32,     0,    -1,    33,    -1,    -1
+      34,     0,    -1,    35,    -1,    35,    36,     3,    -1,    37,
+      -1,    22,    16,    -1,    22,    14,    -1,    22,    15,    -1,
+      -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    58,    58,    60
+       0,    64,    64,    67,    68,    71,    77,    82,    87
 };
 #endif
 
@@ -489,14 +498,15 @@ static const yytype_uint8 yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "HKL_T_IF", "HKL_T_ELSE", "HKL_T_FOR",
-  "HKL_T_WHILE", "HKL_T_END", "HKL_T_CLASS", "HKL_T_FUNCTION", "HKL_T_NIL",
-  "HKL_T_NULL", "HKL_T_INT", "HKL_T_REAL", "HKL_T_STRING", "HKL_T_SELF",
+  "$end", "error", "$undefined", "HKL_T_NEWLINE", "HKL_T_IF",
+  "HKL_T_ELSE", "HKL_T_FOR", "HKL_T_WHILE", "HKL_T_END", "HKL_T_RETURN",
+  "HKL_T_CLASS", "HKL_T_FUNCTION", "HKL_T_NIL", "HKL_T_NULL",
+  "HKL_T_INTEGER", "HKL_T_REAL", "HKL_T_STRING", "HKL_T_SELF",
   "HKL_T_UNIQUE", "HKL_T_CONST", "HKL_T_PROTOTYPE", "HKL_T_PROTECTED",
   "HKL_T_PUTS", "HKL_T_GETS", "HKL_T_INCLUDE", "HKL_T_LPAREN",
   "HKL_T_RPAREN", "HKL_T_LBRACE", "HKL_T_RBRACE", "HKL_T_LBRACKET",
   "HKL_T_RBRACKET", "HKL_T_COMMA", "HKL_T_DOT", "$accept", "program",
-  "empty", 0
+  "stmt_list", "stmt", "empty", 0
 };
 #endif
 
@@ -508,20 +518,20 @@ static const yytype_uint16 yytoknum[] =
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
      275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
-     285
+     285,   286,   287
 };
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    31,    32,    33
+       0,    33,    34,    35,    35,    36,    36,    36,    37
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     1,     0
+       0,     2,     1,     3,     1,     2,     2,     2,     0
 };
 
 /* YYDEFACT[STATE-NAME] -- Default reduction number in state STATE-NUM.
@@ -529,27 +539,29 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       3,     0,     2,     1
+       8,     0,     2,     4,     1,     0,     0,     6,     7,     5,
+       3
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     1,     2
+      -1,     1,     2,     6,     3
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -1
+#define YYPACT_NINF -19
 static const yytype_int8 yypact[] =
 {
-      -1,     0,    -1,    -1
+     -19,     3,   -18,   -19,   -19,   -14,     2,   -19,   -19,   -19,
+     -19
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -1,    -1,    -1
+     -19,   -19,   -19,   -19,   -19
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -558,25 +570,26 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-       3
+       7,     8,     9,     4,     5,    10
 };
 
 #define yypact_value_is_default(yystate) \
-  ((yystate) == (-1))
+  ((yystate) == (-19))
 
 #define yytable_value_is_error(yytable_value) \
   YYID (0)
 
 static const yytype_uint8 yycheck[] =
 {
-       0
+      14,    15,    16,     0,    22,     3
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,    32,    33,     0
+       0,    34,    35,    37,     0,    22,    36,    14,    15,    16,
+       3
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1410,10 +1423,38 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-      
+        case 5:
 
 /* Line 1806 of yacc.c  */
-#line 1417 "y.tab.c"
+#line 72 "y.tab.y"
+    {
+    printf("%s\n", hkl_string_get_utf8((yyvsp[(2) - (2)].string)));
+    hkl_string_free((yyvsp[(2) - (2)].string));
+  }
+    break;
+
+  case 6:
+
+/* Line 1806 of yacc.c  */
+#line 78 "y.tab.y"
+    {
+    printf("%i\n", (yyvsp[(2) - (2)].integer));
+  }
+    break;
+
+  case 7:
+
+/* Line 1806 of yacc.c  */
+#line 83 "y.tab.y"
+    {
+    printf("%lg\n", (yyvsp[(2) - (2)].real));
+  }
+    break;
+
+
+
+/* Line 1806 of yacc.c  */
+#line 1458 "y.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires

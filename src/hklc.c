@@ -11,9 +11,9 @@ int yywrap()
   return true;
 }
 
-int yyerror(char* msg)
+int yyerror(const char* msg)
 {
-  printf("Parsing error.\n");
+  printf("Parsing error: %s\n", msg);
   return true;
 }
 

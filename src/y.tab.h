@@ -37,65 +37,69 @@
    /* Put the tokens into the symbol table, so that GDB and other debuggers
       know about them.  */
    enum yytokentype {
-     HKL_T_IF = 258,
-     HKL_T_ELSE = 259,
-     HKL_T_FOR = 260,
-     HKL_T_WHILE = 261,
-     HKL_T_END = 262,
-     HKL_T_CLASS = 263,
-     HKL_T_FUNCTION = 264,
-     HKL_T_NIL = 265,
-     HKL_T_NULL = 266,
-     HKL_T_INT = 267,
-     HKL_T_REAL = 268,
-     HKL_T_STRING = 269,
-     HKL_T_SELF = 270,
-     HKL_T_UNIQUE = 271,
-     HKL_T_CONST = 272,
-     HKL_T_PROTOTYPE = 273,
-     HKL_T_PROTECTED = 274,
-     HKL_T_PUTS = 275,
-     HKL_T_GETS = 276,
-     HKL_T_INCLUDE = 277,
-     HKL_T_LPAREN = 278,
-     HKL_T_RPAREN = 279,
-     HKL_T_LBRACE = 280,
-     HKL_T_RBRACE = 281,
-     HKL_T_LBRACKET = 282,
-     HKL_T_RBRACKET = 283,
-     HKL_T_COMMA = 284,
-     HKL_T_DOT = 285
+     HKL_T_NEWLINE = 258,
+     HKL_T_IF = 259,
+     HKL_T_ELSE = 260,
+     HKL_T_FOR = 261,
+     HKL_T_WHILE = 262,
+     HKL_T_END = 263,
+     HKL_T_RETURN = 264,
+     HKL_T_CLASS = 265,
+     HKL_T_FUNCTION = 266,
+     HKL_T_NIL = 267,
+     HKL_T_NULL = 268,
+     HKL_T_INTEGER = 269,
+     HKL_T_REAL = 270,
+     HKL_T_STRING = 271,
+     HKL_T_SELF = 272,
+     HKL_T_UNIQUE = 273,
+     HKL_T_CONST = 274,
+     HKL_T_PROTOTYPE = 275,
+     HKL_T_PROTECTED = 276,
+     HKL_T_PUTS = 277,
+     HKL_T_GETS = 278,
+     HKL_T_INCLUDE = 279,
+     HKL_T_LPAREN = 280,
+     HKL_T_RPAREN = 281,
+     HKL_T_LBRACE = 282,
+     HKL_T_RBRACE = 283,
+     HKL_T_LBRACKET = 284,
+     HKL_T_RBRACKET = 285,
+     HKL_T_COMMA = 286,
+     HKL_T_DOT = 287
    };
 #endif
 /* Tokens.  */
-#define HKL_T_IF 258
-#define HKL_T_ELSE 259
-#define HKL_T_FOR 260
-#define HKL_T_WHILE 261
-#define HKL_T_END 262
-#define HKL_T_CLASS 263
-#define HKL_T_FUNCTION 264
-#define HKL_T_NIL 265
-#define HKL_T_NULL 266
-#define HKL_T_INT 267
-#define HKL_T_REAL 268
-#define HKL_T_STRING 269
-#define HKL_T_SELF 270
-#define HKL_T_UNIQUE 271
-#define HKL_T_CONST 272
-#define HKL_T_PROTOTYPE 273
-#define HKL_T_PROTECTED 274
-#define HKL_T_PUTS 275
-#define HKL_T_GETS 276
-#define HKL_T_INCLUDE 277
-#define HKL_T_LPAREN 278
-#define HKL_T_RPAREN 279
-#define HKL_T_LBRACE 280
-#define HKL_T_RBRACE 281
-#define HKL_T_LBRACKET 282
-#define HKL_T_RBRACKET 283
-#define HKL_T_COMMA 284
-#define HKL_T_DOT 285
+#define HKL_T_NEWLINE 258
+#define HKL_T_IF 259
+#define HKL_T_ELSE 260
+#define HKL_T_FOR 261
+#define HKL_T_WHILE 262
+#define HKL_T_END 263
+#define HKL_T_RETURN 264
+#define HKL_T_CLASS 265
+#define HKL_T_FUNCTION 266
+#define HKL_T_NIL 267
+#define HKL_T_NULL 268
+#define HKL_T_INTEGER 269
+#define HKL_T_REAL 270
+#define HKL_T_STRING 271
+#define HKL_T_SELF 272
+#define HKL_T_UNIQUE 273
+#define HKL_T_CONST 274
+#define HKL_T_PROTOTYPE 275
+#define HKL_T_PROTECTED 276
+#define HKL_T_PUTS 277
+#define HKL_T_GETS 278
+#define HKL_T_INCLUDE 279
+#define HKL_T_LPAREN 280
+#define HKL_T_RPAREN 281
+#define HKL_T_LBRACE 282
+#define HKL_T_RBRACE 283
+#define HKL_T_LBRACKET 284
+#define HKL_T_RBRACKET 285
+#define HKL_T_COMMA 286
+#define HKL_T_DOT 287
 
 
 
@@ -105,7 +109,7 @@ typedef union YYSTYPE
 {
 
 /* Line 2068 of yacc.c  */
-#line 11 "y.tab.y"
+#line 14 "y.tab.y"
 
   int        integer;
   double     real;
@@ -114,7 +118,7 @@ typedef union YYSTYPE
 
 
 /* Line 2068 of yacc.c  */
-#line 118 "y.tab.h"
+#line 122 "y.tab.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
