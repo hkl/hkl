@@ -9,6 +9,7 @@ hklc
 
 # Automake generated files and folders
 Makefile
+src/Makefile
 config.log
 config.status
 *.Po
@@ -18,10 +19,10 @@ config.status
 libtool
 
 # Flex and Bison generated files
-y.tab.h
-y.tab.c
-lex.yy.c
-y.tab.output
+src/y.tab.h
+src/y.tab.c
+src/lex.yy.c
+src/y.tab.output
 
 # Temporaries that some text editors make
 *~
