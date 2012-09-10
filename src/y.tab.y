@@ -48,6 +48,10 @@
 
 %token HKL_T_INCLUDE
 
+%token HKL_T_ASSERT
+
+%token HKL_T_ASSIGN
+
 %token HKL_T_LPAREN
 %token HKL_T_RPAREN
 %token HKL_T_LBRACE
@@ -56,6 +60,40 @@
 %token HKL_T_RBRACKET
 %token HKL_T_COMMA
 %token HKL_T_DOT
+
+%token HKL_T_NOT
+%token HKL_T_OR
+%token HKL_T_AND
+%token HKL_T_LESS_EQUAL
+%token HKL_T_GREATER_EQUAL
+%token HKL_T_LESS
+%token HKL_T_GREATER
+%token HKL_T_EQUAL
+%token HKL_T_NOT_EQUAL
+
+%token HKL_T_PLUS
+%token HKL_T_MINUS
+%token HKL_T_ASTERISK
+%token HKL_T_DIVIDE
+%token HKL_T_MOD
+
+%token HKL_T_PLUS_EQUAL
+%token HKL_T_MINUS_EQUAL
+%token HKL_T_ASTERISK_EQUAL
+%token HKL_T_DIVIDE_EQUAL
+%token HKL_T_MOD_EQUAL
+
+%token HKL_T_BITWISE_NOT
+%token HKL_T_BITWISE_AND
+%token HKL_T_BITWISE_OR
+%token HKL_T_BITWISE_XOR
+
+%token HKL_T_BITWISE_AND_EQUAL
+%token HKL_T_BITWISE_OR_EQUAL
+%token HKL_T_XOR_EQUAL
+
+%token HKL_T_INCREMENT
+%token HKL_T_DECREMENT
 
 // HKL Grammar
 %%
