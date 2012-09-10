@@ -20,6 +20,7 @@ extern int yyerror(const char* msg);
 "while"                return HKL_T_WHILE;
 "end"                  return HKL_T_END;
 "return"               return HKL_T_RETURN;
+"break"                return HKL_T_BREAK;
 
 "class"                return HKL_T_CLASS;
 "function"             return HKL_T_FUNCTION;
@@ -51,10 +52,24 @@ extern int yyerror(const char* msg);
 "prototype"            return HKL_T_PROTOTYPE;
 "protected"            return HKL_T_PROTECTED;
 
+"true"                 return HKL_T_TRUE;
+"false"                return HKL_T_FALSE;
+
+"int"                  return HKL_T_TYPE_INT;
+"real"                 return HKL_T_TYPE_REAL;
+"string"               return HKL_T_TYPE_STRING;
+"array"                return HKL_T_TYPE_ARRAY;
+"hash"                 return HKL_T_TYPE_HASH;
+
 "puts"                 return HKL_T_PUTS;
 "gets"                 return HKL_T_GETS;
 
 "include"              return HKL_T_INCLUDE;
+
+"assert"               return HKL_T_ASSERT;
+
+"typeof"               return HKL_T_TYPE_OF;
+"instanceof"           return HKL_T_INSTANCE_OF;
 
 "("                    return HKL_T_LPAREN;
 ")"                    return HKL_T_RPAREN;
@@ -64,6 +79,39 @@ extern int yyerror(const char* msg);
 "]"                    return HKL_T_RBRACKET;
 ","                    return HKL_T_COMMA;
 "."                    return HKL_T_DOT;
+
+"!"                    return HKL_T_NOT;
+"||"                   return HKL_T_OR;
+"&&"                   return HKL_T_AND;
+"<="                   return HKL_T_LESS_EQUAL;
+">="                   return HKL_T_GREATER_EQUAL;
+"<"                    return HKL_T_LESS;
+">"                    return HKL_T_GREATER;
+"=="                   return HKL_T_EQUAL;
+"!="                   return HKL_T_NOT_EQUAL;
+
+"+"                    return HKL_T_PLUS;
+"-"                    return HKL_T_MINUS;
+"*"                    return HKL_T_ASTERISK;
+"/"                    return HKL_T_DIVIDE;
+"%"                    return HKL_T_MOD;
+"~"                    return HKL_T_BITWISE_NOT;
+"&"                    return HKL_T_BITWISE_AND;
+"|"                    return HKL_T_BITWISE_OR;
+"^"                    return HKL_T_BITWISE_XOR;
+
+"="                    return HKL_T_ASSIGN;
+"+="                   return HKL_T_PLUS_EQUAL;
+"-="                   return HKL_T_MINUS_EQUAL;
+"*="                   return HKL_T_ASTERISK_EQUAL;
+"/="                   return HKL_T_DIVIDE_EQUAL;
+"%="                   return HKL_T_MOD_EQUAL;
+"&="                   return HKL_T_BITWISE_AND_EQUAL;
+"|="                   return HKL_T_BITWISE_OR_EQUAL;
+"^="                   return HKL_T_XOR_EQUAL;
+
+"++"                   return HKL_T_INCREMENT;
+"--"                   return HKL_T_DECREMENT;
 
 .                      yyerror(yytext);
 
