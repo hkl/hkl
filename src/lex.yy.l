@@ -9,10 +9,8 @@ extern int yyerror(const char* msg);
 
 %%
 
-[ \t\r]                /* Ignore Whitespace */
 "//".*[\n]             /* Ignore Comments */
-
-[\n]+                  return HKL_T_NEWLINE;
+[ \t\r\n]              /* Ignore Whitespace */
 
 "if"                   return HKL_T_IF;
 "else"                 return HKL_T_ELSE;
@@ -21,6 +19,7 @@ extern int yyerror(const char* msg);
 "end"                  return HKL_T_END;
 "return"               return HKL_T_RETURN;
 "break"                return HKL_T_BREAK;
+"continue"             return HKL_T_CONTINUE;
 "assert"               return HKL_T_ASSERT;
 "include"              return HKL_T_INCLUDE;
 
@@ -28,22 +27,23 @@ extern int yyerror(const char* msg);
 "function"             return HKL_T_FUNCTION;
 "nil"                  return HKL_T_NIL;
 "null"                 return HKL_T_NULL;
+"int"                  return HKL_T_INT;
+"real"                 return HKL_T_REAL;
+"string"               return HKL_T_STRING;
+"array"                return HKL_T_ARRAY;
+"hash"                 return HKL_T_HASH;
 
 "self"                 return HKL_T_SELF;
 
 "unique"               return HKL_T_UNIQUE;
-"constant"             return HKL_T_CONST;
+"constant"             return HKL_T_CONSTANT;
 "prototype"            return HKL_T_PROTOTYPE;
 "protected"            return HKL_T_PROTECTED;
+"local"                return HKL_T_LOCAL;
+"global"               return HKL_T_GLOBAL;
 
 "true"                 return HKL_T_TRUE;
 "false"                return HKL_T_FALSE;
-
-"int"                  return HKL_T_TYPE_INT;
-"real"                 return HKL_T_TYPE_REAL;
-"string"               return HKL_T_TYPE_STRING;
-"array"                return HKL_T_TYPE_ARRAY;
-"hash"                 return HKL_T_TYPE_HASH;
 
 "puts"                 return HKL_T_PUTS;
 "gets"                 return HKL_T_GETS;
@@ -58,11 +58,8 @@ extern int yyerror(const char* msg);
 ","                    return HKL_T_COMMA;
 "."                    return HKL_T_DOT;
 
-"!"                    return HKL_T_NOT;
-"~"                    return HKL_T_BITWISE_NOT;
 "++"                   return HKL_T_INCREMENT;
 "--"                   return HKL_T_DECREMENT;
-
 "||"                   return HKL_T_OR;
 "&&"                   return HKL_T_AND;
 "<="                   return HKL_T_LESS_EQUAL;
@@ -71,20 +68,6 @@ extern int yyerror(const char* msg);
 ">"                    return HKL_T_GREATER;
 "=="                   return HKL_T_EQUAL;
 "!="                   return HKL_T_NOT_EQUAL;
-
-"+"                    return HKL_T_PLUS;
-"-"                    return HKL_T_MINUS;
-"*"                    return HKL_T_ASTERISK;
-"/"                    return HKL_T_DIVIDE;
-"%"                    return HKL_T_MOD;
-"&"                    return HKL_T_BITWISE_AND;
-"|"                    return HKL_T_BITWISE_OR;
-"^"                    return HKL_T_BITWISE_XOR;
-"typeof"               return HKL_T_TYPE_OF;
-"instanceof"           return HKL_T_INSTANCE_OF;
-".."                   return HKL_T_RANGE;
-
-"="                    return HKL_T_ASSIGN;
 "+="                   return HKL_T_PLUS_ASSIGN;
 "-="                   return HKL_T_MINUS_ASSIGN;
 "*="                   return HKL_T_ASTERISK_ASSIGN;
@@ -93,15 +76,31 @@ extern int yyerror(const char* msg);
 "&="                   return HKL_T_BITWISE_AND_ASSIGN;
 "|="                   return HKL_T_BITWISE_OR_ASSIGN;
 "^="                   return HKL_T_BITWISE_XOR_ASSIGN;
+"~="                   return HKL_T_BITWISE_NOT_ASSIGN;
+
+"="                    return HKL_T_ASSIGN;
+"!"                    return HKL_T_NOT;
+"+"                    return HKL_T_PLUS;
+"-"                    return HKL_T_MINUS;
+"*"                    return HKL_T_ASTERISK;
+"/"                    return HKL_T_DIVIDE;
+"%"                    return HKL_T_MOD;
+"&"                    return HKL_T_BITWISE_AND;
+"|"                    return HKL_T_BITWISE_OR;
+"^"                    return HKL_T_BITWISE_XOR;
+"~"                    return HKL_T_BITWISE_NOT;
+"typeof"               return HKL_T_TYPE_OF;
+"instanceof"           return HKL_T_INSTANCE_OF;
+".."                   return HKL_T_RANGE;
 
 [a-zA-Z_][a-zA-Z_0-9]* {
-  yylval.string = hkl_string_new_from_utf8_chunk(yytext, yytext + yyleng);
+  yylval.string = hkl_string_new_from_utf8(yytext);
   return HKL_T_ID;
 }
 
 [0-9]+ {
   sscanf(yytext, "%i", &yylval.integer);
-  return HKL_T_INTEGER_CONSTANT;
+  return HKL_T_INT_CONSTANT;
 }
 
 ([0-9]+\.[0-9]+)|([0-9]+\.[0-9]*)|([0-9]*\.[0-9]+) {
