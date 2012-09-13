@@ -28,7 +28,7 @@
 %token HKL_T_END;
 %token HKL_T_RETURN;
 %token HKL_T_BREAK;
-%token HKL_T_CONTINUE
+%token HKL_T_CONTINUE;
 %token HKL_T_ASSERT;
 %token HKL_T_INCLUDE;
 
@@ -267,15 +267,22 @@ object_list:
   | object
 
 object:
-  HKL_T_ID indicies_list
+  HKL_T_ID action_list
 
-indicies_list:
-  indicies_list index
+action_list:
+  action_list action
   | empty
+
+action:
+  index
+  | call
 
 index:
   HKL_T_LBRACKET expression HKL_T_RBRACKET
   | HKL_T_LBRACKET expression HKL_T_RANGE HKL_T_RBRACKET
+
+call:
+  HKL_T_LPAREN expression_list HKL_T_RPAREN
 
 hash:
   HKL_T_LBRACE expression_list HKL_T_RBRACKET
