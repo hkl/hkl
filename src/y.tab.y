@@ -9,9 +9,8 @@
   extern int yyerror(char const*);
 %}
 
+// Verbose Errors
 %error-verbose
-// Expect the shift-reduce to occur on function calls
-%expect 1
 
 // YYSUNION Definition
 %union
@@ -189,10 +188,10 @@ class_content_list:
 class_content:
   class_stmt
   | function_stmt
-  | object
+  | no_call_init_assign
 
 function_stmt:
-  qualifier_list HKL_T_FUNCTION variable HKL_T_LPAREN id_list HKL_T_RPAREN stmt_list HKL_T_END
+  qualifier_list HKL_T_FUNCTION nocall_variable HKL_T_LPAREN id_list HKL_T_RPAREN stmt_list HKL_T_END
 
 assign_stmt:
   init_assign
@@ -208,6 +207,9 @@ assign_stmt:
 
 init_assign:
   qualifier_list variable optional_init
+
+no_call_init_assign:
+  qualifier_list nocall_variable optional_init
 
 qualifier_list:
   qualifier qualifier_list
@@ -268,15 +270,29 @@ primary_expression:
 variable:
   object_list
 
+nocall_variable:
+  nocall_object_list
+
 object_list:
   object_list HKL_T_DOT object
   | object
 
+nocall_object_list:
+  nocall_object_list HKL_T_DOT nocall_object
+  | nocall_object
+
 object:
   HKL_T_ID action_list 
 
+nocall_object:
+  HKL_T_ID nocall_action_list
+
 action_list:
   action_list action
+  | empty
+
+nocall_action_list:
+  nocall_action_list index
   | empty
 
 action:
@@ -285,7 +301,7 @@ action:
 
 index:
   HKL_T_LBRACKET expression HKL_T_RBRACKET
-  | HKL_T_LBRACKET expression HKL_T_RANGE HKL_T_RBRACKET
+  | HKL_T_LBRACKET expression HKL_T_RANGE expression HKL_T_RBRACKET
 
 call:
   HKL_T_LPAREN expression_list HKL_T_RPAREN
