@@ -5,12 +5,14 @@
 #include "hklc.h"
 
 extern int yyerror(const char* msg);
+
 %}
 
 %%
 
-"//".*[\n]             /* Ignore Comments */
-[ \t\r\n]              /* Ignore Whitespace */
+"//".*[\n]             yylineno++;/* Ignore Comments */
+[ \t\r]                /* Ignore Whitespace */
+[\n]                   yylineno++;
 
 "if"                   return HKL_T_IF;
 "else"                 return HKL_T_ELSE;
@@ -103,7 +105,7 @@ extern int yyerror(const char* msg);
   return HKL_T_INT_CONSTANT;
 }
 
-([0-9]+\.[0-9]+)|([0-9]+\.[0-9]*)|([0-9]*\.[0-9]+) {
+([0-9]+\.[0-9]+) {
   sscanf(yytext, "%lg", &yylval.real);
   return HKL_T_REAL_CONSTANT;
 }

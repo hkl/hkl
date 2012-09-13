@@ -5,6 +5,7 @@
 // These are linked at compile time
 extern int yylex();
 extern int yyparse();
+extern int yylineno;
 
 int yywrap()
 {
@@ -13,7 +14,7 @@ int yywrap()
 
 int yyerror(const char* msg)
 {
-  printf("Parsing error: %s\n", msg);
+  printf("On line %i: %s\n", yylineno, msg);
   return true;
 }
 
