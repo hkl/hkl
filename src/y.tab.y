@@ -307,7 +307,21 @@ call:
   HKL_T_LPAREN expression_list HKL_T_RPAREN
 
 hash:
-  HKL_T_LBRACE expression_list HKL_T_RBRACKET
+  HKL_T_LBRACE key_val_list HKL_T_RBRACE
+
+key_val_list:
+  key_val key_val_more
+  | empty
+
+key_val_more:
+  HKL_T_COMMA key_val_list
+  | empty
+
+key_val:
+  HKL_T_ID optional_init
+  | HKL_T_STRING_CONSTANT optional_init
+  | HKL_T_INT_CONSTANT optional_init
+  | HKL_T_REAL_CONSTANT optional_init
 
 array:
   HKL_T_LBRACKET expression_list HKL_T_RBRACKET
