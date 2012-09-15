@@ -13,8 +13,9 @@ HklPutsStmt stores the expression component of a puts (std output) statement.
 @date 9/15/2012
 */
 
-typedef struct HklPutsStmt : public HklStmt
+typedef struct HklPutsStmt
 {
+  struct HklStmt super;
   HklExpression* expr;
 } HklPutsStmt;
 

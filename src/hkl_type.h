@@ -1,16 +1,16 @@
 #ifndef HKL_TYPE_H
 #define HKL_TYPE_H
 
-typedef enum HklVariableType
+typedef enum HklType
 {
   INT = 1,
   REAL = 2,
   STRING = 4,
   ARRAY = 8,
   HASH = 16
-} HklVariableType;
+} HklType;
 
-typedef enum HklOperatorType
+typedef enum HklOperator
 {
   HKL_NOT, 
   HKL_OR, 
@@ -34,9 +34,9 @@ typedef enum HklOperatorType
   HKL_INSTANCE_OF,
   HKL_INCREMENT,
   HKL_DECREMENT
-} HklOperatorType;
+} HklOperator;
 
-typedef enum HklAssignType
+typedef enum HklAssignOperator
 {
   HKL_ASSIGN,
   HKL_PLUS_ASSIGN,
@@ -47,6 +47,6 @@ typedef enum HklAssignType
   HKL_BITWISE_AND_ASSIGN,
   HKL_BITWISE_OR_ASSIGN,
   HKL_BITWISE_XOR_ASSIGN
-} HklAssignType;
+} HklAssignOperator;
 
 #endif

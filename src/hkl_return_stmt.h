@@ -12,8 +12,9 @@ HklReturnStmt stores the expression to be evaluated and returned when the statem
 @authors Chris Knadler
 @date 9/15/2012
 */
-typedef struct HklReturnStmt : public HklStmt
+typedef struct HklReturnStmt
 {
+  struct HklStmt super;
   HklExpression* expr;
 } HklReturnStmt;
 

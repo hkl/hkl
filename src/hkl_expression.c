@@ -86,4 +86,3 @@ HklExpression* hkl_expression_new_variable_expr(HklVariable* variable)
 
   return variable_expr;
 }
-

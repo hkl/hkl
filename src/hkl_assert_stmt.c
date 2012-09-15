@@ -13,11 +13,3 @@ HklAssertStmt* hkl_assert_stmt_new(HklExpression *expr)
 
   return assert_stmt;
 }
-
-HklExpression* hkl_assert_stmt_get_expression(HklAssertStmt* assert_stmt)
-{
-  assert(assert_stmt != NULL);
-  assert(assert_stmt->expr != NULL);
-
-  return assert_stmt->expr;
-}

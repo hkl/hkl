@@ -13,8 +13,9 @@ HklAssertStmt stores the expression component of an assert statement.
 @date 9/15/2012
 */
 
-typedef struct HklAssertStmt : public HklStmt
+typedef struct HklAssertStmt
 {
+  struct HklStmt super;
   HklExpression* expr;
 } HklAssertStmt;
 
@@ -25,14 +26,5 @@ Allocate a new HklAssertStmt
 @retval HklAssertStmt* A new HklAssertStmt
 */
 HklAssertStmt* hkl_assert_stmt_new(HklExpression *expr);
-
-/**
-Get the expression of an HklAssertStmt
-
-@param assert_stmt The HklAssertStmt object.
-@retval HklExpression* The expression of the HklAssertStmt.
-@brief Expression getter for HklAssertStmt.
-*/
-HklExpression* hkl_assert_stmt_get_expression(HklAssertStmt* assert_stmt);
 
 #endif

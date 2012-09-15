@@ -3,6 +3,7 @@
 
 #include "hkl_type.h"
 #include "hkl_string.h"
+#include "hkl_variable.h"
 
 typedef enum HklExpressionContent
 {
@@ -18,7 +19,9 @@ typedef enum HklExpressionContent
 @authors Chris Knadler
 @date 9/15/2012
 */
-typedef struct HklExpression
+typedef struct HklExpression HklExpression;
+
+struct HklExpression
 {
   HklExpression* expr_left;
   HklExpression* expr_right;
@@ -26,7 +29,7 @@ typedef struct HklExpression
   HklType type;
   HklOperator op;
   HklExpressionContent content;
-} HklExpression;
+};
 
 /**
 Allocate a new unary HklExpression.
@@ -66,3 +69,5 @@ Allocate a new variable HklExpression.
 @brief Allocates a new variable HklExpression.
 */
 HklExpression* hkl_expression_new_variable_expr(HklVariable* variable);
+
+#endif
