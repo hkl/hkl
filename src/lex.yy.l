@@ -29,11 +29,13 @@ extern int yyerror(const char* msg);
 "function"             return HKL_T_FUNCTION;
 "nil"                  return HKL_T_NIL;
 "null"                 return HKL_T_NULL;
+
 "int"                  return HKL_T_INT;
 "real"                 return HKL_T_REAL;
 "string"               return HKL_T_STRING;
 "array"                return HKL_T_ARRAY;
 "hash"                 return HKL_T_HASH;
+"instance"             return HKL_T_INSTANCE;
 
 "self"                 return HKL_T_SELF;
 
@@ -91,8 +93,8 @@ extern int yyerror(const char* msg);
 "|"                    return HKL_T_BITWISE_OR;
 "^"                    return HKL_T_BITWISE_XOR;
 "~"                    return HKL_T_BITWISE_NOT;
-"typeof"               return HKL_T_TYPE_OF;
-"instanceof"           return HKL_T_INSTANCE_OF;
+"type_of"               return HKL_T_TYPE_OF;
+"instance_of"           return HKL_T_INSTANCE_OF;
 ".."                   return HKL_T_RANGE;
 
 [a-zA-Z_][a-zA-Z_0-9]* {
