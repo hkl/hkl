@@ -44,6 +44,7 @@
 %token HKL_T_STRING                        "string"
 %token HKL_T_ARRAY                         "array"
 %token HKL_T_HASH                          "hash"
+%token HKL_T_INSTANCE                      "instance"
 
 %token HKL_T_SELF                          "self"
 
@@ -102,7 +103,7 @@
 %token HKL_T_BITWISE_XOR                   "^"
 %token HKL_T_BITWISE_NOT                   "~"
 %token HKL_T_TYPE_OF                       "type_of"
-%token HKL_T_INSTANCE_OF                   "instace_of"
+%token HKL_T_INSTANCE_OF                   "instance_of"
 %token HKL_T_RANGE                         ".."
 
 %token <string>  HKL_T_ID                  "identifier"
@@ -246,6 +247,7 @@ expression:
   | expression HKL_T_BITWISE_AND expression
   | expression HKL_T_BITWISE_OR expression
   | expression HKL_T_BITWISE_XOR expression
+  | expression HKL_T_TYPE_OF type
   | HKL_T_NOT expression %prec UNARY_OPS
   | HKL_T_BITWISE_NOT expression %prec UNARY_OPS
   | HKL_T_MINUS expression %prec UNARY_OPS
@@ -261,11 +263,22 @@ primary_expression:
   | HKL_T_FALSE
   | HKL_T_NIL
   | HKL_T_NULL
+  | HKL_T_SELF
   | variable
   | hash
   | array
   | inline_function
   | inline_class
+
+type:
+  HKL_T_INT
+  | HKL_T_REAL
+  | HKL_T_STRING
+  | HKL_T_HASH
+  | HKL_T_ARRAY
+  | HKL_T_FUNCTION
+  | HKL_T_CLASS
+  | HKL_T_INSTANCE
 
 variable:
   object_list
@@ -318,10 +331,14 @@ key_val_more:
   | empty
 
 key_val:
-  HKL_T_ID optional_init
-  | HKL_T_STRING_CONSTANT optional_init
-  | HKL_T_INT_CONSTANT optional_init
-  | HKL_T_REAL_CONSTANT optional_init
+  HKL_T_ID optional_value
+  | HKL_T_STRING_CONSTANT optional_value
+  | HKL_T_INT_CONSTANT optional_value
+  | HKL_T_REAL_CONSTANT optional_value
+
+optional_value:
+  HKL_T_COLON expression
+  | empty
 
 array:
   HKL_T_LBRACKET expression_list HKL_T_RBRACKET
