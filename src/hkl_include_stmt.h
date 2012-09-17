@@ -15,7 +15,6 @@ HklIncludeStmt stores the expression component of an include statement.
 
 typedef struct HklIncludeStmt
 {
-  struct HklStmt super;
   HklExpression* expr; 
 } HklIncludeStmt;
 
@@ -26,3 +25,5 @@ Allocate a new HklIncludeStmt
 @retval HklIncludeStmt* A new HklIncludeStmt
 */
 HklIncludeStmt* hkl_include_stmt_new(HklExpression* expr);
+
+#endif

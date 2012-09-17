@@ -10,7 +10,6 @@ HklAssignStmt* hkl_assign_stmt_new(HklVariable *var, HklExpression *expr, HklAss
 
   assert(var != NULL);
   assert(expr != NULL);
-  assert(op != NULL);
 
   assign_stmt->var = var;
   assign_stmt->expr = expr;

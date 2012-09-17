@@ -14,7 +14,6 @@ HklReturnStmt stores the expression to be evaluated and returned when the statem
 */
 typedef struct HklReturnStmt
 {
-  struct HklStmt super;
   HklExpression* expr;
 } HklReturnStmt;
 
@@ -25,3 +24,5 @@ Allocate a new HklReturnStmt
 @retval HklReturnStmt* A new HklReturnStmt
 */
 HklReturnStmt* hkl_return_stmt_new(HklExpression* expr);
+
+#endif

@@ -15,7 +15,6 @@ HklAssertStmt stores the expression component of an assert statement.
 
 typedef struct HklAssertStmt
 {
-  struct HklStmt super;
   HklExpression* expr;
 } HklAssertStmt;
 

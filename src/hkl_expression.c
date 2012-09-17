@@ -9,7 +9,6 @@ HklExpression* hkl_expression_new_unary_expression(HklExpression* expr, HklOpera
   assert(unary_expression != NULL);
 
   assert(expr != NULL);
-  assert(op != NULL);
 
   // Make sure the operator is for a unary expression
   assert(op != HKL_OR);
@@ -45,18 +44,17 @@ HklExpression* hkl_expression_new_binary_expression(HklExpression* expr_left, Hk
 
   assert(expr_left != NULL);
   assert(expr_right != NULL);
-  assert(op != NULL);
 
   // Make sure the operator is a binary operator
   assert(op != HKL_NOT);
   assert(op != HKL_BITWISE_NOT);
-  assert(op != HKL_INCRMENT);
+  assert(op != HKL_INCREMENT);
   assert(op != HKL_DECREMENT);
 
   binary_expression->expr_left = expr_left;
   binary_expression->expr_right = expr_right;
   binary_expression->op = op;
-  binary_experssion->content = HKL_EXPR_BINARY;
+  binary_expression->content = HKL_EXPR_BINARY;
 
   return binary_expression;
 }

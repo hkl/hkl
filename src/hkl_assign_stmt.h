@@ -17,7 +17,6 @@ HklAssignStatement stores the variable, expression and operator of an assign sta
 
 typedef struct HklAssignStmt
 {
-  struct HklStmt super;
   HklVariable* var;
   HklExpression* expr;
   HklAssignOperator op;
@@ -31,6 +30,6 @@ Allocate a new HklAssignStmt
 @param op The type of assignment operator used in the assignment statment.
 @retval HklAssertStmt* The new HklAssertStmt.
 */
-HklAssignStmt* hkl_assign_stmt_new(HklVariable *var, HklExpression *expr, HklAssignType op);
+HklAssignStmt* hkl_assign_stmt_new(HklVariable *var, HklExpression *expr, HklAssignOperator op);
 
 #endif
