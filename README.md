@@ -6,8 +6,14 @@ hkl
 
 The hkl language
 
-To build:
+To build right now:
+You should only need to do this to update your scripts
+`$ aclocal`
+`$ autoconf`
+`$ automake --add-missing`
+`$ automake`
+
+Then as normal:
 
 `$ ./configure`
-
 `$ make`
