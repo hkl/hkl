@@ -64,7 +64,8 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_hkl_OBJECTS = hkl_string.$(OBJEXT) hkl_test.$(OBJEXT)
+am_hkl_OBJECTS = hkl_string.$(OBJEXT) hkl_test.$(OBJEXT) \
+	hkl_hash.$(OBJEXT)
 hkl_OBJECTS = $(am_hkl_OBJECTS)
 hkl_LDADD = $(LDADD)
 am_hklc_OBJECTS = y.tab.$(OBJEXT) lex.yy.$(OBJEXT) \
@@ -224,12 +225,12 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-AM_CFLAGS = -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-function -std=c99 -D_POSIX_SOURCE -O3 -g
+AM_CFLAGS = -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-function -std=c99 -D_POSIX_SOURCE -O0 -g
 AM_LDFLAGS = 
 AM_YFLAGS = -d -v
 AM_LFLAGS = 
 hklc_SOURCES = y.tab.y lex.yy.l hkl_string.c hklc.c hkl_assert_stmt.c hkl_assign_stmt.c hkl_expression.c hkl_include_stmt.c hkl_puts_stmt.c hkl_return_stmt.c hkl_variable.c
-hkl_SOURCES = hkl_string.c hkl_test.c
+hkl_SOURCES = hkl_string.c hkl_test.c hkl_hash.c
 all: all-am
 
 .SUFFIXES:
@@ -329,6 +330,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hkl_assert_stmt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hkl_assign_stmt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hkl_expression.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hkl_hash.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hkl_include_stmt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hkl_puts_stmt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hkl_return_stmt.Po@am__quote@
