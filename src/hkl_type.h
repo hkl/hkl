@@ -1,0 +1,52 @@
+#ifndef HKL_TYPE_H
+#define HKL_TYPE_H
+
+typedef enum HklType
+{
+  INT = 1,
+  REAL = 2,
+  STRING = 4,
+  ARRAY = 8,
+  HASH = 16
+} HklType;
+
+typedef enum HklOperator
+{
+  HKL_NOT, 
+  HKL_OR, 
+  HKL_AND, 
+  HKL_LESS_EQUAL, 
+  HKL_GREATER_EQUAL,
+  HKL_LESS, 
+  HKL_GREATER, 
+  HKL_EQUAL,
+  HKL_NOT_EQUAL,
+  HKL_PLUS,
+  HKL_MINUS,
+  HKL_ASTERISK,
+  HKL_DIVIDE,
+  HKL_MOD,
+  HKL_BITWISE_NOT,
+  HKL_BITWISE_AND,
+  HKL_BITWISE_OR,
+  HKL_BITWISE_XOR,
+  HKL_TYPE_OF,
+  HKL_INSTANCE_OF,
+  HKL_INCREMENT,
+  HKL_DECREMENT
+} HklOperator;
+
+typedef enum HklAssignOperator
+{
+  HKL_ASSIGN,
+  HKL_PLUS_ASSIGN,
+  HKL_MINUS_ASSIGN,
+  HKL_ASTERISK_ASSIGN,
+  HKL_DIVIDE_ASSIGN,
+  HKL_MOD_ASSIGN,
+  HKL_BITWISE_AND_ASSIGN,
+  HKL_BITWISE_OR_ASSIGN,
+  HKL_BITWISE_XOR_ASSIGN
+} HklAssignOperator;
+
+#endif
