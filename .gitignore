@@ -16,7 +16,19 @@ config.status
 *.cache/
 .deps/
 .libs/
+
+# Autotools needed files, but can be built on each system
+Makefile.in
+src/Makefile.in
 libtool
+config.guess
+config.sub
+install-sh
+missing
+depcomp
+ylwrap
+./configure
+
 
 # Flex and Bison generated files
 src/y.tab.h
