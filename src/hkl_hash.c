@@ -1,13 +1,6 @@
 #include "hkl_hash.h"
 #include "hkl_alloc.h"
 
-/*
-{
-  HklString *key;
-  void *value;
-  bool isRedBlackTree;
-} HklHashElement;
-*/
 static size_t rot(size_t k, size_t r1)
 {
   return (k<<r1) | (k>>(sizeof(size_t)*8 - r1));
@@ -22,14 +15,14 @@ static size_t Murmur3(const char *key, size_t len) {
   size_t h = len + seed, k = 0;
 
   const size_t *dwords = (const size_t *)key;
-  while( len >= sizeof(size_t)) {
+  while(len >= sizeof(size_t)) {
     k = *dwords++;
     mmix3(h,k);
     len -= sizeof(size_t);
   }
 
   const char *tail = (const char *)dwords;
-  switch( len ) {
+  switch(len) {
     case 3: k ^= tail[2] << 16;
     case 2: k ^= tail[1] << 8;
     case 1: k ^= tail[0];
@@ -51,15 +44,9 @@ HklHash* hkl_hash_new()
   return hash;
 }
 
-void hkl_hash_free(HklHash* const hash)
-{
-  free(hash->elements);
-  free(hash);
-}
-
 void hkl_hash_insert(HklHash* hash, HklString *key, void* value)
 {
-  size_t index =  Murmur3( hkl_string_get_utf8(key), hkl_string_get_length(key)) % hash->maxSize;
+  size_t index = Murmur3(hkl_string_get_utf8(key), hkl_string_get_length(key)) % hash->maxSize;
   if(hash->elements[index].isRedBlackTree) 
   {
     // Insert into red black tree
@@ -73,7 +60,7 @@ void hkl_hash_insert(HklHash* hash, HklString *key, void* value)
 
 void* hkl_hash_find(HklHash* hash, HklString *key)
 {
-  size_t index =  Murmur3(hkl_string_get_utf8(key), hkl_string_get_length(key)) % hash->maxSize;
+  size_t index = Murmur3(hkl_string_get_utf8(key), hkl_string_get_length(key)) % hash->maxSize;
   if(hash->elements[index].isRedBlackTree)
   {
     // find in red black tree
@@ -86,3 +73,9 @@ void* hkl_hash_find(HklHash* hash, HklString *key)
 }
 
 void hkl_hash_delete(HklHash* hash, HklString *key);
+
+void hkl_hash_free(HklHash* const hash)
+{
+  free(hash->elements);
+  free(hash);
+}
