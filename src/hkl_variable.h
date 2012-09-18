@@ -6,4 +6,6 @@ typedef struct HklVariable
 
 } HklVariable;
 
+void hkl_variable_free(HklVariable* variable);
+
 #endif

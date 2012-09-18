@@ -14,3 +14,21 @@ HklPutsStmt* hkl_puts_stmt_new(HklExpression* expr)
 
   return puts_stmt;
 }
+
+void hkl_puts_stmt_clear(HklPutsStmt* puts_stmt)
+{
+  assert(puts_stmt != NULL);
+
+  hkl_expression_free(puts_stmt->expr);
+
+  puts_stmt->expr = NULL;
+}
+
+void hkl_puts_stmt_free(HklPutsStmt* puts_stmt)
+{
+  assert(puts_stmt != NULL);
+
+  hkl_puts_stmt_clear(puts_stmt);
+
+  free(puts_stmt);
+}

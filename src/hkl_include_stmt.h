@@ -26,4 +26,18 @@ Allocate a new HklIncludeStmt
 */
 HklIncludeStmt* hkl_include_stmt_new(HklExpression* expr);
 
+/**
+Clear the contents of an HklIncludeStmt
+
+@param include_stmt The HklIncludeStmt to clear.
+*/
+void hkl_include_stmt_clear(HklIncludeStmt* include_stmt);
+
+/**
+Free an HklIncludeStmt and clear its contents
+
+@param include_stmt The HklIncludeStmt to free.
+*/
+void hkl_include_stmt_free(HklIncludeStmt* include_stmt);
+
 #endif

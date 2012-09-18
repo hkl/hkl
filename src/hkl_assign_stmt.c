@@ -17,3 +17,25 @@ HklAssignStmt* hkl_assign_stmt_new(HklVariable *var, HklExpression *expr, HklAss
 
   return assign_stmt;
 }
+
+void hkl_assign_stmt_clear(HklAssignStmt* assign_stmt)
+{
+  assert(assign_stmt != NULL);
+
+  hkl_variable_free(assign_stmt->var);
+  assign_stmt->var = NULL;
+
+  hkl_expression_free(assign_stmt->expr);
+  assign_stmt->expr = NULL;
+
+  assign_stmt->op = 0;
+}
+
+void hkl_assign_stmt_free(HklAssignStmt* assign_stmt)
+{
+  assert(assign_stmt != NULL);
+
+  hkl_assign_stmt_clear(assign_stmt);
+
+  free(assign_stmt);
+}

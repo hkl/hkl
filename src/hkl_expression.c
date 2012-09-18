@@ -84,3 +84,48 @@ HklExpression* hkl_expression_new_variable_expr(HklVariable* variable)
 
   return variable_expr;
 }
+
+void hkl_expression_clear(HklExpression* expr)
+{
+   assert(expr != NULL);
+ 
+   if (expr->content == HKL_EXPR_BINARY)
+   {
+     hkl_expression_free(expr->expr_right);
+     expr->expr_right = NULL;
+
+     hkl_expression_free(expr->expr_left);
+     expr->expr_left = NULL;
+   }
+
+   if (expr->content == HKL_EXPR_UNARY)
+   {
+     hkl_expression_free(expr->expr_left);
+     expr->expr_left = NULL;
+   }
+
+   if (expr->content == HKL_EXPR_VARIABLE)
+   {
+     hkl_variable_free(expr->value);
+     expr->value = NULL;
+   }
+
+   if (expr->content == HKL_EXPR_CONSTANT)
+   {
+     free(expr->value);
+     expr->value = NULL;
+   }
+
+   expr->type = 0;
+   expr->op = 0;
+   expr->content = 0;
+}
+
+void hkl_expression_free(HklExpression* expr)
+{
+  assert(expr != NULL);
+
+  hkl_expression_clear(expr);
+
+  free(expr);
+}

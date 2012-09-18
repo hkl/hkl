@@ -25,4 +25,18 @@ Allocate a new HklReturnStmt
 */
 HklReturnStmt* hkl_return_stmt_new(HklExpression* expr);
 
+/**
+Erease the contents of a HklReturnStmt
+
+@param return_stmt The HklReturnStmt to clear.
+*/
+void hkl_return_stmt_clear(HklReturnStmt* return_stmt);
+
+/**
+Free an HklReturnStmt and release any allocated resources it has.
+
+@param return_stmt The HklReturnStmt to free.
+*/
+void hkl_return_stmt_free(HklReturnStmt* return_stmt);
+
 #endif

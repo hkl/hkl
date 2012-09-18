@@ -32,4 +32,20 @@ Allocate a new HklAssignStmt
 */
 HklAssignStmt* hkl_assign_stmt_new(HklVariable *var, HklExpression *expr, HklAssignOperator op);
 
+/**
+Erase the contents of an HklAssignStmt
+
+@post The HklVariable and HklExpression associated are freed in the process.
+
+@param assign_stmt The HklAssignStmt to clear.
+*/
+void hkl_assign_stmt_clear(HklAssignStmt* assign_stmt);
+
+/**
+Free an HklAssignStmt and relase any allocated resources it has.
+
+@param assign_stmt The HklAssignStmt to free.
+*/
+void hkl_assign_stmt_free(HklAssignStmt* assign_stmt);
+
 #endif

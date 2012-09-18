@@ -7,10 +7,10 @@
 
 typedef enum HklExpressionContent
 {
-  HKL_EXPR_VARIABLE,
-  HKL_EXPR_CONSTANT,
-  HKL_EXPR_BINARY,
-  HKL_EXPR_UNARY
+  HKL_EXPR_VARIABLE = 0,
+  HKL_EXPR_CONSTANT = 1,
+  HKL_EXPR_BINARY = 2,
+  HKL_EXPR_UNARY = 4
 } HklExpressionContent;
 
 /**
@@ -69,5 +69,19 @@ Allocate a new variable HklExpression.
 @brief Allocates a new variable HklExpression.
 */
 HklExpression* hkl_expression_new_variable_expr(HklVariable* variable);
+
+/**
+Erase the contents of a HklExpression
+
+@param expr The HklExpression to clear.
+*/
+void hkl_expression_clear(HklExpression* expr);
+
+/**
+Free an HklExpression and release any allocated resources it has.
+
+@param expr The HklExpression to free.
+*/
+void hkl_expression_free(HklExpression* expr);
 
 #endif

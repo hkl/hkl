@@ -26,4 +26,20 @@ Allocate a new HklAssertStmt
 */
 HklAssertStmt* hkl_assert_stmt_new(HklExpression *expr);
 
+/**
+Erase the contents of a HklAssertStmt
+
+@post The HklExpression associated is freed in the process.
+
+@param assert_stmt The HklAssertStmt to clear.
+*/
+void hkl_assert_stmt_clear(HklAssertStmt* assert_stmt);
+
+/**
+Free an HklAssertStmt and release any allocated resources it has.
+
+@param assert_stmt The HklAssertStmt to free.
+*/
+void hkl_assert_stmt_free(HklAssertStmt* assert_stmt);
+
 #endif
