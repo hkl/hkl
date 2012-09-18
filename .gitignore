@@ -27,8 +27,7 @@ install-sh
 missing
 depcomp
 ylwrap
-./configure
-
+configure
 
 # Flex and Bison generated files
 src/y.tab.h
