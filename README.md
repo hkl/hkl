@@ -15,9 +15,9 @@ You should only need to do this once to update your scripts
 
 `$ automake --add-missing`
 
-`$ automake`
+`$ autoreconf`
 
-`$ libtoolize`
+`$ automake`
 
 Then as normal:
 
