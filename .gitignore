@@ -3,7 +3,7 @@
 
 # Binaries
 hkl
-hklc
+testbed
 *.exe
 *.out
 
