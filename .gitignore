@@ -21,6 +21,7 @@ config.status
 Makefile.in
 src/Makefile.in
 libtool
+aclocal.m4
 config.guess
 config.sub
 install-sh
