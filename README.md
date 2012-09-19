@@ -7,10 +7,16 @@ hkl
 The hkl language
 
 To build right now:
-You should only need to do this to update your scripts
+You should only need to do this once to update your scripts
+
 `$ aclocal`
+
 `$ autoconf`
+
 `$ automake --add-missing`
+
+`$ autoreconf`
+
 `$ automake`
 
 Then as normal:

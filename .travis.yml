@@ -2,4 +2,4 @@ language: c
 compiler: 
   - clang
   - gcc
-script: aclocal && autoconf && automake --add-missing && automake && ./configure && make
+script: aclocal && autoconf && automake --add-missing && autoreconf && automake && ./configure && make
