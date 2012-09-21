@@ -349,3 +349,25 @@ void hkl_tree_free(HklTree* tree)
   hkl_tree_clear(tree);
   hkl_free_object(tree);
 }
+
+static void hkl_treenode_traverse(HklTreeNode* node,
+  void(*fn)(HklPair*, void*), void* data)
+{
+  assert(node != NULL);
+
+  if (node->left != NULL)
+    hkl_treenode_traverse(node->left, fn, data);
+
+  fn(node->pair, data);
+
+  if (node->right != NULL)
+      hkl_treenode_traverse(node->right, fn, data);
+}
+
+void hkl_tree_traverse(HklTree* tree, void(*fn)(HklPair*, void*), void* data)
+{
+  assert(tree != NULL);
+
+  if (tree->root != NULL)
+    hkl_treenode_traverse(tree->root, fn, data);
+}

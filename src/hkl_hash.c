@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdio.h>
 
 #include "hkl_hash.h"
 #include "hkl_alloc.h"
@@ -35,11 +36,11 @@ static size_t Murmur3(const char* key, size_t len) {
   return h;
 }
 
-static void hkl_hash_double(HklHash* hash)
+// This a very costly operation.
+// We aren't actually moving pairs, but simply copying from the old to the new
+static void hkl_hash_move_pairs(HklPair* pair, void* new_hash)
 {
-  assert(hash != NULL);
-
-  // Double tree
+  hkl_hash_insert((HklHash*) new_hash, pair->key, pair->value);
 }
 
 typedef struct HklHashElement
@@ -49,6 +50,45 @@ typedef struct HklHashElement
 
 } HklHashElement;
 
+static void hkl_hash_double(HklHash* hash)
+{
+  assert(hash != NULL);
+
+  // Store the old hash table size
+  size_t old_size = hash->size;
+
+  // Double the hash table size
+  hash->size <<= 1;
+  hash->length = 0;
+
+  // Store the old buckets
+  HklHashElement* old_buckets = hash->buckets;
+
+  // Create a new set of buckets
+  hash->buckets = (HklHashElement*) malloc(sizeof(HklHashElement)*hash->size);
+
+  size_t i;
+  HklHashElement* element = NULL;
+
+  for (i = 0; i < old_size; ++i)
+  {
+    element = &old_buckets[i];
+
+    if (element->is_tree)
+    {
+      hkl_tree_traverse((HklTree*) element->data, hkl_hash_move_pairs, hash);
+      // Since we didnt actually move the pairs... delete the tree
+      hkl_tree_free((HklTree*) element->data);
+    }
+    else if (element->data)
+    {
+      hkl_hash_move_pairs((HklPair*) element->data, hash);
+      // Since we didnt actually move the pair... delete the old one
+      hkl_pair_free((HklPair*) element->data);
+    }
+  }
+}
+
 HklHash* hkl_hash_new()
 {
   HklHash* hash = hkl_alloc_object(HklHash);
@@ -57,7 +97,7 @@ HklHash* hkl_hash_new()
   hash->length = 0;
 
   // Allocate space for each bucket
-  hash->buckets = (HklHashElement*)malloc(sizeof(HklHashElement)*hash->size);
+  hash->buckets = (HklHashElement*) malloc(sizeof(HklHashElement)*hash->size);
 
   // Initialize the buckets
   size_t i;
@@ -119,12 +159,12 @@ void hkl_hash_insert(HklHash* hash, HklString* key, void* value)
     // The number of entries of the table increases
     ++hash->length;
 
-    /*// If the hash table is 75% full
+    // If the hash table is 75% full
     if (hash->length >= 0.75*hash->size)
     {
       // Grow the table
       hkl_hash_double(hash);
-    }*/
+    }
   }
 }
 
@@ -207,4 +247,21 @@ void hkl_hash_clear(HklHash* hash) {
   }
 
   hash->length = 0;
+}
+
+void hkl_hash_traverse(HklHash* hash, void(*fn)(HklPair*, void*), void* data)
+{
+  size_t i;
+  HklHashElement* element = NULL;
+
+  for (i = 0; i < hash->size; ++i)
+  {
+    element = &hash->buckets[i];
+
+    if (element->is_tree)
+      hkl_tree_traverse((HklTree*) element->data, fn, data);
+
+    else if (element->data)
+     fn((HklPair*) element->data, data);
+  }
 }
