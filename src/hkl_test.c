@@ -2,35 +2,33 @@
 #include <string.h>
 
 #include "hkl_string.h"
-#include "hkl_hash.h"
+#include "hkl_tree.h"
+
+typedef void(*testfunction)(const char**);
+
+void hashtest(const char* argv[])
+{
+  printf("Hello World\n");
+}
 
 int main(int argc, const char* argv[])
 {
-  HklHash* hash = hkl_hash_new();
 
-  HklString* key = hkl_string_new_from_utf8("test");
-  HklString* key1 = hkl_string_new_from_utf8("test1");
-  HklString* key2 = hkl_string_new_from_utf8("test2");
+  HklTree* testtree = hkl_tree_new();
 
-  int i = 24;
-  int j = 53;
-  int k = 101;
+  // Registered tests
+  hkl_tree_insert(testtree, hkl_string_new_from_utf8("hashtest"), hashtest);
 
-  hkl_hash_insert(hash, key, &i);
-  hkl_hash_insert(hash, key1, &j);
-  hkl_hash_insert(hash, key2, &k);
 
-  int* value = hkl_hash_search(hash, key)->value;
-  int* value1 = hkl_hash_search(hash, key1)->value;
-  int* value2 = hkl_hash_search(hash, key2)->value;
-  
-  printf("%d\n%d\n%d\n", *value, *value1, *value2);
 
-  hkl_string_free(key);
-  hkl_string_free(key1);
-  hkl_string_free(key2);
 
-  hkl_hash_free(hash);
+
+
+  testfunction test
+    = hkl_tree_search(testtree, hkl_string_new_from_utf8(argv[1]))->value;
+
+  if (test)
+    test(&argv[2]);
   
   return 0;
 }
