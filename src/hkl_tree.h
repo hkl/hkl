@@ -109,4 +109,6 @@ Free a HklString and release any allocated resources it has.
 */
 void hkl_tree_free(HklTree* tree);
 
+void hkl_tree_traverse(HklTree* tree, void(*fn)(HklPair*, void*), void* data);
+
 #endif // HKL_TREE_H
