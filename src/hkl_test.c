@@ -6,15 +6,31 @@
 
 int main(int argc, const char* argv[])
 {
-  HklHash *hash = hkl_hash_new();
-  int someData = 24;
-  HklString* str = hkl_string_new_from_utf8("hello");
-  HklString* str2 = hkl_string_new_from_utf8("hello");
+  HklHash* hash = hkl_hash_new();
 
-  hkl_hash_insert(hash, str,&someData);
+  HklString* key = hkl_string_new_from_utf8("test");
+  HklString* key1 = hkl_string_new_from_utf8("test1");
+  HklString* key2 = hkl_string_new_from_utf8("test2");
+
+  int i = 24;
+  int j = 53;
+  int k = 101;
+
+  hkl_hash_insert(hash, key, &i);
+  hkl_hash_insert(hash, key1, &j);
+  hkl_hash_insert(hash, key2, &k);
+
+  int* value = hkl_hash_search(hash, key)->value;
+  int* value1 = hkl_hash_search(hash, key1)->value;
+  int* value2 = hkl_hash_search(hash, key2)->value;
   
-  int result = *(int*)hkl_hash_find(hash,str2);
+  printf("%d\n%d\n%d\n", *value, *value1, *value2);
+
+  hkl_string_free(key);
+  hkl_string_free(key1);
+  hkl_string_free(key2);
+
+  hkl_hash_free(hash);
   
-  printf("%d\n\n", result);
   return 0;
 }

@@ -166,27 +166,32 @@ void hkl_string_copy(HklString* string, const HklString* src)
   hkl_string_set_utf8(string, src->utf8_data);
 }
 
-bool hkl_string_compare(const HklString* string1, const HklString* string2)
+int hkl_string_compare(const HklString* string1, const HklString* string2)
 {
   assert(string1 != NULL);
   assert(string2 != NULL);
 
-  // If the lengths and sizes aren't the same, then the can't be the same string internally
-  if ((string1->length == string2->length) && (string1->size == string2->size))
-  {
-    return !strncmp(string1->utf8_data, string2->utf8_data, string1->size);
-  }
-  else
-  {
-    return false;
-  }
+  // Since we are doing a strncmp, we need to make sure we pick the larger
+  // of the two strings as the size
+  size_t size = (string1->length > string2->length)?
+    string1->length : string2->length;
+
+  return strncmp(string1->utf8_data, string2->utf8_data, size);
 }
 
-/*bool hkl_string_compare_utf8(HklString* string, const char* utf8_data)
+int hkl_string_compare_utf8(HklString* string, const char* utf8_data)
 {
   assert(string != NULL);
-  
-}*/
+  assert(utf8_data != NULL);
+
+  // Since we are doing a strncmp, we need to make sure we pick the larger
+  // of the two strings as the size
+  size_t ulen = utf8_length(utf8_data);
+  size_t size = (string->length > ulen)?
+    string->length : ulen;
+
+  return strncmp(string->utf8_data, utf8_data, size);
+}
 
 void hkl_string_clear(HklString* string)
 {
@@ -226,5 +231,5 @@ void hkl_string_free(HklString* string)
 
   hkl_string_clear(string);
 
-  free(string);
+  hkl_free_object(string);
 }
