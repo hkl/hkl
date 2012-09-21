@@ -2,7 +2,7 @@
 #define HKL_STRING_H
 
 #include <stdint.h>
-#include <stddef.h> // For size_t
+#include <stddef.h>
 #include <stdbool.h>
 
 /**
@@ -97,18 +97,18 @@ Compares two HklStrings.
 
 @param string1 A HklString object.
 @param string2 A second HklString object to compare with.
-@retval bool True if the strings are equal, false otherwise.
+@retval int -1 If string1<string2 0 If string1==string2 1 If string1>string2
 */
-bool hkl_string_compare(const HklString* string1, const HklString* string2);
+int hkl_string_compare(const HklString* string1, const HklString* string2);
 
 /**
 Compares a HklString with utf8 data.
 
 @param string A HklString object.
 @param utf8_data A null-terminated utf8 string to compare.
-@retval bool True if the strings are equal, false otherwise.
+@retval int -1 If string<utf8 0 If string==utf8 1 If string>utf8
 */
-//bool hkl_string_compare_utf8(HklString* string, const char* utf8_data);
+int hkl_string_compare_utf8(HklString* string, const char* utf8_data);
 
 /**
 Erase the contents of a HklString
