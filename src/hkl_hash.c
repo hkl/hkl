@@ -23,7 +23,7 @@ static size_t Murmur3(const char* key, size_t len) {
   }
 
   const char* tail = (const char*) dwords;
-  switch( len ) {
+  switch(len) {
     case 3: k ^= tail[2] << 16;
     case 2: k ^= tail[1] << 8;
     case 1: k ^= tail[0];
@@ -33,6 +33,7 @@ static size_t Murmur3(const char* key, size_t len) {
   h ^= h >> r2;
   h *= m3;
   h ^= h >> r3;
+
   return h;
 }
 
@@ -123,8 +124,12 @@ void hkl_hash_insert(HklHash* hash, HklString* key, void* value)
   assert(hash != NULL);
   assert(key != NULL);
 
-  size_t index = Murmur3(hkl_string_get_utf8(key), hkl_string_get_length(key))
-                 % hash->size;
+  // The string doesnt already have a hash
+  // give it one
+  if (key->hash == 0)
+    key->hash = Murmur3(hkl_string_get_utf8(key), hkl_string_get_length(key));
+
+  size_t index = key->hash % hash->size;
 
   HklHashElement* element = &hash->buckets[index];
   assert(element != NULL);
@@ -173,8 +178,12 @@ HklPair* hkl_hash_search(const HklHash* hash, HklString *key)
   assert(hash != NULL);
   assert(key != NULL);
 
-  size_t index = Murmur3(hkl_string_get_utf8(key), hkl_string_get_length(key))
-                 % hash->size;
+  // The string doesnt already have a hash
+  // give it one
+  if (key->hash == 0)
+    key->hash = Murmur3(hkl_string_get_utf8(key), hkl_string_get_length(key));
+
+  size_t index = key->hash % hash->size;
 
   HklHashElement* element = &hash->buckets[index];
   assert(element != NULL);
@@ -203,8 +212,12 @@ void hkl_hash_remove(HklHash* hash, HklString *key)
   assert(hash != NULL);
   assert(key != NULL);
 
-  size_t index = Murmur3(hkl_string_get_utf8(key), hkl_string_get_length(key))
-                 % hash->size;
+  // The string doesnt already have a hash
+  // give it one
+  if (key->hash == 0)
+    key->hash = Murmur3(hkl_string_get_utf8(key), hkl_string_get_length(key));
+
+  size_t index = key->hash % hash->size;
 
   HklHashElement* element = &hash->buckets[index];
   assert(element != NULL);
