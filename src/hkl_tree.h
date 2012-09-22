@@ -111,4 +111,16 @@ void hkl_tree_free(HklTree* tree);
 
 void hkl_tree_traverse(HklTree* tree, void(*fn)(HklPair*, void*), void* data);
 
+/**
+Move a pair into a HklTree.
+
+@param tree The HklTree.
+@param pair The pair to move into the tree.
+
+@brief WARNING: Moved pairs should only be owned by one tree
+       the recieving tree gets owership of the pair and will free
+       it automatically.
+*/
+void hkl_tree_move_pair(HklTree* tree, HklPair* pair);
+
 #endif // HKL_TREE_H

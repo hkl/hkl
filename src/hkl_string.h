@@ -16,9 +16,10 @@ HklString acts as a wrapper for utf-8 data.
 */
 typedef struct HklString
 {
-  char* utf8_data; /* Private */
-  size_t size;        /* Private */
-  size_t length;     /* Private */
+  char* utf8_data;
+  size_t size;
+  size_t length;
+  size_t hash;
 
 } HklString;
 
