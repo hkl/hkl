@@ -75,4 +75,16 @@ Free a HklHash and release any allocated resources it has.
 */
 void hkl_hash_free(HklHash* hash);
 
+/**
+Move a pair into a HklHash.
+
+@param hash The hash table.
+@param pair The pair to move into the table.
+
+@brief WARNING: Moved pairs should only be owned by one hash table
+       the recieving hash table gets owership of the pair and will free
+       it automatically.
+*/
+void hkl_hash_move_pair(HklHash* hash, HklPair* pair);
+
 #endif // HKL_STRING_H

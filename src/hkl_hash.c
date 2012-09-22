@@ -37,19 +37,17 @@ static size_t Murmur3(const char* key, size_t len) {
   return h;
 }
 
-// This a very costly operation.
-// We aren't actually moving pairs, but simply copying from the old to the new
-static void hkl_hash_move_pairs(HklPair* pair, void* new_hash)
-{
-  hkl_hash_insert((HklHash*) new_hash, pair->key, pair->value);
-}
-
 typedef struct HklHashElement
 {
   bool is_tree;
   void* data;
 
 } HklHashElement;
+
+static void hkl_hash_move(HklPair* pair, void* new_hash)
+{
+  hkl_hash_move_pair((HklHash*) new_hash, pair);
+}
 
 static void hkl_hash_double(HklHash* hash)
 {
@@ -60,6 +58,7 @@ static void hkl_hash_double(HklHash* hash)
 
   // Double the hash table size
   hash->size <<= 1;
+
   hash->length = 0;
 
   // Store the old buckets
@@ -68,7 +67,14 @@ static void hkl_hash_double(HklHash* hash)
   // Create a new set of buckets
   hash->buckets = (HklHashElement*) malloc(sizeof(HklHashElement)*hash->size);
 
+  // Initialize the buckets
   size_t i;
+  for (i = 0; i < hash->size; ++i)
+  {
+    hash->buckets[i].is_tree = false;
+    hash->buckets[i].data = NULL;
+  }
+
   HklHashElement* element = NULL;
 
   for (i = 0; i < old_size; ++i)
@@ -77,24 +83,23 @@ static void hkl_hash_double(HklHash* hash)
 
     if (element->is_tree)
     {
-      hkl_tree_traverse((HklTree*) element->data, hkl_hash_move_pairs, hash);
-      // Since we didnt actually move the pairs... delete the tree
-      hkl_tree_free((HklTree*) element->data);
+      hkl_tree_traverse((HklTree*) element->data, hkl_hash_move, hash);
     }
     else if (element->data)
     {
-      hkl_hash_move_pairs((HklPair*) element->data, hash);
-      // Since we didnt actually move the pair... delete the old one
-      hkl_pair_free((HklPair*) element->data);
+      hkl_hash_move((HklPair*) element->data, hash);
     }
   }
+
+  // free the old buckets
+  free(old_buckets);
 }
 
 HklHash* hkl_hash_new()
 {
   HklHash* hash = hkl_alloc_object(HklHash);
 
-  hash->size = 16;
+  hash->size = 1;
   hash->length = 0;
 
   // Allocate space for each bucket
@@ -146,10 +151,11 @@ void hkl_hash_insert(HklHash* hash, HklString* key, void* value)
       HklPair* pair = element->data;
 
       element->data = hkl_tree_new();
-      hkl_tree_insert((HklTree*) element->data, pair->key, pair->value);
+      //hkl_tree_insert((HklTree*) element->data, pair->key, pair->value);
+      hkl_tree_move_pair((HklTree*) element->data, pair);
 
       // Free the uneeded pair
-      hkl_pair_free(pair);
+      //hkl_pair_free(pair);
       hkl_tree_insert((HklTree*) element->data, key, value);
 
       // Mark the element as a tree
@@ -276,5 +282,60 @@ void hkl_hash_traverse(HklHash* hash, void(*fn)(HklPair*, void*), void* data)
 
     else if (element->data)
      fn((HklPair*) element->data, data);
+  }
+}
+
+void hkl_hash_move_pair(HklHash* hash, HklPair* pair)
+{
+  assert(hash != NULL);
+  assert(pair != NULL);
+
+  // The pair had better have a hash
+  // If we are moving, then the old pair's key must
+  // have a hash in it
+  assert(pair->key->hash != 0);
+
+  size_t index = pair->key->hash % hash->size;
+
+  HklHashElement* element = &hash->buckets[index];
+  assert(element != NULL);
+
+  if (element->data != NULL)
+  {
+    if (element->is_tree)
+    {
+      hkl_tree_move_pair((HklTree*) element->data, pair);
+    }
+    else
+    {
+      // First Collision
+      // Since we are moving both pairs into the tree,
+      // (the old pair and new one coming in) we need a handle to
+      // the old pair.
+      HklPair* oldpair = element->data;
+
+      element->data = hkl_tree_new();
+      hkl_tree_move_pair((HklTree*) element->data, pair);
+
+      hkl_tree_move_pair((HklTree*) element->data, oldpair);
+
+      // Mark the element as a tree
+      element->is_tree = true;
+    }
+  }
+  else
+  {
+    // Nothing exists here. Assign it the pair
+    element->data = pair;
+
+    // The number of entries of the table increases
+    ++hash->length;
+
+    // If the hash table is 75% full
+    if (hash->length >= 0.75*hash->size)
+    {
+      // Grow the table
+      hkl_hash_double(hash);
+    }
   }
 }
