@@ -51,6 +51,7 @@ HklString* hkl_string_new()
 
   string->utf8_data = NULL;
   string->size = 0;
+  string->hash = 0;
 
   return string;
 }
@@ -64,7 +65,6 @@ HklString* hkl_string_new_from_string(const HklString* string)
 
   return copy;
 }
-
 
 HklString* hkl_string_new_from_utf8(const char* utf8_data)
 {
@@ -122,6 +122,9 @@ void hkl_string_set_utf8(HklString* string, const char* utf8_data)
 
   // The string must be NULL terminated by now
   assert(string->utf8_data[size] == '\0');
+
+  // The hash is invalid
+  string->hash = 0;
 }
 
 void hkl_string_cat(HklString* string, const HklString* src)
@@ -132,6 +135,9 @@ void hkl_string_cat(HklString* string, const HklString* src)
   // For now this works
   // Later this can be sped up by not relying on this function.
   hkl_string_cat_utf8(string, src->utf8_data);
+
+  // The hash is invalid
+  string->hash = 0;
 }
 
 void hkl_string_cat_utf8(HklString* string, const char* utf8_data)
@@ -156,6 +162,9 @@ void hkl_string_cat_utf8(HklString* string, const char* utf8_data)
 
   // The string must be NULL terminated by now
   assert(string->utf8_data[string->size] == '\0');
+
+  // The hash is invalid
+  string->hash = 0;
 }
 
 void hkl_string_copy(HklString* string, const HklString* src)
@@ -164,6 +173,10 @@ void hkl_string_copy(HklString* string, const HklString* src)
   assert(src != NULL);
 
   hkl_string_set_utf8(string, src->utf8_data);
+
+  // Copy the hash from the src string
+  // >_<'
+  string->hash = src->hash;
 }
 
 int hkl_string_compare(const HklString* string1, const HklString* string2)
@@ -202,6 +215,9 @@ void hkl_string_clear(HklString* string)
   string->utf8_data = NULL;
   string->size = 0;
   string->length = 0;
+
+  // The hash is invalid
+  string->hash = 0;
 }
 
 const char* hkl_string_get_utf8(HklString* string)
@@ -230,6 +246,5 @@ void hkl_string_free(HklString* string)
   assert(string != NULL);
 
   hkl_string_clear(string);
-
   hkl_free_object(string);
 }
