@@ -66,7 +66,6 @@ HklString* hkl_string_new_from_string(const HklString* string)
   return copy;
 }
 
-
 HklString* hkl_string_new_from_utf8(const char* utf8_data)
 {
   assert(utf8_data != NULL);
@@ -174,6 +173,10 @@ void hkl_string_copy(HklString* string, const HklString* src)
   assert(src != NULL);
 
   hkl_string_set_utf8(string, src->utf8_data);
+
+  // Copy the hash from the src string
+  // >_<'
+  string->hash = src->hash;
 }
 
 int hkl_string_compare(const HklString* string1, const HklString* string2)

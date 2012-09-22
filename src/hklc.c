@@ -14,7 +14,7 @@ int yywrap()
 
 int yyerror(const char* msg)
 {
-  printf("On line %i: %s\n", yylineno, msg);
+  fprintf(stderr, "On line %i: %s\n", yylineno, msg);
   return true;
 }
 

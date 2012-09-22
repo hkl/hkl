@@ -371,3 +371,58 @@ void hkl_tree_traverse(HklTree* tree, void(*fn)(HklPair*, void*), void* data)
   if (tree->root != NULL)
     hkl_treenode_traverse(tree->root, fn, data);
 }
+
+// This is the form for moved pairs
+// This does not make a copy of a pair
+static HklTreeNode* hkl_treenode_new_from_pair(HklPair* pair)
+{
+  assert(pair != NULL);
+
+  HklTreeNode* node = hkl_alloc_object(HklTreeNode);
+
+  node->pair = pair;
+
+  node->left = node->right = NULL;
+
+  node->isred = true;
+
+  return node;
+}
+
+static HklTreeNode* hkl_treenode_move_pair(HklTreeNode* node, HklPair* pair)
+{
+  assert(pair != NULL);
+
+  if (node == NULL)
+    return hkl_treenode_new_from_pair(pair);
+
+  if (hkl_treenode_isred(node->left) && hkl_treenode_isred(node->right))
+    hkl_treenode_colorflip(node);
+
+  int cmp = hkl_string_compare(node->pair->key, pair->key);
+  if (cmp == 0)
+  { 
+    // This shouldnt happen since we only move into empty trees    
+    assert(false);
+    node->pair = pair;
+  }
+  else if (cmp < 0) node->left = hkl_treenode_move_pair(node->left, pair);
+  else              node->right = hkl_treenode_move_pair(node->right, pair);
+
+  if (hkl_treenode_isred(node->right) && !hkl_treenode_isred(node->left))
+    node = hkl_treenode_rotleft(node);
+
+  if (hkl_treenode_isred(node->left) && hkl_treenode_isred(node->left->left))
+    node = hkl_treenode_rotright(node);
+
+  return node;
+}
+
+void hkl_tree_move_pair(HklTree* tree, HklPair* pair)
+{
+  assert(tree != NULL);
+  assert(pair != NULL);
+
+  tree->root = hkl_treenode_move_pair(tree->root, pair);
+  tree->root->isred = false; 
+}
