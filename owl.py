@@ -21,61 +21,86 @@ resultsPath = join(getcwd(), "owl", "results")
 currentResults = join(resultsPath, datetime.datetime.now().strftime("%m-%d-%y(%Hh%Mm%Ss)"))
 ##################################################
 
-def Execute(ResultMethod):
-  passed = 0
-  failed = 0
-  
-  for dirpath, dirnames, filenames in walk(join(testPath)):
+
+###############################################################################################
+# This is where the tests are actually run.
+# The caller needs to provide a function that will take the following
+# * A Test OBJ as defined by the JSON files
+# * An output tuple [0] = stdout, [1] = stderr
+# * An output file that will contain the json for the expected output
+###############################################################################################
+def Execute(ResultMethod, testsToRun):
+  for filename, testInfo in testsToRun:
+    result = join(expectedPath, sub(r"(.*\.)test", r"\1result", filename))#create result file name from test file name
+
+    #since subprocess wants one list, we prepend the process to the list of args
+    runData = list(testInfo['args'])
+    runData.insert(0, testInfo['binary'])
+
+    try:
+      testProcess = subprocess.Popen(runData, stdout =subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    except Exception as err:
+      yield({'StderrMatch': False, 'StdoutMatch': False}, testInfo)
+      continue
+
+    outTuple = testProcess.communicate(bytes(testInfo['input'], "UTF-8"))#need bytes here because of diff between strings in python 3.x and 2.7
+
+    yield (ResultMethod(testInfo, outTuple, result), testInfo)
+###############################################################################################
+
+
+###############################################################################################
+# Takes a list of test files and reads the json
+# objects from it and returns the test file and the json
+# from that file
+###############################################################################################
+def ParseTests(filenames):
+  tests = []
+  for filename in filenames:
+    test = open(join(testPath, filename))#open the test file (should be there or we wouldn't be here from walk)
+    testContent = test.read()
+    testInfo = loads(testContent)
+    test.close()
+    tests.append((filename, testInfo))
+  return tests
+###############################################################################################
+
+
+###############################################################################################
+# This function will find all the test files in the owl test directory.
+# It creates the list and return it, the default if this program is run as main
+###############################################################################################
+def GetAllFiles():
+  files = []
+  for dirpath, dirnames, filenames in walk(testPath):
     for filename in filenames:
+      if match(r".*\.test", filename):#skip non test files
+        files.append(filename)
+  return files
+###############################################################################################
 
-      if not match(r".*\.test", filename):#skip non test files
-        continue
 
-      test = open(join(testPath, filename))#open the test file (should be there or we wouldn't be here from walk)
-      result = join(expectedPath, sub(r"(.*\.)test", r"\1result", filename))#create result file name from test file name
-      testContent = test.read()
-      testInfo = loads(testContent)
-      test.close()
-      testInfo["args"].insert(0, testInfo['binary'])#since subprocess wants one list, we prepend the process to the list of args
-
-      try:
-        testProcess = subprocess.Popen(testInfo['args'], stdout =subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-      except Exception as err:
-        print("[X]" + testInfo['test'] + " failed due to bad binary provided error:" + str(err))
-        failed += 1
-        continue
-
-      outTuple = testProcess.communicate(bytes(testInfo['input'], "UTF-8"))#need bytes here because of diff between strings in python 3.x and 2.7
-
-      if ResultMethod(testInfo, outTuple, result) == True:
-        passed += 1
-      else:
-        failed += 1
-
-  print("passed:" + str(passed))
-  print("failed:" + str(failed))
-
+###############################################################################################
 # Will take the xpected output and determine if they match
 # This is the default function of the program
+###############################################################################################
 def DisplayResult(testObj, outTuple, outFile):
   try:#attempt to open a result file
     outFile_Read = open(outFile, 'r')
   except Exception as err: #some error happens while attempting to get a result, inform user
-    print(testObj['test'] + " failed due to error:" + str(err))
-    return True#NothingToDoHere.jpg
+    return {"StdoutMatch": False, "StderrMatch": False}
   
-  passed = True #lets assume we passed the test
+  stdoutMatch = True
+  stderrMatch = True
 
+  #initialize some values
+  diffObj = Differ()#apparently we can use a single differ object
   outFile_Obj = loads(outFile_Read.read())#parse output file
   outFile_Read.close()
-
   realStdOut = outTuple[0].decode("UTF-8").splitlines(1)#outTuple has old strings, we need to decode
   expectedStdOut = outFile_Obj['stdout'].splitlines(1)#the JSON parser returns 3.x strs, no decode
   realStdErr = outTuple[1].decode("UTF-8").splitlines(1)#outTuple has old strings, we need to decode
   expectedStdErr = outFile_Obj['stderr'].splitlines(1)#the JSON parser returns 3.x strs, no decode
-
-  diffObj = Differ()#apparently we can use a single differ object
-
   stdOutDiffs = diffObj.compare(realStdOut, expectedStdOut)
   stdErrDiffs = diffObj.compare(realStdErr, expectedStdErr)
 
@@ -83,8 +108,8 @@ def DisplayResult(testObj, outTuple, outFile):
   stdOutResults = DetectDiffs(stdOutDiffs)
   stdErrResults = DetectDiffs(stdErrDiffs)
 
-  if len(stdOutResults) > 0 or len(stdErrResults) > 0:
-    currentResultDir = join(currentResults, testObj['test'])
+  if len(stdOutResults) > 0 or len(stdErrResults) > 0:#if we have some type of failed test
+    currentResultDir = join(currentResults, testObj['name'])
     SafeMakeDir(currentResultDir)
 
     stdOutRaw = open(join(currentResultDir, "stdout.txt"), 'w')
@@ -97,16 +122,14 @@ def DisplayResult(testObj, outTuple, outFile):
 
     diffsOut = open(join(currentResultDir, "diff.txt"), 'w')
 
-    displayString = "[X]" + testObj["test"] + " failed:"
-    if len(stdOutResults) > 0:
-      displayString += " bad stdout "
+    if len(stdOutResults) > 0:#output the diff for stdout to the file stdoutMatch = False
       diffsOut.write("STDOUT RESULTS\n")
       diffsOut.write("------------------------------------\n")
       for line in stdOutResults:
         diffsOut.write(line)
 
-    if len(stdErrResults) > 0:
-      displayString += "bad stderr"
+    if len(stdErrResults) > 0:#output the diff for the stderr to the file
+      stderrMatch = False
       diffsOut.write("STDERR RESULTS\n")
       diffsOut.write("------------------------------------\n")
       for line in stdErrResults:
@@ -114,16 +137,16 @@ def DisplayResult(testObj, outTuple, outFile):
 
     diffsOut.close()
     passed = False
-  else:
-    displayString = "[O]" + testObj['test'] + " passed"
-
   
-  print(displayString)
-  return passed
+  return {"StdoutMatch": stdoutMatch, "StderrMatch": stderrMatch}
+###############################################################################################
 
+
+###############################################################################################
 #Differ has shitty output, instead of using it, we can clean it up
 #This function will provide context for each diff
 #This includes the output line number
+###############################################################################################
 def DetectDiffs(diffs):
   lineno = 1
   diffstrings = []                              
@@ -142,13 +165,24 @@ def DetectDiffs(diffs):
     if l[0] == ' ' or l[0] == '+':#if lines matched or we just printed the expected line, inc lin no
       lineno += 1 
   return diffstrings
+###############################################################################################
 
+
+###############################################################################################
+# This is an alternative functiont o be run by execute, it generates output files
+# instead of diffing them
+###############################################################################################
 def GenerateResultFiles(testObj, outTuple, outFile):
   outFile_Write = open(outFile, 'w')
   #we need to decode because the subprocess tuple of outTuple is binary encoded
-  outFile_Write.write(dumps({"stdout": outTuple[0].decode("UTF-8"), "stderr":outTuple[1].decode("UTF-8")}, sort_keys=False, indent=4))
+  outFile_Write.write(dumps({"stdout": outTuple[0].decode("UTF-8"), "stderr":outTuple[1].decode("UTF-8")}, indent=4))
   return True
+###############################################################################################
 
+###############################################################################################
+# This function ensures that we have some legal directories for
+# The entire framework to work correctly
+###############################################################################################
 def SafeMakeDir(path):
   try:
     makedirs(path)
@@ -157,15 +191,34 @@ def SafeMakeDir(path):
       pass#we are ok, the file exists, keep calm and carry on
     else:
       raise#lets have someone handle this issue if needed?
+###############################################################################################
 
-if __name__=="__main__":
+
+###############################################################################################
+# This function will ensure that the owl environment is set up at the minimum. 
+# It creates the base directories that are needed by Owl
+###############################################################################################
+def Init():
   #lets try to create our files (should be there but if not just create them, only one fs call)
   SafeMakeDir(testPath)
   SafeMakeDir(expectedPath)
   SafeMakeDir(resultsPath)
   SafeMakeDir(currentResults)
+###############################################################################################
+  
 
+if __name__=="__main__":
+  Init()
   parser = argparse.ArgumentParser(description="A utility for testing executables")
   parser.add_argument("--generate", dest="method", default=DisplayResult, help="Triggers generation of new result files", action='store_const', const=GenerateResultFiles)
   args = parser.parse_args()
-  Execute(args.method)
+  for result in Execute(args.method, ParseTests(GetAllFiles())):
+    if result[0]['StdoutMatch'] and result[0]['StderrMatch']:  
+      print("[O]" + result[1]['name'] + " passed")
+    else:
+      errorStr = " "
+      if not result[0]['StdoutMatch']:
+        errorStr += "stdout error "
+      if not result[0]['StderrMatch']:
+        errorStr += "stderr error"
+      print("[X]" + result[1]['name'] + errorStr)
