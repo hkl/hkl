@@ -17,6 +17,9 @@ int main(int argc, const char* argv[])
   extern HklTestFunction hashtest;
   hkl_tree_insert(testtree, hkl_string_new_from_utf8("hash"), &hashtest);
 
+  extern HklTestFunction gctest;
+  hkl_tree_insert(testtree, hkl_string_new_from_utf8("gc"), &gctest);
+
   if (argv[1] == NULL)
   {
     fprintf(stderr, "No test given. Exiting.\n");
