@@ -39,3 +39,5 @@ src/y.tab.output
 # Temporaries that some text editors make
 *~
 
+# Python Temps
+__pycache__/

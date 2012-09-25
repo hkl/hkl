@@ -87,4 +87,6 @@ Move a pair into a HklHash.
 */
 void hkl_hash_move_pair(HklHash* hash, HklPair* pair);
 
+void hkl_hash_traverse(HklHash* hash, void(*fn)(HklPair*, void*), void* data);
+
 #endif // HKL_STRING_H
