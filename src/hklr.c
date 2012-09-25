@@ -128,7 +128,8 @@ static void hklr_gc_markgray(HklObject* object)
     // If the object is a hash table
     if (object->flags & HKL_FLAG_HASH)
     {
-      // Traverse the hash scanning every child
+      printf("Traversing hash of size: %zu\n", object->hash->length);
+      // Traverse the hash marking every child
       hkl_hash_traverse(object->hash, hklr_gc_markgray_hash, NULL);
     }
     // If the object is a reference

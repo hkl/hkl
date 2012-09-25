@@ -18,12 +18,12 @@ typedef enum HklColor
 
 typedef enum HklFlags
 {
-  HKL_FLAG_NONE,
-  HKL_FLAG_INT,
-  HKL_FLAG_REAL,
-  HKL_FLAG_STRING,
-  HKL_FLAG_HASH,
-  HKL_FLAG_REF
+  HKL_FLAG_NONE     = 0x000000,
+  HKL_FLAG_INT      = 0x000001,
+  HKL_FLAG_REAL     = 0x000002,
+  HKL_FLAG_STRING   = 0x000004,
+  HKL_FLAG_HASH     = 0x000008,
+  HKL_FLAG_REF      = 0x000010
 
 } HklFlags;
 
