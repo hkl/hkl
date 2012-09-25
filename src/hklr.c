@@ -14,6 +14,7 @@ void hklr_init()
 
   HKLR.gc_runs = 0;
   HKLR.gc_freed = 0;
+  HKLR.gc_rootsize = 0;
 }
 
 void hklr_shutdown()
@@ -43,6 +44,8 @@ static void hklr_gc_possible_root(HklObject* object)
       HKLR.gc_tail->prev = object;
       object->prev->next = object;
       object->next = HKLR.gc_tail;
+
+      HKLR.gc_rootsize++;
     }
   }
 }
@@ -59,6 +62,11 @@ static void hklr_gc_release(HklObject* object)
   {
     // Traverse the hash decrementing every child
     hkl_hash_traverse(object->hash, hklr_gc_dec_hash, NULL);
+  }
+  // If the object is a reference
+  else if (object->flags & HKL_FLAG_REF)
+  {
+    hklr_gc_dec(object->ref);
   }
 
   object->color = HKL_COLOR_BLACK;
@@ -116,7 +124,9 @@ static void hklr_gc_scanblack(HklObject* object)
 static void hklr_gc_markgray(HklObject* object);
 static void hklr_gc_markgray_hash(HklPair* pair, void* data)
 {
-  hklr_gc_markgray((HklObject*) pair->value);
+  HklObject* object = pair->value;
+  object->rc--;
+  hklr_gc_markgray(object);
 }
 
 static void hklr_gc_markgray(HklObject* object)
@@ -128,13 +138,14 @@ static void hklr_gc_markgray(HklObject* object)
     // If the object is a hash table
     if (object->flags & HKL_FLAG_HASH)
     {
-      printf("Traversing hash of size: %zu\n", object->hash->length);
       // Traverse the hash marking every child
       hkl_hash_traverse(object->hash, hklr_gc_markgray_hash, NULL);
     }
     // If the object is a reference
     else if (object->flags & HKL_FLAG_REF)
     {
+
+      object->ref->rc--;
       hklr_gc_markgray(object->ref);
     }
   }
@@ -157,6 +168,8 @@ static void hklr_gc_markroots()
       // Remove node from possible roots
       s->prev->next = s->next;
       s->next->prev = s->prev;
+
+      HKLR.gc_rootsize--;
 
       if (s->color == HKL_COLOR_BLACK && s->rc == 0)
       {
@@ -249,6 +262,8 @@ static void hklr_gc_collectroots()
     // Remove node from possible roots
     s->prev->next = s->next;
     s->next->prev = s->prev;
+
+    HKLR.gc_rootsize--;
 
     s->is_buffered = false;
     hklr_gc_collectwhite(s);

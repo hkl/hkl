@@ -8,7 +8,9 @@ typedef struct HklRuntime
   HklObject* gc_roots;
   HklObject* gc_tail;
   size_t gc_runs;
+  size_t gc_created;
   size_t gc_freed;
+  size_t gc_rootsize;
 
 } HklRuntime;
 
