@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "../hkl_hash.c"
+#include "../hkl_hash.h"
 
 void hashtest(const char* argv[])
 {

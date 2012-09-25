@@ -20,7 +20,10 @@ int yyerror(const char* msg)
 
 int main(int argc, const char* argv[])
 {
+  hklr_init();
   yyparse();
+
+  hklr_shutdown();
   
   return 0;
 }
