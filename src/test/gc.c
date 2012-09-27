@@ -13,7 +13,7 @@ void gctest(const char* argv[])
   HKLR.gc_created++;
   hklr_gc_inc(object);
 
-  object->flags |= HKL_FLAG_HASH;
+  object->type = HKL_TYPE_HASH;
   object->hash = hkl_hash_new();
 
   // Create a reference to the hash table
@@ -21,7 +21,7 @@ void gctest(const char* argv[])
   HKLR.gc_created++;
   hklr_gc_inc(ref);
 
-  ref->flags |= HKL_FLAG_REF;
+  ref->type = HKL_TYPE_REF;
   ref->ref = object;
   hklr_gc_inc(object);
 
