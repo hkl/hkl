@@ -19,13 +19,30 @@ typedef enum HklColor
 typedef enum HklFlags
 {
   HKL_FLAG_NONE     = 0x000000,
-  HKL_FLAG_INT      = 0x000001,
-  HKL_FLAG_REAL     = 0x000002,
-  HKL_FLAG_STRING   = 0x000004,
-  HKL_FLAG_HASH     = 0x000008,
-  HKL_FLAG_REF      = 0x000010
+  HKL_FLAG_CONST    = 0x000001,
+  HKL_FLAG_UNIQUE   = 0x000002
 
 } HklFlags;
+
+typedef enum HklTypes
+{
+
+  HKL_TYPE_NONE,
+  HKL_TYPE_CLASS,
+  HKL_TYPE_INSTANCE,
+  HKL_TYPE_STRING,
+  HKL_TYPE_HASH,
+  HKL_TYPE_ARRAY,
+  HKL_TYPE_INT,
+  HKL_TYPE_REAL,
+  HKL_TYPE_FUNCTION,
+  HKL_TYPE_NIL,
+  HKL_TYPE_NULL,
+  HKL_TYPE_REF,
+  HKL_TYPE_CFUNC,
+  HKL_TYPE_CDATA
+
+} HklTypes;
 
 typedef struct HklObject {
 
@@ -36,7 +53,8 @@ typedef struct HklObject {
   uint32_t is_buffered: 1;
   HklColor color:       3;
 
-  HklFlags flags;
+  HklTypes type:        24;
+  HklFlags flags:       8;
 
   union {
 

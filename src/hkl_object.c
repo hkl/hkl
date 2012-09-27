@@ -11,6 +11,7 @@ HklObject* hkl_object_new()
   object->rc = 0;
   object->color = HKL_COLOR_BLACK;
 
+  object->type = HKL_TYPE_NONE;
   object->flags = HKL_FLAG_NONE;
 
   return object;
