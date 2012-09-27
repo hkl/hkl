@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import argparse           #parse cmd line arg flags
 from os import walk       #will allow for traversing files in the test directory
 from os import getcwd     #get the working directory
@@ -176,7 +177,7 @@ def GenerateResultFiles(testObj, outTuple, outFile):
   outFile_Write = open(outFile, 'w')
   #we need to decode because the subprocess tuple of outTuple is binary encoded
   outFile_Write.write(dumps({"stdout": outTuple[0].decode("UTF-8"), "stderr":outTuple[1].decode("UTF-8")}, indent=4))
-  return True
+  return {"StdoutMatch" : True, "StderrMatch" : True}
 ###############################################################################################
 
 ###############################################################################################
