@@ -39,5 +39,6 @@ src/y.tab.output
 # Temporaries that some text editors make
 *~
 
-# Python Temps
+# Python generated files
 __pycache__/
+*.pyc

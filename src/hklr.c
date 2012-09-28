@@ -70,9 +70,9 @@ static void hklr_gc_release(HklObject* object)
     // If the object is a reference
     case HKL_TYPE_REF:
       hklr_gc_dec(object->ref);
-      break;
+      break; 
 
-    default: assert(false); break;
+    default: break;
   }
 
   object->color = HKL_COLOR_BLACK;
@@ -126,7 +126,7 @@ static void hklr_gc_scanblack(HklObject* object)
       hklr_gc_scanblack(object->ref);
       break;
 
-    default: assert(false); break;
+    default: break;
   }
 }
 
@@ -160,7 +160,7 @@ static void hklr_gc_markgray(HklObject* object)
         hklr_gc_markgray(object->ref);
         break;
 
-      default: assert(false); break;
+      default: break;
     }
   }
 }
@@ -226,7 +226,7 @@ static void hklr_gc_scan(HklObject* object)
           hklr_gc_scan(object->ref);
           break;
 
-        default: assert(false); break;
+        default: break;
       }
     }
   }
@@ -267,7 +267,7 @@ static void hklr_gc_collectwhite(HklObject* object)
         hklr_gc_collectwhite(object->ref);
         break;
 
-      default: assert(false); break;
+      default: break;
     }
 
     HKLR.gc_freed++;
