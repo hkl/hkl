@@ -19,11 +19,11 @@ HklObject* hklr_create(HklTypes type, HklFlags flags, void* value)
     case HKL_TYPE_HASH:
       if (value != NULL)
       {
-        object->hash = value;
+        object->as.hash = value;
       }
       else 
       {
-        object->hash = hkl_hash_new();
+        object->as.hash = hkl_hash_new();
       }
     break;
 
@@ -34,18 +34,18 @@ HklObject* hklr_create(HklTypes type, HklFlags flags, void* value)
       }
       else 
       {
-        object->ref = NULL;
+        object->as.ref = NULL;
       }
     break;
 
     case HKL_TYPE_STRING:
       if (value != NULL)
       {
-        object->string = value;
+        object->as.string = value;
       }
       else 
       {
-        object->string = hkl_string_new();
+        object->as.string = hkl_string_new();
       }
     break;
 
@@ -62,7 +62,7 @@ void hklr_reference(HklObject* object, HklObject* reference)
 
   assert(object->type == HKL_TYPE_REF);
 
-  object->ref = reference;
+  object->as.ref = reference;
   hklr_gc_inc(reference);
 }
 
@@ -75,6 +75,6 @@ void hklr_member_insert(HklObject* object, HklObject* key, HklObject* value)
   assert(object->type == HKL_TYPE_HASH);
   assert(key->type == HKL_TYPE_STRING);
 
-  hkl_hash_insert(object->hash, key->string, value);
+  hkl_hash_insert(object->as.hash, key->as.string, value);
   hklr_gc_inc(value);
 }

@@ -56,7 +56,7 @@ typedef struct HklObject {
   HklTypes type:        24;
   HklFlags flags:       8;
 
-  union {
+  union as {
 
     uint32_t          integer;
     double            real;
@@ -64,7 +64,7 @@ typedef struct HklObject {
     HklHash*          hash;
     struct HklObject* ref;
   
-  };
+  } as;
 
 } HklObject;
 

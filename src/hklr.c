@@ -64,12 +64,12 @@ static void hklr_gc_release(HklObject* object)
     // If the object is a hash table
     case HKL_TYPE_HASH:
       // Traverse the hash decrementing every child
-      hkl_hash_traverse(object->hash, hklr_gc_dec_hash, NULL);
+      hkl_hash_traverse(object->as.hash, hklr_gc_dec_hash, NULL);
       break;
 
     // If the object is a reference
     case HKL_TYPE_REF:
-      hklr_gc_dec(object->ref);
+      hklr_gc_dec(object->as.ref);
       break; 
 
     default: break;
@@ -118,12 +118,12 @@ static void hklr_gc_scanblack(HklObject* object)
     // If the object is a hash table
     case HKL_TYPE_HASH:
       // Traverse the hash scanning every child
-      hkl_hash_traverse(object->hash, hklr_gc_scanblack_hash, NULL);
+      hkl_hash_traverse(object->as.hash, hklr_gc_scanblack_hash, NULL);
       break;
 
     // If the object is a reference
     case HKL_TYPE_REF:
-      hklr_gc_scanblack(object->ref);
+      hklr_gc_scanblack(object->as.ref);
       break;
 
     default: break;
@@ -150,14 +150,14 @@ static void hklr_gc_markgray(HklObject* object)
       // If the object is a hash table
       case HKL_TYPE_HASH:
         // Traverse the hash marking every child
-        hkl_hash_traverse(object->hash, hklr_gc_markgray_hash, NULL);
+        hkl_hash_traverse(object->as.hash, hklr_gc_markgray_hash, NULL);
         break;
 
       // If the object is a reference
       case HKL_TYPE_REF:
 
-        object->ref->rc--;
-        hklr_gc_markgray(object->ref);
+        object->as.ref->rc--;
+        hklr_gc_markgray(object->as.ref);
         break;
 
       default: break;
@@ -218,12 +218,12 @@ static void hklr_gc_scan(HklObject* object)
         // If the object is a hash table
         case HKL_TYPE_HASH:
           // Traverse the hash scanning every child
-          hkl_hash_traverse(object->hash, hklr_gc_scan_hash, NULL);
+          hkl_hash_traverse(object->as.hash, hklr_gc_scan_hash, NULL);
           break;
 
         // If the object is a reference
         case HKL_TYPE_REF:
-          hklr_gc_scan(object->ref);
+          hklr_gc_scan(object->as.ref);
           break;
 
         default: break;
@@ -259,12 +259,12 @@ static void hklr_gc_collectwhite(HklObject* object)
       // If the object is a hash table
       case HKL_TYPE_HASH:
         // Traverse the hash scanning every child
-        hkl_hash_traverse(object->hash, hklr_gc_collectwhite_hash, NULL);
+        hkl_hash_traverse(object->as.hash, hklr_gc_collectwhite_hash, NULL);
         break;
 
       // If the object is a reference
       case HKL_TYPE_REF:
-        hklr_gc_collectwhite(object->ref);
+        hklr_gc_collectwhite(object->as.ref);
         break;
 
       default: break;
