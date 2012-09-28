@@ -1,0 +1,19 @@
+#! /bin/sh
+
+echo 'build-env: aclocal'
+aclocal
+
+echo 'build-env: autoconf'
+autoconf
+
+echo 'build-env: automake --add-missing'
+automake --add-missing
+
+echo 'build-env: autoreconf'
+autoreconf
+
+echo 'build-env: automake'
+automake
+
+echo 'Your environment setup is complete.'
+echo 'Run `./configure && make` to build hkl.'
