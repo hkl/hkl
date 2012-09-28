@@ -6,20 +6,13 @@ hkl
 
 The hkl language
 
-To build right now:
-You should only need to do this once to update your scripts
+To build right now:  
 
-`$ aclocal`
+You _should_ only have to do this once.
 
-`$ autoconf`
-
-`$ automake --add-missing`
-
-`$ autoreconf`
-
-`$ automake`
+`$ ./build-env`
 
 Then as normal:
 
-`$ ./configure`
+`$ ./configure`  
 `$ make`
