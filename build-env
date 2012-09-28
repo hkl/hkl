@@ -15,5 +15,7 @@ autoreconf
 echo 'build-env: automake'
 automake
 
+echo 'build-env: ./configure'
+./configure
+
 echo 'Your environment setup is complete.'
-echo 'Run `./configure && make` to build hkl.'
