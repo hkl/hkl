@@ -14,5 +14,4 @@ You _should_ only have to do this once.
 
 Then as normal:
 
-`$ ./configure`  
 `$ make`
