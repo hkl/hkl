@@ -152,7 +152,10 @@ stmt:
   | assign_stmt
 
 puts_stmt:
-  HKL_T_PUTS expression
+  HKL_T_PUTS HKL_T_STRING_CONSTANT
+  {
+    printf("%s", hkl_string_get_utf8($2));
+  }
 
 if_stmt:
   HKL_T_IF HKL_T_LPAREN expression HKL_T_RPAREN stmt_list HKL_T_END
