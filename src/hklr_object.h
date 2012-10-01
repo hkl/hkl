@@ -2,7 +2,6 @@
 #define HKLR_OBJECT_H
 
 #include <stdint.h>
-#include <stdarg.h>
 
 #include "hkl_string.h"
 #include "hkl_hash.h"
@@ -69,7 +68,7 @@ typedef struct HklObject {
 
 } HklObject;
 
-HklObject* hklr_object_new(HklTypes type, HklFlags flags, ...);
+HklObject* hklr_object_new(HklTypes type, HklFlags flags, void* value);
 
 void hklr_object_free(HklObject* object);
 

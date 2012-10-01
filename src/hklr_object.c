@@ -4,7 +4,7 @@
 #include "hkl_alloc.h"
 #include "hklr.h"
 
-HklObject* hklr_object_new(HklTypes type, HklFlags flags, ...)
+HklObject* hklr_object_new(HklTypes type, HklFlags flags, void* value)
 {
   assert(type != HKL_TYPE_NONE);
 
@@ -23,66 +23,71 @@ HklObject* hklr_object_new(HklTypes type, HklFlags flags, ...)
   object->type = type;
   hklr_gc_inc(object);
 
-  va_list args;
-  va_start(args, flags);
-
   switch (type)
   {
     case HKL_TYPE_HASH:
-    {
-      HklHash* hash = va_arg(args, HklHash*);
 
-      if (hash != NULL)
+      if (value != NULL)
       {
-        object->as.hash = hash;
+        object->as.hash = value;
       }
       else 
       {
         object->as.hash = hkl_hash_new();
       }
       break;
-    }
 
     case HKL_TYPE_REF:
-    {
-      HklObject* obj = va_arg(args, HklObject*);
 
-      if (obj != NULL)
+      if (value != NULL)
       {
-        hklr_reference(object, obj);
+        hklr_reference(object, value);
       }
       else 
       {
         object->as.ref = NULL;
       }
       break;
-    }
 
     case HKL_TYPE_STRING:
-    {
-      HklString* string = va_arg(args, HklString*);
 
-      if (string != NULL)
+      if (value != NULL)
       {
-        object->as.string = string;
+        object->as.string = value;
       }
       else 
       {
         object->as.string = hkl_string_new();
       }
       break;
-    }
 
     default: break;
   }
-
-  va_end(args);
 
   return object;
 }
 
 void hklr_object_free(HklObject* object)
 {
+  assert(object != NULL);
+
+  switch (object->type)
+  {
+    case HKL_TYPE_HASH:
+      hkl_hash_free(object->as.hash);
+      break;
+
+    case HKL_TYPE_REF:
+      hklr_object_free(object->as.ref);
+      break;
+
+    case HKL_TYPE_STRING:
+      hkl_string_free(object->as.string);
+      break;
+
+    default: break;
+  }
+
   hkl_free_object(object);
 }
 
