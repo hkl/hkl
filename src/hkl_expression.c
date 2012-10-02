@@ -17,6 +17,20 @@ HklExpression* hkl_expression_new_unary_expression(HklExpression* expr, HklOpera
   unary_expression->op = op;
   unary_expression->content = HKL_EXPR_UNARY;
 
+  // Type checking
+  HklType type = expr->type;
+
+  switch (op)
+  {
+    case HKL_NOT:
+    case HKL_BITWISE_NOT:
+    case HKL_INCREMENT:
+    case HKL_DECREMENT:
+
+    default:
+      break;
+  }
+
   return unary_expression;
 }
 
@@ -35,6 +49,34 @@ HklExpression* hkl_expression_new_binary_expression(HklExpression* expr_left, Hk
   binary_expression->expr_right = expr_right;
   binary_expression->op = op;
   binary_expression->content = HKL_EXPR_BINARY;
+
+  // Type checking
+  
+  switch (op)
+  {
+    case HKL_OR: 
+    case HKL_AND: 
+    case HKL_LESS_EQUAL: 
+    case HKL_GREATER_EQUAL:
+    case HKL_LESS: 
+    case HKL_GREATER: 
+    case HKL_EQUAL:
+    case HKL_NOT_EQUAL:
+    case HKL_PLUS:
+    case HKL_MINUS:
+    case HKL_ASTERISK:
+    case HKL_DIVIDE:
+    case HKL_MOD:
+    case HKL_BITWISE_AND:
+    case HKL_BITWISE_OR:
+    case HKL_BITWISE_XOR:
+    case HKL_TYPE_OF:
+    case HKL_INSTANCE_OF:
+
+    default:
+      break;
+
+  }
 
   return binary_expression;
 }
