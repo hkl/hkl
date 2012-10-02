@@ -1,7 +1,7 @@
 #ifndef HKLR_H
 #define HKLR_H
 
-#include "hkl_object.h"
+#include "hklr_object.h"
 
 typedef struct HklRuntime
 {

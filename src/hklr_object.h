@@ -1,5 +1,5 @@
-#ifndef HKL_OBJECT_H
-#define HKL_OBJECT_H
+#ifndef HKLR_OBJECT_H
+#define HKLR_OBJECT_H
 
 #include <stdint.h>
 
@@ -68,8 +68,12 @@ typedef struct HklObject {
 
 } HklObject;
 
-HklObject* hkl_object_new();
+HklObject* hklr_object_new(HklTypes type, HklFlags flags, void* value);
 
-void hkl_object_free(HklObject* object);
+void hklr_object_free(HklObject* object);
+
+void hklr_reference(HklObject* object, HklObject* reference);
+
+void hklr_member_insert(HklObject* object, HklObject* name, HklObject* value);
 
 #endif // HKL_OBJECT_H
