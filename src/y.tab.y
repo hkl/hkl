@@ -45,6 +45,8 @@
 %token HKL_T_ARRAY                         "array"
 %token HKL_T_HASH                          "hash"
 %token HKL_T_INSTANCE                      "instance"
+%token HKL_T_SWITCH                        "switch"
+%token HKL_T_CASE                          "case"
 
 %token HKL_T_SELF                          "self"
 
@@ -150,6 +152,7 @@ stmt:
   | class_stmt
   | function_stmt
   | assign_stmt
+  | switch_stmt
 
 puts_stmt:
   HKL_T_PUTS HKL_T_STRING_CONSTANT
@@ -208,6 +211,16 @@ assign_stmt:
   | qualifier_list variable HKL_T_BITWISE_OR_ASSIGN expression
   | qualifier_list variable HKL_T_BITWISE_XOR_ASSIGN expression
   | qualifier_list variable HKL_T_BITWISE_NOT_ASSIGN expression
+
+switch_stmt:
+  HKL_T_SWITCH HKL_T_LPAREN expression HKL_T_RPAREN case_list HKL_T_END
+
+case_list:
+  case case_list
+  | empty
+
+case:
+  HKL_T_CASE HKL_T_INT_CONSTANT HKL_T_COLON stmt_list
 
 init_assign:
   qualifier_list variable optional_init
