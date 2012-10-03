@@ -47,6 +47,7 @@
 %token HKL_T_INSTANCE                      "instance"
 %token HKL_T_SWITCH                        "switch"
 %token HKL_T_CASE                          "case"
+%token HKL_T_DEFAULT                       "default"
 
 %token HKL_T_SELF                          "self"
 
@@ -217,10 +218,14 @@ switch_stmt:
 
 case_list:
   case case_list
-  | empty
+  | default_case
 
 case:
   HKL_T_CASE expression HKL_T_COLON stmt_list
+
+default_case:
+  HKL_T_DEFAULT HKL_T_COLON stmt_list
+  | empty
 
 init_assign:
   qualifier_list variable optional_init
