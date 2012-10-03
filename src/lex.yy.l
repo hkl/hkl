@@ -30,6 +30,9 @@ HklString* string_buf = NULL;
 "continue"             return HKL_T_CONTINUE;
 "assert"               return HKL_T_ASSERT;
 "include"              return HKL_T_INCLUDE;
+"case"				   return HKL_T_CASE;
+"switch"               return HKL_T_SWITCH;
+"default"             return HKL_T_DEFAULT;
 
 "class"                return HKL_T_CLASS;
 "function"             return HKL_T_FUNCTION;
