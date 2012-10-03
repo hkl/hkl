@@ -220,7 +220,7 @@ case_list:
   | empty
 
 case:
-  HKL_T_CASE HKL_T_INT_CONSTANT HKL_T_COLON stmt_list
+  HKL_T_CASE expression HKL_T_COLON stmt_list
 
 init_assign:
   qualifier_list variable optional_init
