@@ -6,25 +6,20 @@ void gctest(const char* argv[])
 {
   hklr_init();
 
-  // Create a string "self"
-  HklObject* self = hklr_object_new(HKL_TYPE_STRING, HKL_FLAG_NONE, hkl_string_new_from_utf8("self"));
+  // global index = "self"
+  HklObject* index = hklr_object_new(HKL_TYPE_STRING, HKL_FLAG_NONE, hkl_string_new_from_utf8("self"));
+  hkl_hash_insert(HKLR.globals, hkl_string_new_from_utf8("index"), index);
 
-  // Create a hash table
-  HklObject* object = hklr_object_new(HKL_TYPE_HASH, HKL_FLAG_NONE, NULL);
+  // local hash = {}
+  HklObject* hash = hklr_object_new(HKL_TYPE_HASH, HKL_FLAG_NONE, NULL);
+  hkl_hash_insert(HKLR.scopes->locals, hkl_string_new_from_utf8("hash"), hash);
 
-  // Create a reference to the hash table
-  HklObject* ref = hklr_object_new(HKL_TYPE_REF, HKL_FLAG_NONE, object);
+  // local ref = object
+  HklObject* ref = hklr_object_new(HKL_TYPE_REF, HKL_FLAG_NONE, hash);
+  hkl_hash_insert(HKLR.scopes->locals, hkl_string_new_from_utf8("ref"), ref);
 
-  // Insert the reference into the table
-  hklr_member_insert(object, self, ref);
-  
-  // End of stack. Free all locals
-  hklr_gc_dec(object);
-  hklr_gc_dec(ref);
-  hklr_gc_dec(self);
-
-  // A cycle exists. Comment out this line to see the difference.
-  hklr_gc_collect();
+  // hash[index] = ref
+  hklr_member_insert(hash, index, ref);
 
   hklr_shutdown();
 

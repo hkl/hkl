@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "hkl_alloc.h"
+
 #include "hklr.h"
 
 void hklr_init()
@@ -18,12 +20,61 @@ void hklr_init()
   HKLR.gc_runs = 0;
   HKLR.gc_freed = 0;
   HKLR.gc_rootsize = 0;
+
+  HKLR.globals = hkl_hash_new();
+  HKLR.scopes = NULL;
+
+  hklr_scope_push();
+}
+
+static void hklr_gc_dec_hash(HklPair* pair, void* data)
+{
+  hklr_gc_dec((HklObject*) pair->value);
 }
 
 void hklr_shutdown()
 {
+
+  hklr_scope_pop();
+
+  // free globals
+  hkl_hash_traverse(HKLR.globals, hklr_gc_dec_hash, NULL);
+  hkl_hash_free(HKLR.globals);
+
+  // collect garbage
+  hklr_gc_collect();
+
   hklr_object_free(HKLR.gc_roots);
   hklr_object_free(HKLR.gc_tail);
+}
+
+void hklr_scope_push()
+{
+
+  HklScope* scope = hkl_alloc_object(HklScope);
+
+  scope->prev = HKLR.scopes;
+  scope->next = NULL;
+
+  scope->locals = hkl_hash_new();
+  scope->upvals = hkl_hash_new();
+
+  HKLR.scopes = scope;
+}
+
+void hklr_scope_pop()
+{
+  HklScope* scope = HKLR.scopes;
+
+  HKLR.scopes = scope->prev;
+
+  // decrement all the data in the hashes
+  hkl_hash_traverse(scope->locals, hklr_gc_dec_hash, NULL);
+  hkl_hash_traverse(scope->upvals, hklr_gc_dec_hash, NULL);
+  hkl_hash_free(scope->locals);
+  hkl_hash_free(scope->upvals);
+
+  hkl_free_object(scope);
 }
 
 void hklr_gc_inc(HklObject* object)
@@ -51,11 +102,6 @@ static void hklr_gc_possible_root(HklObject* object)
       HKLR.gc_rootsize++;
     }
   }
-}
-
-static void hklr_gc_dec_hash(HklPair* pair, void* data)
-{
-  hklr_gc_dec((HklObject*) pair->value);
 }
 
 static void hklr_gc_release(HklObject* object)

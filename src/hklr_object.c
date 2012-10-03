@@ -78,7 +78,7 @@ void hklr_object_free(HklObject* object)
       break;
 
     case HKL_TYPE_REF:
-      hklr_object_free(object->as.ref);
+      // dont free the thing im referencing
       break;
 
     case HKL_TYPE_STRING:

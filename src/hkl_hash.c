@@ -99,7 +99,7 @@ HklHash* hkl_hash_new()
 {
   HklHash* hash = hkl_alloc_object(HklHash);
 
-  hash->size = 1;
+  hash->size = 16;
   hash->length = 0;
 
   // Allocate space for each bucket
