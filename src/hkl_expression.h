@@ -7,10 +7,10 @@
 
 typedef enum HklExpressionContent
 {
-  HKL_EXPR_VARIABLE = 0,
-  HKL_EXPR_CONSTANT = 1,
-  HKL_EXPR_BINARY = 2,
-  HKL_EXPR_UNARY = 4
+  HKL_EXPR_VARIABLE = 0x0,
+  HKL_EXPR_CONSTANT = 0x1,
+  HKL_EXPR_BINARY = 0x2,
+  HKL_EXPR_UNARY = 0x4
 } HklExpressionContent;
 
 /**

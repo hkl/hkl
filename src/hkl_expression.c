@@ -17,6 +17,33 @@ HklExpression* hkl_expression_new_unary_expression(HklExpression* expr, HklOpera
   unary_expression->op = op;
   unary_expression->content = HKL_EXPR_UNARY;
 
+  // Type checking
+  HklType operand_type = expr->type;
+  int accepted_type;
+
+  switch (op)
+  {
+    case HKL_NOT:
+      unary_expression->type = HKL_INT;
+      break;
+
+    case HKL_BITWISE_NOT:
+    case HKL_INCREMENT:
+    case HKL_DECREMENT:
+      accepted_type = HKL_REAL | HKL_INT;
+      assert(operand_type & accepted_type);
+      if (operand_type & HKL_REAL)
+      {
+        unary_expression->type = HKL_REAL;
+      }
+      unary_expression->type = HKL_INT;
+      break;
+
+    default:
+      assert(false);
+      break;
+  }
+
   return unary_expression;
 }
 
@@ -35,6 +62,90 @@ HklExpression* hkl_expression_new_binary_expression(HklExpression* expr_left, Hk
   binary_expression->expr_right = expr_right;
   binary_expression->op = op;
   binary_expression->content = HKL_EXPR_BINARY;
+
+  // Type checking
+  HklType left_operand_type = expr_left->type;
+  HklType right_operand_type = expr_right->type;
+  int accepted_type;
+  
+  switch (op)
+  {
+    case HKL_OR: 
+    case HKL_AND: 
+    case HKL_LESS_EQUAL: 
+    case HKL_GREATER_EQUAL:
+    case HKL_LESS: 
+    case HKL_GREATER: 
+    case HKL_EQUAL:
+    case HKL_NOT_EQUAL:
+      binary_expression->type = HKL_INT;
+      break;
+
+    case HKL_PLUS:
+      if ((left_operand_type & right_operand_type) & HKL_HASH)
+      {
+        binary_expression->type = HKL_HASH;
+        break;
+      }
+      if ((left_operand_type & right_operand_type) & HKL_ARRAY)
+      {
+        binary_expression->type = HKL_ARRAY;
+        break;
+      }
+      if ((left_operand_type | right_operand_type) & HKL_STRING)
+      {
+        binary_expression->type = HKL_STRING;
+        break;
+      }
+      if ((left_operand_type | right_operand_type) & HKL_REAL)
+      {
+        binary_expression->type = HKL_REAL;
+        break;
+      }
+      binary_expression->type = HKL_INT;
+      break;
+
+    case HKL_MINUS:
+    case HKL_ASTERISK:
+      accepted_type = HKL_STRING | HKL_REAL | HKL_INT;
+      assert((left_operand_type & accepted_type) && (right_operand_type & accepted_type));
+      if ((left_operand_type | right_operand_type) & HKL_STRING)
+      {
+        binary_expression->type = HKL_STRING;
+        break;
+      }
+      if ((left_operand_type | right_operand_type) & HKL_REAL)
+      {
+        binary_expression->type = HKL_REAL;
+        break;
+      }
+      binary_expression->type = HKL_INT;
+      break;
+
+    case HKL_DIVIDE:
+    case HKL_MOD:
+      accepted_type = HKL_REAL | HKL_INT;
+      assert((left_operand_type & accepted_type) && (right_operand_type & accepted_type));
+      if ((left_operand_type | right_operand_type) & HKL_REAL)
+      {
+        binary_expression->type = HKL_REAL;
+        break;
+      }
+      binary_expression->type = HKL_INT;
+      break;
+
+    case HKL_BITWISE_AND:
+    case HKL_BITWISE_OR:
+    case HKL_BITWISE_XOR:
+      accepted_type = HKL_REAL | HKL_INT;
+      assert((left_operand_type & accepted_type) && (right_operand_type & accepted_type));
+      binary_expression->type = HKL_INT;
+      break;
+
+    default:
+      assert(false);
+      break;
+  }
 
   return binary_expression;
 }

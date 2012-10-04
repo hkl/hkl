@@ -3,11 +3,11 @@
 
 typedef enum HklType
 {
-  INT = 0x1,
-  REAL = 0x2,
-  STRING = 0x4,
-  ARRAY = 0x8,
-  HASH = 0x10
+  HKL_INT = 0x1,
+  HKL_REAL = 0x2,
+  HKL_STRING = 0x4,
+  HKL_ARRAY = 0x8,
+  HKL_HASH = 0x10
 } HklType;
 
 typedef enum HklOperator
