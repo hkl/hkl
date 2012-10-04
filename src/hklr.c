@@ -7,8 +7,10 @@
 void hklr_init()
 {
   // The first and last gc_root are dummy objects
-  HKLR.gc_roots = hkl_object_new();
-  HKLR.gc_tail = hkl_object_new();
+  HKLR.gc_roots = hklr_object_new(HKL_TYPE_INT, HKL_FLAG_NONE, NULL);
+  HKLR.gc_tail = hklr_object_new(HKL_TYPE_INT, HKL_FLAG_NONE, NULL);
+  // Dont count them in the object count
+  HKLR.gc_created-=2;
 
   HKLR.gc_roots->next = HKLR.gc_tail;
   HKLR.gc_tail->prev = HKLR.gc_roots;
@@ -20,8 +22,8 @@ void hklr_init()
 
 void hklr_shutdown()
 {
-  hkl_object_free(HKLR.gc_roots);
-  hkl_object_free(HKLR.gc_tail);
+  hklr_object_free(HKLR.gc_roots);
+  hklr_object_free(HKLR.gc_tail);
 }
 
 void hklr_gc_inc(HklObject* object)
@@ -80,7 +82,7 @@ static void hklr_gc_release(HklObject* object)
   if (!object->is_buffered)
   {
     HKLR.gc_freed++;
-    hkl_object_free(object);
+    hklr_object_free(object);
   }
 }
 
@@ -188,7 +190,7 @@ static void hklr_gc_markroots()
       if (s->color == HKL_COLOR_BLACK && s->rc == 0)
       {
         HKLR.gc_freed++;
-        hkl_object_free(s);
+        hklr_object_free(s);
       }
     }
   }
@@ -271,7 +273,7 @@ static void hklr_gc_collectwhite(HklObject* object)
     }
 
     HKLR.gc_freed++;
-    hkl_object_free(object);
+    hklr_object_free(object);
   }
 }
 

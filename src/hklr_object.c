@@ -1,14 +1,23 @@
 #include <assert.h>
 
-#include "hklr_common.h"
-#include "hkl_hash.h"
-#include "hkl_string.h"
+#include "hklr_object.h"
+#include "hkl_alloc.h"
+#include "hklr.h"
 
-HklObject* hklr_create(HklTypes type, HklFlags flags, void* value)
+HklObject* hklr_object_new(HklTypes type, HklFlags flags, void* value)
 {
   assert(type != HKL_TYPE_NONE);
 
-  HklObject* object = hkl_object_new();
+  HklObject* object = hkl_alloc_object(HklObject);
+
+  object->prev = NULL;
+  object->next = NULL;
+  object->rc = 0;
+  object->color = HKL_COLOR_BLACK;
+
+  object->type = type;
+  object->flags = flags;
+
   HKLR.gc_created++;
   object->flags = flags;
   object->type = type;
@@ -17,6 +26,7 @@ HklObject* hklr_create(HklTypes type, HklFlags flags, void* value)
   switch (type)
   {
     case HKL_TYPE_HASH:
+
       if (value != NULL)
       {
         object->as.hash = value;
@@ -25,9 +35,10 @@ HklObject* hklr_create(HklTypes type, HklFlags flags, void* value)
       {
         object->as.hash = hkl_hash_new();
       }
-    break;
+      break;
 
     case HKL_TYPE_REF:
+
       if (value != NULL)
       {
         hklr_reference(object, value);
@@ -36,9 +47,10 @@ HklObject* hklr_create(HklTypes type, HklFlags flags, void* value)
       {
         object->as.ref = NULL;
       }
-    break;
+      break;
 
     case HKL_TYPE_STRING:
+
       if (value != NULL)
       {
         object->as.string = value;
@@ -47,12 +59,36 @@ HklObject* hklr_create(HklTypes type, HklFlags flags, void* value)
       {
         object->as.string = hkl_string_new();
       }
-    break;
+      break;
 
-    default: assert(false); break;
+    default: break;
   }
 
   return object;
+}
+
+void hklr_object_free(HklObject* object)
+{
+  assert(object != NULL);
+
+  switch (object->type)
+  {
+    case HKL_TYPE_HASH:
+      hkl_hash_free(object->as.hash);
+      break;
+
+    case HKL_TYPE_REF:
+      hklr_object_free(object->as.ref);
+      break;
+
+    case HKL_TYPE_STRING:
+      hkl_string_free(object->as.string);
+      break;
+
+    default: break;
+  }
+
+  hkl_free_object(object);
 }
 
 void hklr_reference(HklObject* object, HklObject* reference)

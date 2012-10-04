@@ -9,5 +9,5 @@ hkl_SOURCES = y.tab.y lex.yy.l hkl_string.c hkl_hash.c hkl_tree.c hklc.c \
 hklr.c hkl_object.c \
 hkl_expression.c hkl_variable.c
 
-testbed_SOURCES = hkl_tree.c hkl_string.c hkl_test.c hklr.c hkl_object.c \
-hklr_common.c hkl_hash.c test/hash.c test/gc.c
+testbed_SOURCES = hkl_tree.c hkl_string.c hkl_test.c hklr.c hklr_object.c \
+hkl_hash.c test/hash.c test/gc.c

@@ -6,7 +6,13 @@
 
 extern int yyerror(const char* msg);
 
+// This is used for building strings
+HklString* string_buf = NULL;
+
 %}
+
+/* Exclusive start state for strings */
+%x stringbuild
 
 %%
 
@@ -24,6 +30,9 @@ extern int yyerror(const char* msg);
 "continue"             return HKL_T_CONTINUE;
 "assert"               return HKL_T_ASSERT;
 "include"              return HKL_T_INCLUDE;
+"case"				   return HKL_T_CASE;
+"switch"               return HKL_T_SWITCH;
+"default"             return HKL_T_DEFAULT;
 
 "class"                return HKL_T_CLASS;
 "function"             return HKL_T_FUNCTION;
@@ -112,9 +121,13 @@ extern int yyerror(const char* msg);
   return HKL_T_REAL_CONSTANT;
 }
 
-\"(\\.|[^\"])*\" {
-  yylval.string = hkl_string_new_from_utf8_chunk(yytext + 1, yytext + yyleng - 1);
-  return HKL_T_STRING_CONSTANT;
-}
+\"                         { BEGIN stringbuild; string_buf = hkl_string_new(); }
+<stringbuild>[^\\"]*       { hkl_string_cat_utf8(string_buf, yytext); }
+<stringbuild>\\n           { hkl_string_cat_utf8(string_buf, "\n"); }
+<stringbuild>\\t           { hkl_string_cat_utf8(string_buf, "\t"); }
+<stringbuild>\\\\          { hkl_string_cat_utf8(string_buf, "\\"); }
+<stringbuild>\\\"          { hkl_string_cat_utf8(string_buf, "\""); }
+<stringbuild>\"            { yylval.string = string_buf; BEGIN 0; return HKL_T_STRING_CONSTANT; }
+<stringbuild>\\.           yyerror(yytext);
 
-.                      yyerror(yytext);
+.                          yyerror(yytext);
