@@ -1,16 +1,40 @@
 #! /bin/sh
 
 echo 'build-env: aclocal'
-aclocal
+if `which aclocal`
+then
+  aclocal
+else
+  echo 'Environment setup failed. Install aclocal.'
+  exit 1
+fi
 
 echo 'build-env: autoconf'
-autoconf
+if `which autoconf`
+then
+  autoconf
+else
+  echo 'Environment setup failed. Install autoconf.'
+  exit 1
+fi
 
 echo 'build-env: automake --add-missing'
-automake --add-missing
+if `which automake`
+then
+  automake --add-missing
+else
+  echo 'Environment setup failed. Install automake.'
+  exit 1
+fi
 
 echo 'build-env: autoreconf'
-autoreconf
+if `which autoreconf`
+then
+  autoreconf
+else
+  echo 'Environment setup failed. Install autoreconf.'
+  exit 1
+fi
 
 echo 'build-env: automake'
 automake
@@ -19,3 +43,4 @@ echo 'build-env: ./configure'
 ./configure
 
 echo 'Your environment setup is complete.'
+exit 0
