@@ -77,6 +77,66 @@ void hklr_scope_pop()
   hkl_free_object(scope);
 }
 
+void hklr_local_insert(HklString* key, HklObject* value)
+{
+  hkl_hash_insert(HKLR.scopes->locals, key, value);
+}
+
+void hklr_upval_insert(HklString* key, HklObject* value)
+{
+  hkl_hash_insert(HKLR.scopes->upvals, key, value);
+}
+
+
+void hklr_global_insert(HklString* key, HklObject* value)
+{
+  hkl_hash_insert(HKLR.globals, key, value);
+}
+
+HklObject* hklr_search(HklString* key)
+{
+  assert(key != NULL);
+
+  HklScope* scope = HKLR.scopes;
+  HklPair* pair = NULL;
+
+  // check your scope first
+  pair = hkl_hash_search(scope->locals, key);
+  if (pair) return pair->value; 
+
+  // now try upvals
+  pair = hkl_hash_search(scope->upvals, key);
+  if (pair) return pair->value;
+
+  // Now try scopes above
+  scope = scope->prev;
+  while(scope != NULL)
+  {
+    // check locals first then upvals
+    pair = hkl_hash_search(scope->locals, key);
+    if (!pair) pair = hkl_hash_search(scope->upvals, key);    
+
+    // if you find the object 
+    // make it an upval to my scope as a ref to it
+    if (pair)
+    {
+      hklr_upval_insert(key, pair->value);
+      return pair->value;
+    }
+    scope = scope->prev;
+  }
+
+  // Finally try global scope
+  pair = hkl_hash_search(HKLR.globals, key);
+  if (pair)
+  {
+    hklr_upval_insert(key, pair->value);
+    return pair->value;
+  }
+
+  return NULL;
+}
+
 void hklr_gc_inc(HklObject* object)
 {
   object->rc++;
@@ -106,7 +166,6 @@ static void hklr_gc_possible_root(HklObject* object)
 
 static void hklr_gc_release(HklObject* object)
 {
-
   switch (object->type)
   {
     // If the object is a hash table
