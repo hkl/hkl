@@ -24,6 +24,7 @@ typedef struct HklRuntime
 
   HklHash* globals;
   HklScope* scopes;
+  size_t scope_level;
 
 } HklRuntime;
 
@@ -45,9 +46,9 @@ void hklr_local_insert(HklString* key, HklObject* value);
 void hklr_upval_insert(HklString* key, HklObject* value);
 void hklr_global_insert(HklString* key, HklObject* value);
 
+// You are given the nearest object of name, key
+// if the object of name, key is a ref you get what
+// it is referencing
 HklObject* hklr_search(HklString* key);
-HklObject* hklr_upval_search(HklString* key);
-HklObject* hklr_local_search(HklString* key);
-HklObject* hklr_global_search(HklString* key);
 
 #endif // HKLR_H

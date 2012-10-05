@@ -23,6 +23,7 @@ void hklr_init()
 
   HKLR.globals = hkl_hash_new();
   HKLR.scopes = NULL;
+  HKLR.scope_level = 0;
 
   hklr_scope_push();
 }
@@ -34,7 +35,6 @@ static void hklr_gc_dec_hash(HklPair* pair, void* data)
 
 void hklr_shutdown()
 {
-
   hklr_scope_pop();
 
   // free globals
@@ -50,7 +50,6 @@ void hklr_shutdown()
 
 void hklr_scope_push()
 {
-
   HklScope* scope = hkl_alloc_object(HklScope);
 
   scope->prev = HKLR.scopes;
@@ -60,6 +59,7 @@ void hklr_scope_push()
   scope->upvals = hkl_hash_new();
 
   HKLR.scopes = scope;
+  HKLR.scope_level++;
 }
 
 void hklr_scope_pop()
@@ -67,10 +67,13 @@ void hklr_scope_pop()
   HklScope* scope = HKLR.scopes;
 
   HKLR.scopes = scope->prev;
+  HKLR.scope_level--;
 
-  // decrement all the data in the hashes
+  // decrement all the locals
   hkl_hash_traverse(scope->locals, hklr_gc_dec_hash, NULL);
-  hkl_hash_traverse(scope->upvals, hklr_gc_dec_hash, NULL);
+
+  // dont dec upvals as they arent in our scope
+  // hkl_hash_traverse(scope->upvals, hklr_gc_dec_hash, NULL);
   hkl_hash_free(scope->locals);
   hkl_hash_free(scope->upvals);
 
@@ -86,7 +89,6 @@ void hklr_upval_insert(HklString* key, HklObject* value)
 {
   hkl_hash_insert(HKLR.scopes->upvals, key, value);
 }
-
 
 void hklr_global_insert(HklString* key, HklObject* value)
 {
@@ -117,7 +119,7 @@ HklObject* hklr_search(HklString* key)
     if (!pair) pair = hkl_hash_search(scope->upvals, key);    
 
     // if you find the object 
-    // make it an upval to my scope as a ref to it
+    // make it an upval to my scope
     if (pair)
     {
       hklr_upval_insert(key, pair->value);
