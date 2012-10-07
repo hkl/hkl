@@ -4,14 +4,9 @@
 #include "hkl_string.h"
 #include "hkl_alloc.h"
 
+/*
 // Test if a byte is likely utf8 encoded
 #define hkl_isutf8(c) (((c)&0xC0)!=0x80) 
-
-static const uint32_t HKL_UTF8_MASKS[6] =
-{
-  0x00000000UL, 0x00003080UL, 0x000E2080UL,
-  0x03C82080UL, 0xFA082080UL, 0x82082080UL
-};
 
 static uint32_t utf8_nextchar(const char* utf8_data, size_t* index)
 {
@@ -42,6 +37,18 @@ static size_t utf8_length(const char* utf8_data)
   }
 
   return length;
+} */
+
+// Get length of utf8-encoded string
+static size_t utf8_length(const char* utf8_data) {
+   size_t i = 0, j = 0;
+
+   while (utf8_data[i]) {
+
+     if ((utf8_data[i] & 0xC0) != 0x80) j++;
+     i++;
+   }
+   return j;
 }
 
 HklString* hkl_string_new()
