@@ -8,6 +8,7 @@ int main(int argc, const char* argv[])
 {
 
   HklTree* testtree = hkl_tree_new();
+  HklString* testname = hkl_string_new();
 
   // Registered tests
 
@@ -15,10 +16,12 @@ int main(int argc, const char* argv[])
   // external linkage. If you don't know what that means, don't worry bout it.
   // :P :3
   extern HklTestFunction hashtest;
-  hkl_tree_insert(testtree, hkl_string_new_from_utf8("hash"), &hashtest);
+  hkl_string_set_utf8(testname, "hash");
+  hkl_tree_insert(testtree, testname, &hashtest);
 
   extern HklTestFunction gctest;
-  hkl_tree_insert(testtree, hkl_string_new_from_utf8("gc"), &gctest);
+  hkl_string_set_utf8(testname, "gc");
+  hkl_tree_insert(testtree, testname, &gctest);
 
   if (argv[1] == NULL)
   {
@@ -26,7 +29,8 @@ int main(int argc, const char* argv[])
     return 1;
   }
 
-  HklPair* pair = hkl_tree_search(testtree, hkl_string_new_from_utf8(argv[1]));
+  hkl_string_set_utf8(testname, argv[1]);
+  HklPair* pair = hkl_tree_search(testtree, testname);
   if (pair == NULL)
   {
     fprintf(stderr, "Test \"%s\" does not exist!\n", argv[1]);
@@ -37,6 +41,9 @@ int main(int argc, const char* argv[])
 
   if (test)
     test(&argv[2]);
+
+  hkl_string_free(testname);
+  hkl_tree_free(testtree);
   
   return 0;
 }

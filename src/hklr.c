@@ -141,6 +141,8 @@ HklObject* hklr_search(HklString* key)
 
 void hklr_gc_inc(HklObject* object)
 {
+  assert(object != NULL);
+
   object->rc++;
   object->color = HKL_COLOR_BLACK;
 }
@@ -195,6 +197,8 @@ static void hklr_gc_release(HklObject* object)
 
 void hklr_gc_dec(HklObject* object)
 {
+  assert(object != NULL);
+
   object->rc--;
   if (object->rc == 0)
   {

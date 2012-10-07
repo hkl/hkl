@@ -100,7 +100,6 @@ HklString* hkl_string_new_from_utf8_chunk(const char* utf8_start, const char* ut
   return string;
 }
 
-
 void hkl_string_set_utf8(HklString* string, const char* utf8_data)
 {
   assert(string != NULL);
@@ -112,10 +111,11 @@ void hkl_string_set_utf8(HklString* string, const char* utf8_data)
   assert(utf8_data[size] == '\0');
 
   // Resize the string to accomidate new data
-  if (string->size < size)
+  if (string->size < size + 1)
     string->utf8_data = realloc(string->utf8_data, size + 1);
 
-  string->size = size;
+  // This used to only copy size, but that caused a horrible memory leak
+  string->size = size + 1;
   string->length = utf8_length(utf8_data);
 
   memcpy(string->utf8_data, utf8_data, size + 1);
