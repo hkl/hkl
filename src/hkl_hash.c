@@ -121,6 +121,9 @@ void hkl_hash_free(HklHash* hash)
   assert(hash != NULL);
 
   hkl_hash_clear(hash);
+
+  // Free the buckets
+  free(hash->buckets);
   hkl_free_object(hash);
 }
 

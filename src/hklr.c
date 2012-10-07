@@ -58,7 +58,15 @@ void hklr_scope_push()
   scope->locals = hkl_hash_new();
   scope->upvals = hkl_hash_new();
 
-  HKLR.scopes = scope;
+  if (HKLR.scopes != NULL)
+  {
+    HKLR.scopes->next = scope;
+  }
+  else
+  {
+    HKLR.scopes = scope;
+  }
+
   HKLR.scope_level++;
 }
 
@@ -363,6 +371,8 @@ static void hklr_gc_collectwhite_hash(HklPair* pair, void* data)
 
 static void hklr_gc_collectwhite(HklObject* object)
 {
+  assert(object != NULL);
+
   if (object->color == HKL_COLOR_WHITE && !object->is_buffered)
   {
     object->color = HKL_COLOR_BLACK;
