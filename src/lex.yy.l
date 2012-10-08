@@ -2,7 +2,7 @@
 
 #include <stdio.h>      // for scan functions
 
-#include "hklc.h"
+#include "hkl.h"
 
 extern int yyerror(const char* msg);
 

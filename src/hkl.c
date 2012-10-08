@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "hklc.h"
+#include "hkl.h"
 
 // These are linked at compile time
 extern int yylex();
