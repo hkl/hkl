@@ -17,6 +17,8 @@ void hklr_init()
   HKLR.gc_roots->next = HKLR.gc_tail;
   HKLR.gc_tail->prev = HKLR.gc_roots;
 
+  HKLR.gc_to_free = hkl_deque_new();
+
   HKLR.gc_runs = 0;
   HKLR.gc_freed = 0;
   HKLR.gc_rootsize = 0;
@@ -43,6 +45,8 @@ void hklr_shutdown()
 
   // collect garbage
   hklr_gc_collect();
+
+  hkl_deque_free(HKLR.gc_to_free);
 
   hklr_object_free(HKLR.gc_roots);
   hklr_object_free(HKLR.gc_tail);
@@ -393,8 +397,11 @@ static void hklr_gc_collectwhite(HklObject* object)
       default: break;
     }
 
-    HKLR.gc_freed++;
-    hklr_object_free(object);
+    // queue up roots to free
+    /* HKLR.gc_freed++;
+    hklr_object_free(object);*/
+
+    hkl_deque_push_back(HKLR.gc_to_free, object);
   }
 }
 
@@ -412,6 +419,13 @@ static void hklr_gc_collectroots()
 
     s->is_buffered = false;
     hklr_gc_collectwhite(s);
+  }
+
+  // Free the queued roots
+  while ((s = (HklObject*) hkl_deque_pop_front(HKLR.gc_to_free)))
+  {
+    HKLR.gc_freed++;
+    hklr_object_free(s);
   }
 }
 
