@@ -156,6 +156,9 @@ stmt_list:
     if (HKLR.scope_level == 1)
     {
       hkl_statement_exec($2);
+
+      // clean up the statement as we dont need it anymore
+      hkl_statement_free($2);
     }
     else
     {
@@ -237,6 +240,10 @@ assign_stmt:
   | variable HKL_T_BITWISE_XOR_ASSIGN expr
   | variable HKL_T_BITWISE_NOT_ASSIGN expr
 
+// The statemens in a switch should be stored in a normal
+// statement list, but use a hklhash to map to the "case nodes"
+// in the switch list. This gives us O(logn) jumps and normal waterfall
+// execution 
 switch_stmt:
   HKL_T_SWITCH HKL_T_LPAREN expr HKL_T_RPAREN case_list HKL_T_END
 
@@ -312,6 +319,9 @@ primary_expr:
     $$ = hkl_expression_new(HKL_EXPR_STRING, $1);
   }
   | HKL_T_GETS
+  {
+    $$ = hkl_expression_new(HKL_EXPR_GETS);
+  }
   | HKL_T_TRUE
   | HKL_T_FALSE
   | HKL_T_NIL

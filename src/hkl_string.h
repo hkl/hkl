@@ -39,6 +39,10 @@ Allocate a copy of another HklString.
 */
 HklString* hkl_string_new_from_string(const HklString* string);
 
+HklString* hkl_string_new_from_integer(int integer);
+
+HklString* hkl_string_new_from_real(double real);
+
 /**
 Allocate a new HklString using utf8 data.
 
@@ -84,6 +88,8 @@ Concatinate a HklString with utf8 data.
 @brief The string is modified in-place only reallocating internal data if needed.
 */
 void hkl_string_cat_utf8(HklString* string, const char* utf8_data);
+
+void hkl_string_cat_character(HklString* string, uint32_t character);
 
 /**
 Turns a HklString into an exact copy of another.

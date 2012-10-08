@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdio.h>
 
 #include "hkl_alloc.h"
 #include "hkl_statement.h"
@@ -35,10 +36,35 @@ void hkl_statement_exec(HklStatement* stmt)
   switch (stmt->type)
   {
     case HKL_STMT_PUTS:
-      
+    {
+      HklString* string = hkl_expression_eval_string(stmt->arg[0].expression);
+      printf("%s\n", string->utf8_data);
+      hkl_string_free(string);
+    }
     break;
 
     default:
     break;
   }
+}
+
+void hkl_statement_free(HklStatement* stmt)
+{
+
+  assert(stmt != NULL);
+
+  switch (stmt->type)
+  {
+    case HKL_STMT_PUTS:
+    {
+      // Free the expression
+      hkl_expression_free(stmt->arg[0].expression);
+    }
+    break;
+
+    default:
+    break;
+  }
+
+  hkl_free_object(stmt);
 }

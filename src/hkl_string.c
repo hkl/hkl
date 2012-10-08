@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "hkl_string.h"
 #include "hkl_alloc.h"
@@ -73,6 +74,21 @@ HklString* hkl_string_new_from_string(const HklString* string)
   return copy;
 }
 
+HklString* hkl_string_new_from_integer(int integer)
+{
+  // create a buffer to store the integer
+  HklString* string = hkl_string_new_from_utf8("               ");
+  snprintf(string->utf8_data, string->size, "%d", integer);
+  return string;
+}
+
+HklString* hkl_string_new_from_real(double real)
+{
+  HklString* string = hkl_string_new_from_utf8("               ");
+  snprintf(string->utf8_data, string->size, "%lg", real);
+  return string;
+}
+
 HklString* hkl_string_new_from_utf8(const char* utf8_data)
 {
   assert(utf8_data != NULL);
@@ -94,7 +110,7 @@ HklString* hkl_string_new_from_utf8_chunk(const char* utf8_start, const char* ut
   HklString* string = hkl_string_new();
 
   string->utf8_data = realloc(string->utf8_data, size + 1);
-  string->size = size;
+  string->size = size + 1;
   
   memcpy(string->utf8_data, utf8_start, size);
 
@@ -158,21 +174,41 @@ void hkl_string_cat_utf8(HklString* string, const char* utf8_data)
   assert(utf8_data[size] == '\0');
 
   // Resize the string to accomidate new data
-  if (string->size < string->size + size)
+  if (string->size < string->size + size + 1)
     string->utf8_data = realloc(string->utf8_data, string->size + size + 1);
 
   string->length += utf8_length(utf8_data);
 
-  memcpy(string->utf8_data + string->size, utf8_data, string->size + size + 1);
+  memcpy(string->utf8_data + string->size, utf8_data, size + 1);
 
   string->size = string->size + size;
 
   // The string must be NULL terminated by now
+  // minus 1 because string->size includes null
   assert(string->utf8_data[string->size] == '\0');
 
   // The hash is invalid
   string->hash = 0;
 }
+
+void hkl_string_cat_character(HklString* string, uint32_t character)
+{
+  assert(string != NULL);
+
+  // This is a hack
+
+  union hack {
+
+    char c[5];
+    uint32_t d; 
+
+  } str = {.d = character, .c[4] = '\0'};
+
+  printf("catting %s\n", str.c);
+
+  hkl_string_cat_utf8(string, str.c);
+}
+
 
 void hkl_string_copy(HklString* string, const HklString* src)
 {
