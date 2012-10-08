@@ -13,6 +13,7 @@ HklObject* hklr_object_new(HklTypes type, HklFlags flags, void* value)
   object->prev = NULL;
   object->next = NULL;
   object->rc = 0;
+  object->is_buffered = false;
   object->color = HKL_COLOR_BLACK;
 
   object->type = type;

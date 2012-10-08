@@ -2,6 +2,7 @@
 #define HKLR_H
 
 #include "hklr_object.h"
+#include "hkl_deque.h"
 
 typedef struct HklScope {
 
@@ -17,6 +18,7 @@ typedef struct HklRuntime
 {
   HklObject* gc_roots;
   HklObject* gc_tail;
+  HklDeque* gc_to_free; // objects waiting to be freed
   size_t gc_runs;
   size_t gc_created;
   size_t gc_freed;
