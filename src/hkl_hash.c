@@ -121,6 +121,9 @@ void hkl_hash_free(HklHash* hash)
   assert(hash != NULL);
 
   hkl_hash_clear(hash);
+
+  // Free the buckets
+  free(hash->buckets);
   hkl_free_object(hash);
 }
 
@@ -151,11 +154,8 @@ void hkl_hash_insert(HklHash* hash, HklString* key, void* value)
       HklPair* pair = element->data;
 
       element->data = hkl_tree_new();
-      //hkl_tree_insert((HklTree*) element->data, pair->key, pair->value);
       hkl_tree_move_pair((HklTree*) element->data, pair);
 
-      // Free the uneeded pair
-      //hkl_pair_free(pair);
       hkl_tree_insert((HklTree*) element->data, key, value);
 
       // Mark the element as a tree

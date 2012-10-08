@@ -17,6 +17,8 @@ void hklr_init()
   HKLR.gc_roots->next = HKLR.gc_tail;
   HKLR.gc_tail->prev = HKLR.gc_roots;
 
+  HKLR.gc_to_free = hkl_deque_new();
+
   HKLR.gc_runs = 0;
   HKLR.gc_freed = 0;
   HKLR.gc_rootsize = 0;
@@ -44,6 +46,8 @@ void hklr_shutdown()
   // collect garbage
   hklr_gc_collect();
 
+  hkl_deque_free(HKLR.gc_to_free);
+
   hklr_object_free(HKLR.gc_roots);
   hklr_object_free(HKLR.gc_tail);
 }
@@ -58,7 +62,15 @@ void hklr_scope_push()
   scope->locals = hkl_hash_new();
   scope->upvals = hkl_hash_new();
 
-  HKLR.scopes = scope;
+  if (HKLR.scopes != NULL)
+  {
+    HKLR.scopes->next = scope;
+  }
+  else
+  {
+    HKLR.scopes = scope;
+  }
+
   HKLR.scope_level++;
 }
 
@@ -141,6 +153,8 @@ HklObject* hklr_search(HklString* key)
 
 void hklr_gc_inc(HklObject* object)
 {
+  assert(object != NULL);
+
   object->rc++;
   object->color = HKL_COLOR_BLACK;
 }
@@ -195,6 +209,8 @@ static void hklr_gc_release(HklObject* object)
 
 void hklr_gc_dec(HklObject* object)
 {
+  assert(object != NULL);
+
   object->rc--;
   if (object->rc == 0)
   {
@@ -359,6 +375,8 @@ static void hklr_gc_collectwhite_hash(HklPair* pair, void* data)
 
 static void hklr_gc_collectwhite(HklObject* object)
 {
+  assert(object != NULL);
+
   if (object->color == HKL_COLOR_WHITE && !object->is_buffered)
   {
     object->color = HKL_COLOR_BLACK;
@@ -379,8 +397,11 @@ static void hklr_gc_collectwhite(HklObject* object)
       default: break;
     }
 
-    HKLR.gc_freed++;
-    hklr_object_free(object);
+    // queue up roots to free
+    /* HKLR.gc_freed++;
+    hklr_object_free(object);*/
+
+    hkl_deque_push_back(HKLR.gc_to_free, object);
   }
 }
 
@@ -398,6 +419,13 @@ static void hklr_gc_collectroots()
 
     s->is_buffered = false;
     hklr_gc_collectwhite(s);
+  }
+
+  // Free the queued roots
+  while ((s = (HklObject*) hkl_deque_pop_front(HKLR.gc_to_free)))
+  {
+    HKLR.gc_freed++;
+    hklr_object_free(s);
   }
 }
 
