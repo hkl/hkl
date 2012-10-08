@@ -1,0 +1,19 @@
+{
+  flex_and_bison_buffer
+  Memcheck:Leak
+  fun:malloc
+  fun:yy_create_buffer
+  fun:yylex
+  fun:yyparse
+  fun:main
+}
+
+{
+  flex_and_bison_buffer_stack
+  Memcheck:Leak
+  fun:malloc
+  fun:yyensure_buffer_stack
+  fun:yylex
+  fun:yyparse
+  fun:main
+}

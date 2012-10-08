@@ -3,6 +3,8 @@
 #include "hkl.h"
 
 // These are linked at compile time
+extern FILE* yyin;
+extern FILE* yyout;
 extern int yylex();
 extern int yyparse();
 extern int yylineno;
