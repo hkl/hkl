@@ -1,6 +1,5 @@
 #include <assert.h>
 #include <string.h>
-#include <stdio.h>
 
 #include "hkl_string.h"
 #include "hkl_alloc.h"
@@ -44,6 +43,7 @@ HklString* hkl_string_new_from_integer(int integer)
   // create a buffer to store the integer
   HklString* string = hkl_string_new_from_utf8("               ");
   sprintf(string->utf8_data,"%d", integer);
+  string->length = utf8_length(string->utf8_data);
   return string;
 }
 
@@ -51,6 +51,41 @@ HklString* hkl_string_new_from_real(double real)
 {
   HklString* string = hkl_string_new_from_utf8("               ");
   sprintf(string->utf8_data, "%lg", real);
+  string->length = utf8_length(string->utf8_data);
+  return string;
+}
+
+HklString* hkl_string_new_from_stream(FILE* stream)
+{
+  // initialize an 8 character input buffer
+  HklString* string = hkl_string_new_from_utf8("       ");
+  size_t input = 0;
+  int c;
+
+  while (true)
+  {
+    c = fgetc(stdin);
+
+    if (c == EOF || c == '\n')
+      break;
+
+    // if we are about to overflow
+    if (input == string->size)
+    {
+      // double the buffer
+      string->size *= 2;
+      string->utf8_data = realloc(string->utf8_data, string->size);
+    }
+
+    string->utf8_data[input] = c;
+    input++;
+  }
+
+  // write a null character
+  string->utf8_data[input] = '\0';
+
+  string->length = utf8_length(string->utf8_data);
+
   return string;
 }
 
@@ -130,22 +165,6 @@ void hkl_string_cat_utf8(HklString* string, const char* utf8_data)
 
   // The hash is invalid
   string->hash = 0;
-}
-
-void hkl_string_cat_character(HklString* string, uint32_t character)
-{
-  assert(string != NULL);
-
-  // This is a hack
-  union hack {
-
-    char c[5];
-    uint32_t d; 
-
-  } str = {.d = character};
-  str.c[4] = '\0';
-
-  hkl_string_cat_utf8(string, str.c);
 }
   
 void hkl_string_copy(HklString* string, const HklString* src)
