@@ -23,6 +23,10 @@ int main(int argc, const char* argv[])
   hkl_string_set_utf8(testname, "gc");
   hkl_tree_insert(testtree, testname, &gctest);
 
+  extern HklTestFunction traversaltest;
+  hkl_string_set_utf8(testname, "traversal");
+  hkl_tree_insert(testtree, testname, &traversaltest);
+
   if (argv[1] == NULL)
   {
     fprintf(stderr, "No test given. Exiting.\n");

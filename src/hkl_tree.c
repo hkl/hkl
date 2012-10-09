@@ -1,6 +1,6 @@
 #include <stdbool.h>
 #include <string.h>
-//#include <stdio.h>
+#include <stdio.h>
 
 #include <assert.h>
 
@@ -380,7 +380,7 @@ static void hkl_treenode_traverse(HklTreeNode* root,
   {
     if(current->left == NULL)
     {
-      //printf(" %s ", hkl_string_get_utf8(current->pair->key));
+      //printf("VALUE: %s \n", hkl_string_get_utf8(current->pair->key));
       fn(current->pair, data);
       current = current->right;
     }
@@ -404,7 +404,7 @@ static void hkl_treenode_traverse(HklTreeNode* root,
       else
       {
         pre->right = NULL;
-        //printf(" %s ", hkl_string_get_utf8(current->pair->key));
+        //printf("VALUE: %s \n", hkl_string_get_utf8(current->pair->key));
         fn(current->pair, data);
         current = current->right;
       } /* End of if condition pre->right == NULL */
