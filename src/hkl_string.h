@@ -2,6 +2,7 @@
 #define HKL_STRING_H
 
 #include <stdint.h>
+#include <stdio.h>
 #include <stddef.h>
 #include <stdbool.h>
 
@@ -55,6 +56,9 @@ Allocate a string representation of a real number.
 */
 HklString* hkl_string_new_from_real(double real);
 
+
+HklString* hkl_string_new_from_stream(FILE* stream);
+
 /**
 Allocate a new HklString using utf8 data.
 
@@ -90,15 +94,6 @@ Concatinate a HklString with utf8 data.
 @brief The string is modified in-place only reallocating internal data if needed.
 */
 void hkl_string_cat_utf8(HklString* string, const char* utf8_data);
-
-/**
-Concatinate a HklString with a single utf8 character.
-
-@param string The HklString to concatinate onto.
-@param character The single utf8 character to concatinate.
-@brief The string allocation is expanded by 1 to 4 bytes and modified.
-*/
-void hkl_string_cat_character(HklString* string, uint32_t character);
 
 /**
 Turns a HklString into an exact copy of another.
