@@ -17,7 +17,7 @@ typedef struct HklStatement
 {
   HklStatementType type;
 
-  union arg {
+  union stmtarg {
   
     HklExpression* expression;
 
@@ -28,5 +28,7 @@ typedef struct HklStatement
 HklStatement* hkl_statement_new(HklStatementType type, ...);
 
 void hkl_statement_exec(HklStatement* stmt);
+
+void hkl_statement_free(HklStatement* stmt);
 
 #endif // HKL_STATEMENT_H

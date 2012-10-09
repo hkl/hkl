@@ -156,6 +156,9 @@ stmt_list:
     if (HKLR.scope_level == 1)
     {
       hkl_statement_exec($2);
+
+      // clean up the statement as we dont need it anymore
+      hkl_statement_free($2);
     }
     else
     {
@@ -177,7 +180,7 @@ stmt:
   | class_stmt
   | function_stmt
   | assign_stmt
-  | switch_stmt
+  //| switch_stmt
 
 puts_stmt:
   HKL_T_PUTS expr
@@ -227,21 +230,25 @@ function_stmt:
 
 assign_stmt:
   init_assign
-  | qualifier_list variable HKL_T_PLUS_ASSIGN expr
-  | qualifier_list variable HKL_T_MINUS_ASSIGN expr
-  | qualifier_list variable HKL_T_ASTERISK_ASSIGN expr
-  | qualifier_list variable HKL_T_DIVIDE_ASSIGN expr
-  | qualifier_list variable HKL_T_MOD_ASSIGN expr
-  | qualifier_list variable HKL_T_BITWISE_AND_ASSIGN expr
-  | qualifier_list variable HKL_T_BITWISE_OR_ASSIGN expr
-  | qualifier_list variable HKL_T_BITWISE_XOR_ASSIGN expr
-  | qualifier_list variable HKL_T_BITWISE_NOT_ASSIGN expr
+  | variable HKL_T_PLUS_ASSIGN expr
+  | variable HKL_T_MINUS_ASSIGN expr
+  | variable HKL_T_ASTERISK_ASSIGN expr
+  | variable HKL_T_DIVIDE_ASSIGN expr
+  | variable HKL_T_MOD_ASSIGN expr
+  | variable HKL_T_BITWISE_AND_ASSIGN expr
+  | variable HKL_T_BITWISE_OR_ASSIGN expr
+  | variable HKL_T_BITWISE_XOR_ASSIGN expr
+  | variable HKL_T_BITWISE_NOT_ASSIGN expr
 
+// The statemens in a switch should be stored in a normal
+// statement list, but use a hklhash to map to the "case nodes"
+// in the switch list. This gives us O(logn) jumps and normal waterfall
+// execution 
 switch_stmt:
   HKL_T_SWITCH HKL_T_LPAREN expr HKL_T_RPAREN case_list HKL_T_END
 
 case_list:
-  case case_list
+  case_list case
   | default_case
 
 case:
@@ -249,7 +256,7 @@ case:
 
 default_case:
   HKL_T_DEFAULT HKL_T_COLON stmt_list
-  | empty
+  | empty 
 
 init_assign:
   qualifier_list variable optional_init
@@ -259,7 +266,6 @@ no_call_init_assign:
 
 qualifier_list:
   qualifier qualifier_list
-  | empty
 
 qualifier:
   HKL_T_UNIQUE
@@ -313,6 +319,9 @@ primary_expr:
     $$ = hkl_expression_new(HKL_EXPR_STRING, $1);
   }
   | HKL_T_GETS
+  {
+    $$ = hkl_expression_new(HKL_EXPR_GETS);
+  }
   | HKL_T_TRUE
   | HKL_T_FALSE
   | HKL_T_NIL
