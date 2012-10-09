@@ -39,8 +39,20 @@ Allocate a copy of another HklString.
 */
 HklString* hkl_string_new_from_string(const HklString* string);
 
+/**
+Allocate a string representation of an integer.
+
+@param integer The integer value to copy.
+@retval HklString* A newly allocated string.
+*/
 HklString* hkl_string_new_from_integer(int integer);
 
+/**
+Allocate a string representation of a real number.
+
+@param real The real value to copy.
+@retval HklString* A newly allocated string.
+*/
 HklString* hkl_string_new_from_real(double real);
 
 /**
@@ -79,6 +91,13 @@ Concatinate a HklString with utf8 data.
 */
 void hkl_string_cat_utf8(HklString* string, const char* utf8_data);
 
+/**
+Concatinate a HklString with a single utf8 character.
+
+@param string The HklString to concatinate onto.
+@param character The single utf8 character to concatinate.
+@brief The string allocation is expanded by 1 to 4 bytes and modified.
+*/
 void hkl_string_cat_character(HklString* string, uint32_t character);
 
 /**

@@ -44,6 +44,12 @@ typedef enum HklTypes
 
 } HklTypes;
 
+/**
+@struct HklObject The top-level object used by the HKLR
+
+@authors Barrett Lewis, Scott LaVigne 
+@date 10/8/2012
+*/
 typedef struct HklObject {
 
   // Used for garbage collection
@@ -68,12 +74,62 @@ typedef struct HklObject {
 
 } HklObject;
 
+/**
+Allocate a new HklObject.
+
+@param type The object type.
+@param flags The informative flags for the object.
+@param value An optional value to hand off to the object.
+Passing NULL will result in a default allocation of the object of
+the chosen type.
+
+@brief WARNING: values passed as data to be contained in the object
+will be owned by the object and will therefore be automatically
+garbage collected by the HKLR.
+*/
 HklObject* hklr_object_new(HklTypes type, HklFlags flags, void* value);
 
+/**
+Free resources used by a HklObject
+
+@param object The object to free.
+
+@breif WARNING: This should essentially never be called by a user.
+objects created by hkl_object_new will attempt to communicate
+with the HKLR for automatic memory management.
+*/
 void hklr_object_free(HklObject* object);
 
+/**
+Create a reference link between two objects.
+
+This function is mostly unimplemented.
+
+If the child to reference is also a reference, there is a garuntee
+that a link will be made to a leaf object. Chaining references can
+cause long stalls in the HKLR.
+
+@param object The parent object.
+@param reference The child.
+*/
 void hklr_reference(HklObject* object, HklObject* reference);
 
+/**
+Add a child to a HklObject.
+
+This function is mostly unimplemented.
+
+This function is intended for mutating hklhash-based objects at runtime.
+This should work for both hashes and classes
+
+This should follow basic rules for evaluation.
+There should be a garuntee that if value is a composite object, a reference to
+it is stored.
+
+@param object The parent object.
+@param name An object to use as a key.
+@param value An object to insert.
+*/
 void hklr_member_insert(HklObject* object, HklObject* name, HklObject* value);
 
 #endif // HKL_OBJECT_H

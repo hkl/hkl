@@ -1,2 +1,2 @@
-puts gets puts gets puts 
-gets
+puts gets
+puts "\n"

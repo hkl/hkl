@@ -38,7 +38,7 @@ void hkl_statement_exec(HklStatement* stmt)
     case HKL_STMT_PUTS:
     {
       HklString* string = hkl_expression_eval_string(stmt->arg[0].expression);
-      printf("%s", string->utf8_data);
+      fprintf(stdout, "%s", string->utf8_data);
       hkl_string_free(string);
     }
     break;
