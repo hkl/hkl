@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <string.h>
+#include <stdio.h>
 
 #include <assert.h>
 
@@ -350,11 +351,16 @@ void hkl_tree_free(HklTree* tree)
   hkl_free_object(tree);
 }
 
-static void hkl_treenode_traverse(HklTreeNode* node,
+/**
+  Adaption of Morris Inorder traversal without a Stack or Recursion
+*/
+static void hkl_treenode_traverse(HklTreeNode* root,
   void(*fn)(HklPair*, void*), void* data)
 {
-  assert(node != NULL);
+  
+  assert(root != NULL);
 
+  /*
   if (node->left != NULL)
     hkl_treenode_traverse(node->left, fn, data);
 
@@ -362,6 +368,48 @@ static void hkl_treenode_traverse(HklTreeNode* node,
 
   if (node->right != NULL)
       hkl_treenode_traverse(node->right, fn, data);
+  */
+
+  HklTreeNode *current,*pre;
+
+  if(root == NULL)
+     return;
+
+  current = root;
+  while(current != NULL)
+  {
+    if(current->left == NULL)
+    {
+      //printf("VALUE: %s \n", hkl_string_get_utf8(current->pair->key));
+      fn(current->pair, data);
+      current = current->right;
+    }
+    else
+    {
+      /* Find the inorder predecessor of current */
+      pre = current->left;
+      while(pre->right != NULL && pre->right != current)
+        pre = pre->right;
+
+      /* Make current as right child of its inorder predecessor */
+      if(pre->right == NULL)
+      {
+        pre->right = current;
+        current = current->left;
+      }
+
+     // MAGIC OF RESTORING the Tree happens here: 
+      /* Revert the changes made in if part to restore the original
+        tree i.e., fix the right child of predecssor */
+      else
+      {
+        pre->right = NULL;
+        //printf("VALUE: %s \n", hkl_string_get_utf8(current->pair->key));
+        fn(current->pair, data);
+        current = current->right;
+      } /* End of if condition pre->right == NULL */
+    } /* End of if condition current->left == NULL*/
+  } /* End of while */
 }
 
 void hkl_tree_traverse(HklTree* tree, void(*fn)(HklPair*, void*), void* data)

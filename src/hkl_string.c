@@ -43,14 +43,14 @@ HklString* hkl_string_new_from_integer(int integer)
 {
   // create a buffer to store the integer
   HklString* string = hkl_string_new_from_utf8("               ");
-  snprintf(string->utf8_data, string->size, "%d", integer);
+  sprintf(string->utf8_data,"%d", integer);
   return string;
 }
 
 HklString* hkl_string_new_from_real(double real)
 {
   HklString* string = hkl_string_new_from_utf8("               ");
-  snprintf(string->utf8_data, string->size, "%lg", real);
+  sprintf(string->utf8_data, "%lg", real);
   return string;
 }
 
