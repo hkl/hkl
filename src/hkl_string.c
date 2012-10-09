@@ -1,43 +1,9 @@
 #include <assert.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "hkl_string.h"
 #include "hkl_alloc.h"
-
-/*
-// Test if a byte is likely utf8 encoded
-#define hkl_isutf8(c) (((c)&0xC0)!=0x80) 
-
-static uint32_t utf8_nextchar(const char* utf8_data, size_t* index)
-{
-  uint32_t character = 0;
-  size_t character_size = 0;
-
-  do
-  {
-    character <<= 6;
-    character += (char) utf8_data[(*index)++];
-    character_size++;
-
-  } while (utf8_data[*index] && !hkl_isutf8(utf8_data[*index]));
-
-  character -= HKL_UTF8_MASKS[character_size - 1];
-
-  return character;
-}
-
-static size_t utf8_length(const char* utf8_data)
-{
-  size_t length = 0;
-  size_t index = 0;
-
-  while (utf8_nextchar(utf8_data, &index) != 0)
-  {
-    length++;
-  }
-
-  return length;
-} */
 
 // Get length of utf8-encoded string
 static size_t utf8_length(const char* utf8_data) {
@@ -73,6 +39,21 @@ HklString* hkl_string_new_from_string(const HklString* string)
   return copy;
 }
 
+HklString* hkl_string_new_from_integer(int integer)
+{
+  // create a buffer to store the integer
+  HklString* string = hkl_string_new_from_utf8("               ");
+  snprintf(string->utf8_data, string->size, "%d", integer);
+  return string;
+}
+
+HklString* hkl_string_new_from_real(double real)
+{
+  HklString* string = hkl_string_new_from_utf8("               ");
+  snprintf(string->utf8_data, string->size, "%lg", real);
+  return string;
+}
+
 HklString* hkl_string_new_from_utf8(const char* utf8_data)
 {
   assert(utf8_data != NULL);
@@ -81,31 +62,7 @@ HklString* hkl_string_new_from_utf8(const char* utf8_data)
   hkl_string_set_utf8(string, utf8_data);
 
   return string;
-}
-
-HklString* hkl_string_new_from_utf8_chunk(const char* utf8_start, const char* utf8_end)
-{
-  assert(utf8_start != NULL);
-  assert(utf8_end != NULL);
-  assert(utf8_end >= utf8_start);
-
-  ptrdiff_t size = utf8_end - utf8_start;
-
-  HklString* string = hkl_string_new();
-
-  string->utf8_data = realloc(string->utf8_data, size + 1);
-  string->size = size;
-  
-  memcpy(string->utf8_data, utf8_start, size);
-
-  // Null terminate
-  string->utf8_data[size] = '\0';
-
-  // Recalculate length
-  string->length = utf8_length(string->utf8_data);
-
-  return string;
-}
+} 
 
 void hkl_string_set_utf8(HklString* string, const char* utf8_data)
 {
@@ -158,22 +115,39 @@ void hkl_string_cat_utf8(HklString* string, const char* utf8_data)
   assert(utf8_data[size] == '\0');
 
   // Resize the string to accomidate new data
-  if (string->size < string->size + size)
+  if (string->size < string->size + size + 1)
     string->utf8_data = realloc(string->utf8_data, string->size + size + 1);
 
   string->length += utf8_length(utf8_data);
 
-  memcpy(string->utf8_data + string->size, utf8_data, string->size + size + 1);
+  memcpy(string->utf8_data + string->size, utf8_data, size + 1);
 
   string->size = string->size + size;
 
   // The string must be NULL terminated by now
+  // minus 1 because string->size includes null
   assert(string->utf8_data[string->size] == '\0');
 
   // The hash is invalid
   string->hash = 0;
 }
 
+void hkl_string_cat_character(HklString* string, uint32_t character)
+{
+  assert(string != NULL);
+
+  // This is a hack
+  union hack {
+
+    char c[5];
+    uint32_t d; 
+
+  } str = {.d = character};
+  str.c[4] = '\0';
+
+  hkl_string_cat_utf8(string, str.c);
+}
+  
 void hkl_string_copy(HklString* string, const HklString* src)
 {
   assert(string != NULL);
