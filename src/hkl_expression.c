@@ -56,21 +56,7 @@ HklString* hkl_expression_eval_string(HklExpression* expr)
     break;
 
     case HKL_EXPR_GETS:
-    {
-      HklString* buffer = hkl_string_new();
-      uint32_t c;
-
-      while (true) {
-
-        c = fgetc(stdin);
-        if (c == (uint32_t) EOF || c == '\n')
-          break;
-
-        hkl_string_cat_character(buffer, c);
-      }
-
-      return buffer;
-    }
+      return hkl_string_new_from_stream(stdin);
     break;
 
     default:
