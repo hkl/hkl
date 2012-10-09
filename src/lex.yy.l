@@ -128,6 +128,7 @@ HklString* string_buf = NULL;
 <stringbuild>\\\\          { hkl_string_cat_utf8(string_buf, "\\"); }
 <stringbuild>\\\"          { hkl_string_cat_utf8(string_buf, "\""); }
 <stringbuild>\"            { yylval.string = string_buf; BEGIN 0; return HKL_T_STRING_CONSTANT; }
+
 <stringbuild>\\.           yyerror(yytext);
 
 .                          yyerror(yytext);

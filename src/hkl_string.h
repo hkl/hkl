@@ -53,16 +53,6 @@ Allocate a new HklString using utf8 data.
 HklString* hkl_string_new_from_utf8(const char* utf8_data);
 
 /**
-Allocate a new HklString using utf8 data given 2 pointers
-
-@param utf8_start The start address of the utf8_data to copy.
-@param utf8_end The end address of the utf8_data to copy.
-@retval HklString* A new HklString.
-@brief This is used for efficiently copying only a chunk of utf8 strings.
-*/
-HklString* hkl_string_new_from_utf8_chunk(const char* utf8_start, const char* utf8_end);
-
-/**
 Sets the utf8 data inside a HklString.
 
 @param string The HklString to modify.

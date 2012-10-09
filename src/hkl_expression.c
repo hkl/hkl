@@ -57,7 +57,7 @@ HklString* hkl_expression_eval_string(HklExpression* expr)
 
     case HKL_EXPR_GETS:
     {
-      HklString* buffer = hkl_string_new();
+      HklString* buffer = hkl_string_new_from_utf8("       ");
       uint32_t c;
 
       while (true) {
