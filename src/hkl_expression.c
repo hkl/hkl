@@ -1,111 +1,100 @@
+#include <stdio.h>
 #include <assert.h>
 
-#include "hkl_expression.h"
 #include "hkl_alloc.h"
+#include "hkl_expression.h"
 
-HklExpression* hkl_expression_new_unary_expression(HklExpression* expr, HklOperator op)
+HklExpression* hkl_expression_new(HklExpressionType type, ...)
 {
-  HklExpression* unary_expression = hkl_alloc_object(HklExpression);
-  assert(unary_expression != NULL);
+  HklExpression* expr = hkl_alloc_object(HklExpression);
 
+  expr->type = type;
+
+  va_list argp;
+  va_start(argp, type);
+
+  switch (type)
+  {
+    case HKL_EXPR_INT:
+      expr->arg[0].integer = va_arg(argp, int);
+      break;
+
+    case HKL_EXPR_REAL:
+      expr->arg[0].real = va_arg(argp, double);
+      break;
+
+    case HKL_EXPR_STRING:
+      expr->arg[0].string = va_arg(argp, HklString*);
+      break;
+
+    default:
+    break;
+  }
+
+  va_end(argp);
+
+  return expr;
+}
+
+HklString* hkl_expression_eval_string(HklExpression* expr)
+{
   assert(expr != NULL);
 
-  // Make sure the operator is for a unary expression
-  assert(op & HKL_UNARY_OP); 
+  switch (expr->type)
+  {
+    case HKL_EXPR_STRING:
+      // return a copy of the string
+      return hkl_string_new_from_string(expr->arg[0].string);
+    break;
 
-  unary_expression->expr_left = expr;
-  unary_expression->op = op;
-  unary_expression->content = HKL_EXPR_UNARY;
+    case HKL_EXPR_INT:
+      return hkl_string_new_from_integer(expr->arg[0].integer);
+    break;
 
-  return unary_expression;
-}
+    case HKL_EXPR_REAL:
+      return hkl_string_new_from_real(expr->arg[0].real);
+    break;
 
-HklExpression* hkl_expression_new_binary_expression(HklExpression* expr_left, HklExpression* expr_right, HklOperator op)
-{
-  HklExpression* binary_expression = hkl_alloc_object(HklExpression);
-  assert(binary_expression != NULL);
+    case HKL_EXPR_GETS:
+    {
+      HklString* buffer = hkl_string_new();
+      uint32_t c;
 
-  assert(expr_left != NULL);
-  assert(expr_right != NULL);
+      while (true) {
 
-  // Make sure the operator is a binary operator
-  assert(op & HKL_BINARY_OP);
+        c = fgetc(stdin);
+        if (c == (uint32_t) EOF || c == '\n')
+          break;
 
-  binary_expression->expr_left = expr_left;
-  binary_expression->expr_right = expr_right;
-  binary_expression->op = op;
-  binary_expression->content = HKL_EXPR_BINARY;
+        hkl_string_cat_character(buffer, c);
+      }
 
-  return binary_expression;
-}
+      return buffer;
+    }
+    break;
 
-HklExpression* hkl_expression_new_constant_expr(void* constant)
-{
-  HklExpression* constant_expr = hkl_alloc_object(HklExpression);
-  assert(constant_expr != NULL);
+    default:
+    break;
+  }
 
-  assert(constant != NULL);
-  
-  constant_expr->value = constant;
-  constant_expr->content = HKL_EXPR_CONSTANT;
-
-  return constant_expr;
-}
-
-HklExpression* hkl_expression_new_variable_expr(HklVariable* variable)
-{
-  HklExpression* variable_expr = hkl_alloc_object(HklExpression);
-  assert(variable_expr != NULL);
-
-  assert(variable != NULL);
-
-  variable_expr->value = variable;
-  variable_expr->content = HKL_EXPR_VARIABLE;
-
-  return variable_expr;
-}
-
-void hkl_expression_clear(HklExpression* expr)
-{
-   assert(expr != NULL);
- 
-   if (expr->content == HKL_EXPR_BINARY)
-   {
-     hkl_expression_free(expr->expr_right);
-     expr->expr_right = NULL;
-
-     hkl_expression_free(expr->expr_left);
-     expr->expr_left = NULL;
-   }
-
-   if (expr->content == HKL_EXPR_UNARY)
-   {
-     hkl_expression_free(expr->expr_left);
-     expr->expr_left = NULL;
-   }
-
-   if (expr->content == HKL_EXPR_VARIABLE)
-   {
-     hkl_variable_free(expr->value);
-     expr->value = NULL;
-   }
-
-   if (expr->content == HKL_EXPR_CONSTANT)
-   {
-     free(expr->value);
-     expr->value = NULL;
-   }
-
-   expr->type = 0;
-   expr->op = 0;
-   expr->content = 0;
+  assert(false);
+  return NULL;
 }
 
 void hkl_expression_free(HklExpression* expr)
 {
   assert(expr != NULL);
 
-  hkl_expression_clear(expr);
+  switch (expr->type)
+  {
+    case HKL_EXPR_STRING:
+      // free the internal string
+      hkl_string_free(expr->arg[0].string);
+    break;
 
-  free(expr);
+    default:
+    break;
+  }
+
+  hkl_free_object(expr);
 }

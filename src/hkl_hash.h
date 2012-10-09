@@ -87,6 +87,13 @@ Move a pair into a HklHash.
 */
 void hkl_hash_move_pair(HklHash* hash, HklPair* pair);
 
+/**
+Traverse a HklHash.
+
+@param hash The hash table.
+@param fn A callback function that takes a HklPair and pointer for user-data.
+@param data The user-data to pass to the traversal routine.
+*/
 void hkl_hash_traverse(HklHash* hash, void(*fn)(HklPair*, void*), void* data);
 
 #endif // HKL_STRING_H

@@ -2,7 +2,7 @@
 
 #include <stdio.h>      // for scan functions
 
-#include "hklc.h"
+#include "hkl.h"
 
 extern int yyerror(const char* msg);
 
@@ -30,9 +30,9 @@ HklString* string_buf = NULL;
 "continue"             return HKL_T_CONTINUE;
 "assert"               return HKL_T_ASSERT;
 "include"              return HKL_T_INCLUDE;
-"case"				   return HKL_T_CASE;
+"case"				         return HKL_T_CASE;
 "switch"               return HKL_T_SWITCH;
-"default"             return HKL_T_DEFAULT;
+"default"              return HKL_T_DEFAULT;
 
 "class"                return HKL_T_CLASS;
 "function"             return HKL_T_FUNCTION;
@@ -128,6 +128,7 @@ HklString* string_buf = NULL;
 <stringbuild>\\\\          { hkl_string_cat_utf8(string_buf, "\\"); }
 <stringbuild>\\\"          { hkl_string_cat_utf8(string_buf, "\""); }
 <stringbuild>\"            { yylval.string = string_buf; BEGIN 0; return HKL_T_STRING_CONSTANT; }
+
 <stringbuild>\\.           yyerror(yytext);
 
 .                          yyerror(yytext);

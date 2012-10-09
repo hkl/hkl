@@ -3,6 +3,9 @@
   #include <stdio.h>
 
   #include "hkl_string.h"
+  #include "hklr.h"
+  #include "hkl_expression.h"
+  #include "hkl_statement.h"
 
   // These will be defined at link time
   extern int yylex();
@@ -15,9 +18,11 @@
 // YYSUNION Definition
 %union
 {
-  int        integer;
-  double     real;
-  HklString* string;
+  int            integer;
+  double         real;
+  HklString*     string;
+  HklStatement*  statement;
+  HklExpression* expression;
 }
 
 /*
@@ -114,6 +119,12 @@
 %token <real>    HKL_T_REAL_CONSTANT       "real constant"
 %token <string>  HKL_T_STRING_CONSTANT     "string literal"
 
+%type <statement> stmt
+%type <statement> puts_stmt
+
+%type <expression> expr
+%type <expression> primary_expr
+
 %token END 0                               "end of file"
 
 // Precedence
@@ -138,6 +149,22 @@ program:
 
 stmt_list:
   stmt_list stmt
+  {
+    // if we made a statement, and are in scope 1,
+    // then execute the statement
+
+    if (HKLR.scope_level == 1)
+    {
+      hkl_statement_exec($2);
+
+      // clean up the statement as we dont need it anymore
+      hkl_statement_free($2);
+    }
+    else
+    {
+      // add the statement to the current stmt_list
+    }
+  }
   | empty
 
 stmt:
@@ -153,26 +180,26 @@ stmt:
   | class_stmt
   | function_stmt
   | assign_stmt
-  | switch_stmt
+  //| switch_stmt
 
 puts_stmt:
-  HKL_T_PUTS HKL_T_STRING_CONSTANT
+  HKL_T_PUTS expr
   {
-    printf("%s", hkl_string_get_utf8($2));
+    $$ = hkl_statement_new(HKL_STMT_PUTS, $2);
   }
 
 if_stmt:
-  HKL_T_IF HKL_T_LPAREN expression HKL_T_RPAREN stmt_list HKL_T_END
-  | HKL_T_IF HKL_T_LPAREN expression HKL_T_RPAREN stmt_list HKL_T_ELSE stmt_list HKL_T_END
+  HKL_T_IF HKL_T_LPAREN expr HKL_T_RPAREN stmt_list HKL_T_END
+  | HKL_T_IF HKL_T_LPAREN expr HKL_T_RPAREN stmt_list HKL_T_ELSE stmt_list HKL_T_END
 
 for_stmt:
   HKL_T_FOR HKL_T_LPAREN HKL_T_RPAREN stmt_list HKL_T_END
 
 while_stmt:
-  HKL_T_WHILE HKL_T_LPAREN expression HKL_T_RPAREN stmt_list HKL_T_END
+  HKL_T_WHILE HKL_T_LPAREN expr HKL_T_RPAREN stmt_list HKL_T_END
 
 return_stmt:
-  HKL_T_RETURN expression
+  HKL_T_RETURN expr
 
 break_stmt:
   HKL_T_BREAK
@@ -181,10 +208,10 @@ continue_stmt:
   HKL_T_CONTINUE
 
 assert_stmt:
-  HKL_T_ASSERT expression
+  HKL_T_ASSERT expr
 
 include_stmt:
-  HKL_T_INCLUDE expression
+  HKL_T_INCLUDE expr
 
 class_stmt:
   qualifier_list HKL_T_CLASS variable class_content_list HKL_T_END
@@ -203,29 +230,33 @@ function_stmt:
 
 assign_stmt:
   init_assign
-  | qualifier_list variable HKL_T_PLUS_ASSIGN expression
-  | qualifier_list variable HKL_T_MINUS_ASSIGN expression
-  | qualifier_list variable HKL_T_ASTERISK_ASSIGN expression
-  | qualifier_list variable HKL_T_DIVIDE_ASSIGN expression
-  | qualifier_list variable HKL_T_MOD_ASSIGN expression
-  | qualifier_list variable HKL_T_BITWISE_AND_ASSIGN expression
-  | qualifier_list variable HKL_T_BITWISE_OR_ASSIGN expression
-  | qualifier_list variable HKL_T_BITWISE_XOR_ASSIGN expression
-  | qualifier_list variable HKL_T_BITWISE_NOT_ASSIGN expression
+  | variable HKL_T_PLUS_ASSIGN expr
+  | variable HKL_T_MINUS_ASSIGN expr
+  | variable HKL_T_ASTERISK_ASSIGN expr
+  | variable HKL_T_DIVIDE_ASSIGN expr
+  | variable HKL_T_MOD_ASSIGN expr
+  | variable HKL_T_BITWISE_AND_ASSIGN expr
+  | variable HKL_T_BITWISE_OR_ASSIGN expr
+  | variable HKL_T_BITWISE_XOR_ASSIGN expr
+  | variable HKL_T_BITWISE_NOT_ASSIGN expr
 
+// The statemens in a switch should be stored in a normal
+// statement list, but use a hklhash to map to the "case nodes"
+// in the switch list. This gives us O(logn) jumps and normal waterfall
+// execution 
 switch_stmt:
-  HKL_T_SWITCH HKL_T_LPAREN expression HKL_T_RPAREN case_list HKL_T_END
+  HKL_T_SWITCH HKL_T_LPAREN expr HKL_T_RPAREN case_list HKL_T_END
 
 case_list:
-  case case_list
+  case_list case
   | default_case
 
 case:
-  HKL_T_CASE expression HKL_T_COLON stmt_list
+  HKL_T_CASE expr HKL_T_COLON stmt_list
 
 default_case:
   HKL_T_DEFAULT HKL_T_COLON stmt_list
-  | empty
+  | empty 
 
 init_assign:
   qualifier_list variable optional_init
@@ -235,7 +266,6 @@ no_call_init_assign:
 
 qualifier_list:
   qualifier qualifier_list
-  | empty
 
 qualifier:
   HKL_T_UNIQUE
@@ -246,40 +276,52 @@ qualifier:
   | HKL_T_GLOBAL
 
 optional_init:
-  HKL_T_ASSIGN expression
+  HKL_T_ASSIGN expr
   | empty
 
-expression:
-  HKL_T_LPAREN expression HKL_T_RPAREN
-  | primary_expression
-  | expression HKL_T_OR expression
-  | expression HKL_T_AND expression
-  | expression HKL_T_LESS_EQUAL expression
-  | expression HKL_T_GREATER_EQUAL expression
-  | expression HKL_T_LESS expression
-  | expression HKL_T_GREATER expression
-  | expression HKL_T_EQUAL expression
-  | expression HKL_T_NOT_EQUAL expression
-  | expression HKL_T_PLUS expression
-  | expression HKL_T_MINUS expression
-  | expression HKL_T_ASTERISK expression
-  | expression HKL_T_DIVIDE expression
-  | expression HKL_T_MOD expression
-  | expression HKL_T_BITWISE_AND expression
-  | expression HKL_T_BITWISE_OR expression
-  | expression HKL_T_BITWISE_XOR expression
-  | expression HKL_T_TYPE_OF type
-  | HKL_T_NOT expression %prec UNARY_OPS
-  | HKL_T_BITWISE_NOT expression %prec UNARY_OPS
-  | HKL_T_MINUS expression %prec UNARY_OPS
-  | HKL_T_INCREMENT expression %prec UNARY_OPS
-  | HKL_T_DECREMENT expression %prec UNARY_OPS
+expr:
+  HKL_T_LPAREN expr HKL_T_RPAREN
+  | primary_expr
+  | expr HKL_T_OR expr
+  | expr HKL_T_AND expr
+  | expr HKL_T_LESS_EQUAL expr
+  | expr HKL_T_GREATER_EQUAL expr
+  | expr HKL_T_LESS expr
+  | expr HKL_T_GREATER expr
+  | expr HKL_T_EQUAL expr
+  | expr HKL_T_NOT_EQUAL expr
+  | expr HKL_T_PLUS expr
+  | expr HKL_T_MINUS expr
+  | expr HKL_T_ASTERISK expr
+  | expr HKL_T_DIVIDE expr
+  | expr HKL_T_MOD expr
+  | expr HKL_T_BITWISE_AND expr
+  | expr HKL_T_BITWISE_OR expr
+  | expr HKL_T_BITWISE_XOR expr
+  | expr HKL_T_TYPE_OF type
+  | HKL_T_NOT expr %prec UNARY_OPS
+  | HKL_T_BITWISE_NOT expr %prec UNARY_OPS
+  | HKL_T_MINUS expr %prec UNARY_OPS
+  | HKL_T_INCREMENT expr %prec UNARY_OPS
+  | HKL_T_DECREMENT expr %prec UNARY_OPS
 
-primary_expression:
+primary_expr:
   HKL_T_INT_CONSTANT
+  {
+    $$ = hkl_expression_new(HKL_EXPR_INT, $1);
+  }
   | HKL_T_REAL_CONSTANT
+  {
+    $$ = hkl_expression_new(HKL_EXPR_REAL, $1);
+  }
   | HKL_T_STRING_CONSTANT
+  {
+    $$ = hkl_expression_new(HKL_EXPR_STRING, $1);
+  }
   | HKL_T_GETS
+  {
+    $$ = hkl_expression_new(HKL_EXPR_GETS);
+  }
   | HKL_T_TRUE
   | HKL_T_FALSE
   | HKL_T_NIL
@@ -334,11 +376,11 @@ action:
   | call
 
 index:
-  HKL_T_LBRACKET expression HKL_T_RBRACKET
-  | HKL_T_LBRACKET expression HKL_T_RANGE expression HKL_T_RBRACKET
+  HKL_T_LBRACKET expr HKL_T_RBRACKET
+  | HKL_T_LBRACKET expr HKL_T_RANGE expr HKL_T_RBRACKET
 
 call:
-  HKL_T_LPAREN expression_list HKL_T_RPAREN
+  HKL_T_LPAREN expr_list HKL_T_RPAREN
 
 hash:
   HKL_T_LBRACE key_val_list HKL_T_RBRACE
@@ -358,18 +400,18 @@ key_val:
   | HKL_T_REAL_CONSTANT optional_value
 
 optional_value:
-  HKL_T_COLON expression
+  HKL_T_COLON expr
   | empty
 
 array:
-  HKL_T_LBRACKET expression_list HKL_T_RBRACKET
+  HKL_T_LBRACKET expr_list HKL_T_RBRACKET
 
-expression_list:
-  expression expression_more
+expr_list:
+  expr expr_more
   | empty
 
-expression_more:
-  HKL_T_COMMA expression_list
+expr_more:
+  HKL_T_COMMA expr_list
   | empty 
 
 inline_function:
