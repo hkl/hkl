@@ -3,61 +3,66 @@
 #include "hkl_alloc.h"
 #include "hkl_deque.h"
 
-static HklDequeNode* hkl_dequenode_new(void* data)
+void hkl_deque_grow(HklDeque* deque)
 {
+  assert(deque);
 
-  HklDequeNode* node = hkl_alloc_object(HklDequeNode);
+  if((deque->front == deque->max-1) && (deque->back == 0))
+  {
+    realloc(deque->queue, deque->max * sizeof(void*));
+  }
+  else
+  {
+    int backCopyCount = deque->max - deque->back - 1;
+    void ** tmp = malloc(deque->max * sizeof(void*));
 
-  node->data = data;
-  node->next = NULL;
+    memcpy(tmp, (deque->queue + deque->back), backCopyCount * sizeof(void*));
+    memcpy(tmp + backCopyCount, deque->queue, (deque->front + 1) * sizeof(void*));
 
-  return node;
-}
-
-static void hkl_dequenode_free(HklDequeNode* node)
-{
-  assert(node != NULL);
-  hkl_free_object(node);
+    free(deque->queue);
+    deque->queue = tmp;
+    deque->back = 0;
+    deque->front = deque->max;
+  }
+  deque->max *= 2;
 }
 
 HklDeque* hkl_deque_new()
 {
   HklDeque* deque = hkl_alloc_object(HklDeque);
 
-  deque->head = deque->tail = NULL;
   deque->size = 0;
+  deque->max = 2;
+  deque->front = deque->back = 0;
+  deque->queue = malloc(2 * sizeof(void*));
 
-  return deque;
+  return deque;                             
 }
 
 void hkl_deque_push_back(HklDeque* deque, void* data)
 {
   assert(deque != NULL);
+  //do check here for size - if too big we need to grow
+ 
   deque->size++;
-
-  HklDequeNode* node = hkl_dequenode_new(data);
-
-  if (deque->head == NULL)
-    deque->head = node;
-  else
-    deque->tail->next = node;
-
-  deque->tail = node;
+  deque->back = (deque->back - 1) % deque->max;
+  deque->queue[deque->back] = data;
 }
 
 void* hkl_deque_pop_front(HklDeque* deque)
 {
   assert(deque != NULL);
 
-  HklDequeNode* node = deque->head;
   void* data = NULL;
 
-  if (node != NULL)
+  if (deque->size != 0)
   {
     deque->size--;
-    data = node->data;
-    deque->head = node->next;
-    hkl_dequenode_free(node);
+    data = deque->queue[deque->front];
+    deque->queue[deque->front] = NULL;
+
+    if(deque->size != 0)
+      deque->front = (deque->front - 1) % 5;
   }
 
   return data;
@@ -75,15 +80,12 @@ void hkl_deque_free(HklDeque* deque)
 void hkl_deque_clear(HklDeque* deque)
 {
 
-  HklDequeNode* node = deque->head;
-  HklDequeNode* temp;
+  assert(deque);
 
-  while (node != NULL)
-  {
-    temp = node->next;
-    hkl_dequenode_free(node);
-    node = temp;
-  }
-
+  free (deque->queue);
   deque->size = 0;
+  deque->max = 2;
+  deque->front = deque->back = 0;
+  deque->queue = malloc(2 * sizeof(void*));
 }
+

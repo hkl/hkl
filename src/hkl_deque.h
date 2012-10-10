@@ -3,13 +3,6 @@
 
 #include <stddef.h>
 
-typedef struct HklDequeNode {
-
-  struct HklDequeNode* next;
-  void* data;
-
-} HklDequeNode;
-
 /**
 @struct HklDeque A deque that just works.
 
@@ -25,9 +18,9 @@ being pointed too need to be deallocated.
 */
 typedef struct HklDeque {
 
-  HklDequeNode* head;
-  HklDequeNode* tail;
-  size_t size;
+  void **queue;
+  size_t size, max;
+  int front, back;
 
 } HklDeque;
 
