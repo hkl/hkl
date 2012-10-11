@@ -33,6 +33,16 @@ Allocate a new HklDeque.
 HklDeque* hkl_deque_new();
 
 /**
+Allocate a new HklDeque with room for size enteries
+
+@retval HklDeque* A new deque with room for size enteries
+@param size_t The size that the queue will be initialized to hold
+@brief Allocates a new empty queue. This queue is given a specific size
+       and thus allows the user to optimize the queue for their purposes.
+*/
+HklDeque *hkl_deque_new_sized(size_t size);
+
+/**
 Push an object to the end of the queue.
 
 @param deque The deque to push into.
