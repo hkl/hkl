@@ -52,6 +52,15 @@ Push an object to the end of the queue.
 void hkl_deque_push_back(HklDeque* deque, void* data);
 
 /**
+Push an object onto the front of the queue
+
+@param deque The pointer of the queue to push into.
+@param data A pointer to the data
+@brief This is the same as a push onto a stack.
+*/
+void hkl_deque_push_front(HklDeque* deque, void* data);
+
+/**
 Pop an item from the front of the queue.
 
 @param deque The deque to pop from.
@@ -59,6 +68,15 @@ Pop an item from the front of the queue.
 @breif Same as dequeue.
 */
 void* hkl_deque_pop_front(HklDeque* deque);
+
+/**
+Pop an item from the back of the queue.
+
+@param deque The deque to pop from.
+@retval void* A pointer to the data being returned(not typed)
+@brief Return the back of the deque's pointer and remove it from the queue
+*/
+void* hkl_deque_pop_back(HklDeque* deque);
 
 /**
 Free a deque.
@@ -74,4 +92,18 @@ Empty all data from a deque.
 */
 void hkl_deque_clear(HklDeque* deque);
 
+/**
+Find the nth value of a deque.
+
+@param deque The deque that contains the item
+@param n The index of the location being searched for.
+@retval void* The data at the nth location
+
+@brief This function gives the ability to find
+       any item in the queue by index. It is useful
+       for locating the data AND for changing that data (as it is returned by ptr).
+       Lastly, all indexes are garunteed valid because it will wrap around the array meaning
+       it is possible to create cyclical array by just indexing at higher values.
+*/
+void *hkl_deque_findn(HklDeque* deque, int n);
 #endif // HKL_DEQUE_H
