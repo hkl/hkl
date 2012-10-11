@@ -2,6 +2,7 @@
 #define HKL_DEQUE_H
 
 #include <stddef.h>
+#include <string.h>//memcpy
 
 /**
 @struct HklDeque A deque that just works.
@@ -20,7 +21,7 @@ typedef struct HklDeque {
 
   void **queue;
   size_t size, max;
-  int front, back;
+  size_t front, back;
 
 } HklDeque;
 

@@ -176,12 +176,12 @@ void *hkl_deque_findn(HklDeque *deque, int n)
   assert(deque != NULL);
   
   int *data = NULL;
-  if(n >= 0 && n < deque->size)
+  if(n >= 0 && n < (int)deque->size)
   {
     int location = (deque->front + n) % deque->max;
     data = deque->queue[location];
   }
-  else if(n < 0 && -n < deque->size + 1)
+  else if(n < 0 && -n < (int)deque->size + 1)
   {
     //we want to offset the value so that -1 is the back
     int location = (deque->back + (n + 1)) % deque->max;  
@@ -196,7 +196,7 @@ void *hkl_deque_findn_cyclical(HklDeque *deque, int n)
   assert(deque != NULL);
   int *data = NULL;
 
-  if(deque->size > 0)//only null on an empty queue
+  if((int)deque->size > 0)//only null on an empty queue
   {
     int index = (n % deque->size) + deque->front;//get a cyclical index 
     data = deque->queue[index];
