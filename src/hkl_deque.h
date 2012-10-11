@@ -2,13 +2,7 @@
 #define HKL_DEQUE_H
 
 #include <stddef.h>
-
-typedef struct HklDequeNode {
-
-  struct HklDequeNode* next;
-  void* data;
-
-} HklDequeNode;
+#include <string.h>//memcpy
 
 /**
 @struct HklDeque A deque that just works.
@@ -25,9 +19,9 @@ being pointed too need to be deallocated.
 */
 typedef struct HklDeque {
 
-  HklDequeNode* head;
-  HklDequeNode* tail;
-  size_t size;
+  void **queue;
+  size_t size, max;
+  size_t front, back;
 
 } HklDeque;
 
@@ -40,6 +34,16 @@ Allocate a new HklDeque.
 HklDeque* hkl_deque_new();
 
 /**
+Allocate a new HklDeque with room for size enteries
+
+@retval HklDeque* A new deque with room for size enteries
+@param size_t The size that the queue will be initialized to hold
+@brief Allocates a new empty queue. This queue is given a specific size
+       and thus allows the user to optimize the queue for their purposes.
+*/
+HklDeque *hkl_deque_new_sized(size_t size);
+
+/**
 Push an object to the end of the queue.
 
 @param deque The deque to push into.
@@ -49,6 +53,15 @@ Push an object to the end of the queue.
 void hkl_deque_push_back(HklDeque* deque, void* data);
 
 /**
+Push an object onto the front of the queue
+
+@param deque The pointer of the queue to push into.
+@param data A pointer to the data
+@brief This is the same as a push onto a stack.
+*/
+void hkl_deque_push_front(HklDeque* deque, void* data);
+
+/**
 Pop an item from the front of the queue.
 
 @param deque The deque to pop from.
@@ -56,6 +69,15 @@ Pop an item from the front of the queue.
 @breif Same as dequeue.
 */
 void* hkl_deque_pop_front(HklDeque* deque);
+
+/**
+Pop an item from the back of the queue.
+
+@param deque The deque to pop from.
+@retval void* A pointer to the data being returned(not typed)
+@brief Return the back of the deque's pointer and remove it from the queue
+*/
+void* hkl_deque_pop_back(HklDeque* deque);
 
 /**
 Free a deque.
@@ -71,4 +93,18 @@ Empty all data from a deque.
 */
 void hkl_deque_clear(HklDeque* deque);
 
+/**
+Find the nth value of a deque.
+
+@param deque The deque that contains the item
+@param n The index of the location being searched for.
+@retval void* The data at the nth location
+
+@brief This function gives the ability to find
+       any item in the queue by index. It is useful
+       for locating the data AND for changing that data (as it is returned by ptr).
+       Lastly, all indexes are garunteed valid because it will wrap around the array meaning
+       it is possible to create cyclical array by just indexing at higher values.
+*/
+void *hkl_deque_findn(HklDeque* deque, int n);
 #endif // HKL_DEQUE_H
