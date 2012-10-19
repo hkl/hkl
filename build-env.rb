@@ -14,28 +14,45 @@ commands =
   "automake",
   "./configure"
 
-missing_deps = Array.new
+# ASCII text coloring
+def purpify(text)
+  "\033[1;35m" + text + "\033[0m"
+end
+
+def greenify(text)
+  "\033[0;32m" + text + "\033[0m"
+end
+
+def redify(text)
+  "\033[0;31m" + text + "\033[0m"
+end
+
+# Check dependencies
+missing_dependencies = Array.new
 
 dependencies.each do |dependency|
-  puts "build-env: checking #{dependency}"
-  if `which #{dependency}`.empty?
-    missing_deps.push dependency
+  puts "#{purpify "build-env:"} #{greenify "checking #{dependency}"}"
+  if not system("which #{dependency}", :out => "/dev/null")
+    missing_dependencies.push dependency
   end
 end
 
-if not missing_deps.empty?
-  puts "build-env failed..."
+if not missing_dependencies.empty?
+  puts redify "build-env failed..."
 
-  missing_deps.each do |missing|
-    puts "Install #{missing}"
+  missing_dependencies.each do |missing|
+    puts redify "Missing #{missing}"
   end
+
+  puts redify "Install the missing dependencies and run again."
   exit 1
 end
 
+# Execute build commands
 commands.each do |command|
-  puts "build-env: #{command}"
-  `#{command}`
+  puts "#{purpify "build-env:"} #{greenify "#{command}"}"
+  system("#{command}")
 end
 
-puts "Your environment setup is complete. Run `make` to build hkl project."
+puts greenify "\nYour environment setup is complete. Run `make` to build hkl.\n"
 
