@@ -10,7 +10,7 @@ To build right now:
 
 You _should_ only have to do this once.
 
-`$ ./build-env`
+`$ ./build-env.rb`
 
 Then as normal:
 
