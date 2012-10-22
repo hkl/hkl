@@ -6,6 +6,8 @@
 
 HklExpression* hkl_expression_new(HklExpressionType type, ...)
 {
+  assert(type != HKL_EXPR_NONE);
+
   HklExpression* expr = hkl_alloc_object(HklExpression);
 
   expr->type = type;
@@ -36,34 +38,40 @@ HklExpression* hkl_expression_new(HklExpressionType type, ...)
   return expr;
 }
 
-HklString* hkl_expression_eval_string(HklExpression* expr)
+HklValue* hkl_expression_eval(HklExpression* expr)
 {
   assert(expr != NULL);
 
   switch (expr->type)
   {
-    case HKL_EXPR_STRING:
-      // return a copy of the string
-      return hkl_string_new_from_string(expr->arg[0].string);
-    break;
-
     case HKL_EXPR_INT:
-      return hkl_string_new_from_integer(expr->arg[0].integer);
-    break;
+      return hkl_value_new(HKL_TYPE_INT, expr->arg[0].integer);
+      break;
 
     case HKL_EXPR_REAL:
-      return hkl_string_new_from_real(expr->arg[0].real);
+      return hkl_value_new(HKL_TYPE_REAL, expr->arg[0].real);
+      break;
+
+    case HKL_EXPR_STRING: 
+    {
+      HklString* string = hkl_string_new_from_string(expr->arg[0].string);
+      assert(string != NULL);
+      return hkl_value_new(HKL_TYPE_STRING, string);
+    }
     break;
 
     case HKL_EXPR_GETS:
-      return hkl_string_new_from_stream(stdin);
+    {
+      HklString* string = hkl_string_new_from_stream(stdin);
+      assert(string != NULL);
+      return hkl_value_new(HKL_TYPE_STRING, string);
+    }
     break;
 
     default:
-    break;
+      break;
   }
 
-  assert(false);
   return NULL;
 }
 

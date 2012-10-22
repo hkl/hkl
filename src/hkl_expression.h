@@ -4,9 +4,11 @@
 #include <stdarg.h>
 
 #include "hkl_string.h"
+#include "hkl_value.h"
 
 typedef enum HklExpressionType {
 
+  HKL_EXPR_NONE,
   HKL_EXPR_INT,
   HKL_EXPR_REAL,
   HKL_EXPR_STRING,
@@ -30,7 +32,7 @@ typedef struct HklExpression
 
 HklExpression* hkl_expression_new(HklExpressionType type, ...);
 
-HklString* hkl_expression_eval_string(HklExpression* expr);
+HklValue* hkl_expression_eval(HklExpression* expr);
 
 void hkl_expression_free(HklExpression* expr);
   

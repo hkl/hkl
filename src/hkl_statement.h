@@ -8,7 +8,7 @@
 
 typedef enum HklStatementType
 {
-  HKL_STMT_NOOP,
+  HKL_STMT_NONE,
   HKL_STMT_PUTS
 
 } HklStatementType;
@@ -21,7 +21,7 @@ typedef struct HklStatement
   
     HklExpression* expression;
 
-  } arg[4];
+  } arg[1];
 
 } HklStatement;
 
