@@ -29,8 +29,19 @@ HklExpression* hkl_expression_new(HklExpressionType type, ...)
       expr->arg[0].string = va_arg(argp, HklString*);
       break;
 
+    case HKL_EXPR_UNARY:
+      expr->arg[0].op = va_arg(argp, HklOperatorType);
+      expr->arg[1].expression = va_arg(argp, HklExpression*);
+      break;
+      
+    case HKL_EXPR_BINARY:
+      expr->arg[0].expression = va_arg(argp, HklExpression*);
+      expr->arg[1].op = va_arg(argp, HklOperatorType);
+      expr->arg[2].expression = va_arg(argp, HklExpression*);
+      break;
+
     default:
-    break;
+      break;
   }
 
   va_end(argp);
@@ -44,13 +55,16 @@ HklValue* hkl_expression_eval(HklExpression* expr)
 
   switch (expr->type)
   {
+
     case HKL_EXPR_INT:
       return hkl_value_new(HKL_TYPE_INT, expr->arg[0].integer);
       break;
 
+
     case HKL_EXPR_REAL:
       return hkl_value_new(HKL_TYPE_REAL, expr->arg[0].real);
       break;
+
 
     case HKL_EXPR_STRING: 
     {
@@ -60,6 +74,7 @@ HklValue* hkl_expression_eval(HklExpression* expr)
     }
     break;
 
+
     case HKL_EXPR_GETS:
     {
       HklString* string = hkl_string_new_from_stream(stdin);
@@ -67,6 +82,157 @@ HklValue* hkl_expression_eval(HklExpression* expr)
       return hkl_value_new(HKL_TYPE_STRING, string);
     }
     break;
+
+
+    case HKL_EXPR_UNARY:
+      switch (expr->arg[0].op)
+      {
+
+        HklValue* value = hkl_expression_eval(expr->arg[1].expression);
+        
+        assert(value != NULL);
+
+        case HKL_OP_UNARY_MINUS:
+          switch (value->type)
+          {
+            case HKL_TYPE_INT:
+              value->as.integer = -(value->as.integer);
+              return value;
+              break;
+
+            case HKL_TYPE_REAL:
+              value->as.real = -(value->as.real);
+              return value;
+              break;
+
+            case HKL_TYPE_STRING:
+              assert(false);
+              break;
+
+            default:
+              break;
+          }
+          break;
+
+
+        default:
+          break;
+      }
+      break;
+
+
+    case HKL_EXPR_BINARY:
+    {
+      HklValue *left_value = hkl_expression_eval(expr->arg[0].expression);
+      HklValue *right_value = hkl_expression_eval(expr->arg[2].expression);
+      HklValue *result = NULL;
+
+      assert(left_value != NULL);
+      assert(right_value != NULL);
+
+      switch (expr->arg[1].op)
+      {
+        case HKL_OP_PLUS:
+          switch (left_value->type)
+          {
+
+            case HKL_TYPE_INT:
+              switch(right_value->type)
+              {
+                case HKL_TYPE_INT:
+                  result = hkl_value_new(HKL_TYPE_INT,
+                    left_value->as.integer + right_value->as.integer);
+                  break;
+
+                case HKL_TYPE_REAL:
+                  result = hkl_value_new(HKL_TYPE_INT,
+                    left_value->as.integer + right_value->as.real);
+                  break;
+
+                case HKL_TYPE_STRING:
+                  assert(false);
+                  break;
+
+                default:
+                  break;
+              }
+              break;
+
+            case HKL_TYPE_REAL:
+              switch(right_value->type)
+              {
+                case HKL_TYPE_INT:
+                  result = hkl_value_new(HKL_TYPE_REAL,
+                    left_value->as.real + right_value->as.integer);
+                  break;
+
+                case HKL_TYPE_REAL:
+                  result = hkl_value_new(HKL_TYPE_REAL,
+                    left_value->as.real + right_value->as.real);
+                  break;
+
+                case HKL_TYPE_STRING:
+                  assert(false);
+                  break;
+
+                default:
+                  break;
+              }
+              break;
+
+            case HKL_TYPE_STRING:
+              switch(right_value->type)
+              {
+                case HKL_TYPE_INT:
+                {
+                  result = hkl_value_new(HKL_TYPE_STRING,
+                    left_value->as.string);
+                  HklString* right_string = 
+                    hkl_string_new_from_integer(right_value->as.integer);
+                  hkl_string_cat(result->as.string, right_string);
+                  hkl_string_free(right_string);
+                }
+                break;
+
+                case HKL_TYPE_REAL:
+                {
+                  result = hkl_value_new(HKL_TYPE_STRING,
+                    left_value->as.string);
+                  HklString* right_string = 
+                    hkl_string_new_from_real(right_value->as.real);
+                  hkl_string_cat(result->as.string, right_string);
+                  hkl_string_free(right_string);
+                }
+                break;
+
+                case HKL_TYPE_STRING:
+                  result = hkl_value_new(HKL_TYPE_STRING,
+                    left_value->as.string);
+                  hkl_string_cat(result->as.string, right_value->as.string);
+                  break;
+
+                default:
+                  break;
+              }
+              break;
+
+            default:
+              break;
+          }
+          break;
+
+
+        default:
+          break;
+      }
+
+      hkl_value_free(left_value);
+      hkl_value_free(right_value);
+
+      return result;
+    }
+    break;
+
 
     default:
       break;

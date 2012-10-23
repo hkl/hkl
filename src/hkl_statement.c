@@ -65,7 +65,6 @@ void hkl_statement_exec(HklStatement* stmt)
       hkl_value_free(value);
     }
 
-
     default:
       break;
   }
