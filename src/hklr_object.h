@@ -59,7 +59,7 @@ typedef struct HklObject {
   uint32_t is_buffered: 1;
   HklColor color:       3;
 
-  HklTypes type:        24;
+  HklTypes type:        22;
   HklFlags flags:       8;
 
   union asobject {

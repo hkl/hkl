@@ -102,8 +102,6 @@ HklString* string_buf = NULL;
 "|"                    return HKL_T_BITWISE_OR;
 "^"                    return HKL_T_BITWISE_XOR;
 "~"                    return HKL_T_BITWISE_NOT;
-"type_of"               return HKL_T_TYPE_OF;
-"instance_of"           return HKL_T_INSTANCE_OF;
 ".."                   return HKL_T_RANGE;
 
 [a-zA-Z_][a-zA-Z_0-9]* {
@@ -124,6 +122,7 @@ HklString* string_buf = NULL;
 \"                         { BEGIN stringbuild; string_buf = hkl_string_new(); }
 <stringbuild>[^\\"]*       { hkl_string_cat_utf8(string_buf, yytext); }
 <stringbuild>\\n           { hkl_string_cat_utf8(string_buf, "\n"); }
+<stringbuild>\\\n          { /* ignore backslashed newlines */ }
 <stringbuild>\\t           { hkl_string_cat_utf8(string_buf, "\t"); }
 <stringbuild>\\\\          { hkl_string_cat_utf8(string_buf, "\\"); }
 <stringbuild>\\\"          { hkl_string_cat_utf8(string_buf, "\""); }

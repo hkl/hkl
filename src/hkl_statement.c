@@ -6,6 +6,8 @@
 
 HklStatement* hkl_statement_new(HklStatementType type, ...)
 {
+  assert(type != HKL_STMT_NONE);
+
   HklStatement* stmt = hkl_alloc_object(HklStatement);
   stmt->type = type;
 
@@ -15,13 +17,13 @@ HklStatement* hkl_statement_new(HklStatementType type, ...)
   switch (type)
   {
     case HKL_STMT_PUTS:
-    // puts requires 1 expression
-    stmt->arg[0].expression = va_arg(argp, HklExpression*);
+      // puts requires 1 expression
+      stmt->arg[0].expression = va_arg(argp, HklExpression*);
 
-    break;
+      break;
 
     default:
-    break;
+      break;
   }
 
   va_end(argp);
@@ -35,17 +37,41 @@ void hkl_statement_exec(HklStatement* stmt)
 
   switch (stmt->type)
   {
+
     case HKL_STMT_PUTS:
     {
-      HklString* string = hkl_expression_eval_string(stmt->arg[0].expression);
-      fprintf(stdout, "%s", string->utf8_data);
-      hkl_string_free(string);
+      HklValue* value = hkl_expression_eval(stmt->arg[0].expression);  
+
+      assert(value != NULL);
+      
+      switch (value->type)
+      {
+        case HKL_TYPE_INT:
+          fprintf(stdout, "%i", value->as.integer);
+          break;
+
+        case HKL_TYPE_REAL:
+          fprintf(stdout, "%lg", value->as.real);
+          break;
+
+        case HKL_TYPE_STRING:
+          fprintf(stdout, "%s", value->as.string->utf8_data);
+          break;
+
+        default:
+          break;
+      }
+
+      // flush the output
+      fflush(stdout);
+
+      hkl_value_free(value);
     }
-    break;
 
     default:
-    break;
+      break;
   }
+
 }
 
 void hkl_statement_free(HklStatement* stmt)
