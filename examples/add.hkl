@@ -1,0 +1,14 @@
+puts
+
+// Backslashed newlines are ignored in hkl
+"\
+This is some pretty sweet printing in HKL:
+
+  Even on multiple lines :)
+
+"
+
+puts "Here are some maths:\n"
+
+// Must start puts with string in this case
+puts "" + 23 + " + " + "34 = " + (23+34) + "\n"

@@ -21,8 +21,11 @@ HklString* hkl_string_new()
   HklString* const string = hkl_alloc_object(HklString);
   assert(string != NULL);
 
-  string->utf8_data = NULL;
-  string->size = 0;
+  // allocate a null character
+  string->utf8_data = malloc(1);
+  string->utf8_data[0] = '\0';
+  string->size = 1;
+  string->length = 0;
   string->hash = 0;
 
   return string;
@@ -119,6 +122,8 @@ void hkl_string_set_utf8(HklString* string, const char* utf8_data)
 
   memcpy(string->utf8_data, utf8_data, size + 1);
 
+  // The string should have utf8_data
+  assert(string->utf8_data != NULL);
   // The string must be NULL terminated by now
   assert(string->utf8_data[size] == '\0');
 
@@ -142,6 +147,7 @@ void hkl_string_cat(HklString* string, const HklString* src)
 void hkl_string_cat_utf8(HklString* string, const char* utf8_data)
 {
   assert(string != NULL);
+  assert(string->utf8_data != NULL);
   assert(utf8_data != NULL);
 
   size_t size = strlen(utf8_data);
@@ -155,13 +161,14 @@ void hkl_string_cat_utf8(HklString* string, const char* utf8_data)
 
   string->length += utf8_length(utf8_data);
 
-  memcpy(string->utf8_data + string->size, utf8_data, size + 1);
+  memcpy(string->utf8_data + string->size - 1, utf8_data, size + 1);
 
   string->size = string->size + size;
 
+  // The string should have utf8_data
+  assert(string->utf8_data != NULL);
   // The string must be NULL terminated by now
-  // minus 1 because string->size includes null
-  assert(string->utf8_data[string->size] == '\0');
+  assert(string->utf8_data[string->size - 1] == '\0');
 
   // The hash is invalid
   string->hash = 0;

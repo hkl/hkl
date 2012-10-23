@@ -110,8 +110,6 @@
 %token HKL_T_BITWISE_OR                    "|"
 %token HKL_T_BITWISE_XOR                   "^"
 %token HKL_T_BITWISE_NOT                   "~"
-%token HKL_T_TYPE_OF                       "type_of"
-%token HKL_T_INSTANCE_OF                   "instance_of"
 %token HKL_T_RANGE                         ".."
 
 %token <string>  HKL_T_ID                  "identifier"
@@ -139,7 +137,6 @@
 %left HKL_T_LESS HKL_T_GREATER HKL_T_LESS_EQUAL HKL_T_GREATER_EQUAL
 %left HKL_T_PLUS HKL_T_MINUS
 %left HKL_T_DIVIDE HKL_T_ASTERISK HKL_T_MOD
-%left HKL_T_TYPE_OF HKL_T_INSTANCE_OF
 
 // HKL Grammar
 %%
@@ -281,6 +278,10 @@ optional_init:
 
 expr:
   HKL_T_LPAREN expr HKL_T_RPAREN
+  {
+    $$ = $2;
+  }
+
   | primary_expr
   | expr HKL_T_OR expr
   | expr HKL_T_AND expr
@@ -290,7 +291,12 @@ expr:
   | expr HKL_T_GREATER expr
   | expr HKL_T_EQUAL expr
   | expr HKL_T_NOT_EQUAL expr
+
   | expr HKL_T_PLUS expr
+  {
+    $$ = hkl_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_PLUS, $3);  
+  }
+
   | expr HKL_T_MINUS expr
   | expr HKL_T_ASTERISK expr
   | expr HKL_T_DIVIDE expr
@@ -298,10 +304,14 @@ expr:
   | expr HKL_T_BITWISE_AND expr
   | expr HKL_T_BITWISE_OR expr
   | expr HKL_T_BITWISE_XOR expr
-  | expr HKL_T_TYPE_OF type
   | HKL_T_NOT expr %prec UNARY_OPS
   | HKL_T_BITWISE_NOT expr %prec UNARY_OPS
+
   | HKL_T_MINUS expr %prec UNARY_OPS
+  {
+    $$ = hkl_expression_new(HKL_EXPR_UNARY, HKL_OP_UNARY_MINUS, $2);
+  }
+
   | HKL_T_INCREMENT expr %prec UNARY_OPS
   | HKL_T_DECREMENT expr %prec UNARY_OPS
 
