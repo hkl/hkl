@@ -278,6 +278,10 @@ optional_init:
 
 expr:
   HKL_T_LPAREN expr HKL_T_RPAREN
+  {
+    $$ = $2;
+  }
+
   | primary_expr
   | expr HKL_T_OR expr
   | expr HKL_T_AND expr

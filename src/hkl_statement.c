@@ -51,7 +51,7 @@ void hkl_statement_exec(HklStatement* stmt)
           break;
 
         case HKL_TYPE_REAL:
-          fprintf(stdout, "%g", value->as.real);
+          fprintf(stdout, "%lg", value->as.real);
           break;
 
         case HKL_TYPE_STRING:
@@ -61,6 +61,9 @@ void hkl_statement_exec(HklStatement* stmt)
         default:
           break;
       }
+
+      // flush the output
+      fflush(stdout);
 
       hkl_value_free(value);
     }

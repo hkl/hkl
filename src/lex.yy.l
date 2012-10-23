@@ -122,6 +122,7 @@ HklString* string_buf = NULL;
 \"                         { BEGIN stringbuild; string_buf = hkl_string_new(); }
 <stringbuild>[^\\"]*       { hkl_string_cat_utf8(string_buf, yytext); }
 <stringbuild>\\n           { hkl_string_cat_utf8(string_buf, "\n"); }
+<stringbuild>\\\n          { /* ignore backslashed newlines */ }
 <stringbuild>\\t           { hkl_string_cat_utf8(string_buf, "\t"); }
 <stringbuild>\\\\          { hkl_string_cat_utf8(string_buf, "\\"); }
 <stringbuild>\\\"          { hkl_string_cat_utf8(string_buf, "\""); }

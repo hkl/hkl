@@ -1,9 +1,14 @@
-puts 1 + 2
-puts 1 + 3.14
+puts
 
-puts 3.14 + 1
-puts 3.14 + 3.14
+// Backslashed newlines are ignored in hkl
+"\
+This is some pretty sweet printing in HKL:
 
-puts "a" + 1
-puts "a" + 3.14
-puts "a" + "b"
+  Even on multiple lines :)
+
+"
+
+puts "Here are some maths:\n"
+
+// Must start puts with string in this case
+puts "" + 23 + " + " + "34 = " + (23+34) + "\n"
