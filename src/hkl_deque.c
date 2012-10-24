@@ -218,7 +218,7 @@ void hkl_deque_trim(HklDeque *deque)
   {
     void ** tmp = malloc(deque->size * sizeof(void*));
 
-    for(int i = 0; i < deque->size; ++i)
+    for(int i = 0; i < (int)deque->size; ++i)
     {
       tmp[i] = hkl_deque_findn(deque, i);
     }
