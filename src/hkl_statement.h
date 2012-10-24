@@ -9,7 +9,8 @@
 typedef enum HklStatementType
 {
   HKL_STMT_NONE,
-  HKL_STMT_PUTS
+  HKL_STMT_PUTS,
+  HKL_STMT_HKLR
 
 } HklStatementType;
 
@@ -19,9 +20,10 @@ typedef struct HklStatement
 
   union stmtarg {
   
+    HklString* id;
     HklExpression* expression;
 
-  } arg[1];
+  } arg[2];
 
 } HklStatement;
 

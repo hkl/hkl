@@ -3,6 +3,7 @@
 
 #include "hkl_alloc.h"
 #include "hkl_statement.h"
+#include "hklr.h"
 
 HklStatement* hkl_statement_new(HklStatementType type, ...)
 {
@@ -67,6 +68,16 @@ void hkl_statement_exec(HklStatement* stmt)
 
       hkl_value_free(value);
     }
+
+    case HKL_STMT_HKLR:
+
+      // Print runtime information
+      fprintf(stdout, "Objects Created: %zu\n", HKLR.gc_created);
+      fprintf(stdout, "Objects Freed:   %zu\n", HKLR.gc_freed);
+      fprintf(stdout, "Object Cycles:   %zu\n", HKLR.gc_rootsize);
+      fprintf(stdout, "GC Runs:         %zu\n", HKLR.gc_runs);
+      fflush(stdout);
+      break;
 
     default:
       break;
