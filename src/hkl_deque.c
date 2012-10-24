@@ -157,10 +157,9 @@ void* hkl_deque_pop_back(HklDeque* deque)
 void hkl_deque_free(HklDeque* deque)
 {
   assert(deque != NULL);
-
-  hkl_deque_clear(deque);
-
-  hkl_free_object(deque);
+  
+  free(deque->queue);
+  free(deque);
 }
 
 void hkl_deque_clear(HklDeque* deque)
@@ -169,6 +168,12 @@ void hkl_deque_clear(HklDeque* deque)
   assert(deque);
 
   free (deque->queue);//free our underlying queue
+
+  //create an empty queue
+  deque->size = 0;
+  deque->max = 1;
+  deque->front = deque->back = 0;
+  deque->queue = malloc(sizeof(void*));
 }
 
 void *hkl_deque_findn(HklDeque *deque, int n)
@@ -198,9 +203,30 @@ void *hkl_deque_findn_cyclical(HklDeque *deque, int n)
 
   if((int)deque->size > 0)//only null on an empty queue
   {
-    int index = (n % deque->size) + deque->front;//get a cyclical index 
+    int index = ((n % deque->size) % deque->max) + deque->front;//get a cyclical index 
     data = deque->queue[index];
   }
   
   return data;
+}
+
+void hkl_deque_trim(HklDeque *deque)
+{
+  assert(deque);
+
+  if(deque->size != deque->max)
+  {
+    void ** tmp = malloc(deque->size * sizeof(void*));
+
+    for(int i = 0; i < deque->size; ++i)
+    {
+      tmp[i] = hkl_deque_findn(deque, i);
+    }
+    
+    free(deque->queue);
+    deque->queue = tmp;
+    deque->front = 0;
+    deque->back = deque->size - 1;
+    deque->max = deque->size;
+  }
 }
