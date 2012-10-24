@@ -68,14 +68,20 @@ void hkl_statement_exec(HklStatement* stmt)
 
       hkl_value_free(value);
     }
+    break;
 
     case HKL_STMT_HKLR:
 
       // Print runtime information
+      fprintf(stdout, "Ops:             %zu\n", HKLR.ops);
       fprintf(stdout, "Objects Created: %zu\n", HKLR.gc_created);
       fprintf(stdout, "Objects Freed:   %zu\n", HKLR.gc_freed);
       fprintf(stdout, "Object Cycles:   %zu\n", HKLR.gc_rootsize);
       fprintf(stdout, "GC Runs:         %zu\n", HKLR.gc_runs);
+      fprintf(stdout, "Scope Level:     %zu\n", HKLR.scope_level);
+      fprintf(stdout, "Globals:         %zu\n", HKLR.globals->length);
+      fprintf(stdout, "Locals:          %zu\n", HKLR.scopes->locals->length);
+      fprintf(stdout, "Upvals:          %zu\n", HKLR.scopes->upvals->length);
       fflush(stdout);
       break;
 
@@ -83,6 +89,8 @@ void hkl_statement_exec(HklStatement* stmt)
       break;
   }
 
+  // Increment numbers of completed operations
+  HKLR.ops++;
 }
 
 void hkl_statement_free(HklStatement* stmt)

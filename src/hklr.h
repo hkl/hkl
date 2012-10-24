@@ -36,6 +36,7 @@ typedef struct HklRuntime
   HklHash* globals;     // Runtime global variables list
   HklScope* scopes;     // Runtime stack frams
   size_t scope_level;   // Current scope depth
+  size_t ops;           // Number of executed operations
 
 } HklRuntime;
 
