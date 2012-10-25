@@ -10,7 +10,7 @@
 typedef struct HklValue 
 {
 
-  HklTypes type:  22;
+  HklTypes type:  24;
   HklFlags flags: 8;
 
   union asvalue {

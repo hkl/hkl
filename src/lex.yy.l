@@ -103,6 +103,7 @@ HklString* string_buf = NULL;
 "|"                    return HKL_T_BITWISE_OR;
 "^"                    return HKL_T_BITWISE_XOR;
 "~"                    return HKL_T_BITWISE_NOT;
+"#"                    return HKL_T_CRUNCH;
 ".."                   return HKL_T_RANGE;
 
 [a-zA-Z_][a-zA-Z_0-9]* {
