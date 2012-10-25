@@ -110,11 +110,14 @@ HklValue* hkl_expression_eval(HklExpression* expr)
           switch (value->type)
           {
             case HKL_TYPE_STRING:
-              
+            {
+              HklString* string = value->as.string;
               value->type = HKL_TYPE_INT;
-              value->as.integer = value->as.string->length;
+              value->as.integer = string->length;
+              hkl_string_free(string);
               return value;
-              break;
+            }
+            break;
 
             default:
               assert(false);
