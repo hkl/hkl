@@ -68,6 +68,7 @@
 
 %token HKL_T_PUTS                          "puts"
 %token HKL_T_GETS                          "gets"
+%token HKL_T_HKLR                          "hklr"
 
 %token HKL_T_LPAREN                        "("
 %token HKL_T_RPAREN                        ")"
@@ -119,6 +120,7 @@
 
 %type <statement> stmt
 %type <statement> puts_stmt
+%type <statement> hklr_stmt
 
 %type <expression> expr
 %type <expression> primary_expr
@@ -177,6 +179,7 @@ stmt:
   | class_stmt
   | function_stmt
   | assign_stmt
+  | hklr_stmt
   //| switch_stmt
 
 puts_stmt:
@@ -236,6 +239,12 @@ assign_stmt:
   | variable HKL_T_BITWISE_OR_ASSIGN expr
   | variable HKL_T_BITWISE_XOR_ASSIGN expr
   | variable HKL_T_BITWISE_NOT_ASSIGN expr
+
+hklr_stmt:
+  HKL_T_HKLR
+  {
+    $$ = hkl_statement_new(HKL_STMT_HKLR);
+  }
 
 // The statemens in a switch should be stored in a normal
 // statement list, but use a hklhash to map to the "case nodes"

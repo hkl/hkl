@@ -60,6 +60,7 @@ HklString* string_buf = NULL;
 
 "puts"                 return HKL_T_PUTS;
 "gets"                 return HKL_T_GETS;
+"hklr"                 return HKL_T_HKLR;
 
 "("                    return HKL_T_LPAREN;
 ")"                    return HKL_T_RPAREN;
