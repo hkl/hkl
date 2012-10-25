@@ -100,14 +100,30 @@ HklValue* hkl_expression_eval(HklExpression* expr)
               return value;
               break;
 
-            case HKL_TYPE_STRING:
-              assert(false);
-              break;
-
             default:
+              assert(false);
               break;
           }
           break; // HKL_OP_UNARY_MINUS
+
+        case HKL_OP_SIZE:
+          switch (value->type)
+          {
+            case HKL_TYPE_STRING:
+            {
+              HklString* string = value->as.string;
+              value->type = HKL_TYPE_INT;
+              value->as.integer = string->length;
+              hkl_string_free(string);
+              return value;
+            }
+            break;
+
+            default:
+              assert(false);
+              break;
+          }
+          break; // HKL_OP_SIZE
 
         default:
           assert(false);
@@ -226,7 +242,6 @@ HklValue* hkl_expression_eval(HklExpression* expr)
           break;
       }
 
-      // Why can't we free these? :/
       hkl_value_free(left_value);
       hkl_value_free(right_value);
 
