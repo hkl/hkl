@@ -112,6 +112,7 @@
 %token HKL_T_BITWISE_XOR                   "^"
 %token HKL_T_BITWISE_NOT                   "~"
 %token HKL_T_RANGE                         ".."
+%token HKL_T_CRUNCH                        "#"
 
 %token <string>  HKL_T_ID                  "identifier"
 %token <integer> HKL_T_INT_CONSTANT        "integer constant"
@@ -128,7 +129,6 @@
 %token END 0                               "end of file"
 
 // Precedence
-%nonassoc UNARY_OPS
 
 %left HKL_T_OR
 %left HKL_T_AND
@@ -139,6 +139,8 @@
 %left HKL_T_LESS HKL_T_GREATER HKL_T_LESS_EQUAL HKL_T_GREATER_EQUAL
 %left HKL_T_PLUS HKL_T_MINUS
 %left HKL_T_DIVIDE HKL_T_ASTERISK HKL_T_MOD
+
+%nonassoc UNARY_OPS
 
 // HKL Grammar
 %%
@@ -319,6 +321,11 @@ expr:
   | HKL_T_MINUS expr %prec UNARY_OPS
   {
     $$ = hkl_expression_new(HKL_EXPR_UNARY, HKL_OP_UNARY_MINUS, $2);
+  }
+
+  | HKL_T_CRUNCH expr %prec UNARY_OPS
+  {
+    $$ = hkl_expression_new(HKL_EXPR_UNARY, HKL_OP_SIZE, $2);
   }
 
   | HKL_T_INCREMENT expr %prec UNARY_OPS
