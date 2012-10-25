@@ -107,4 +107,15 @@ Find the nth value of a deque.
        it is possible to create cyclical array by just indexing at higher values.
 */
 void *hkl_deque_findn(HklDeque* deque, int n);
+
+/**
+Resize the queue to only utilize the space needed for the current queue.
+
+@param deque The deque to be trimmed
+
+@brief This function allows the user to eliminate uneeded memory usage by their deque.
+       It resizes the queue so that all space is being used by data. If anything is added
+       without a pop, it will cause a regrow and double.
+*/
+void hkl_deque_trim(HklDeque* deque);
 #endif // HKL_DEQUE_H
