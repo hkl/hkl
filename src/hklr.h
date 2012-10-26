@@ -2,7 +2,7 @@
 #define HKLR_H
 
 #include "hklr_object.h"
-#include "hkl_deque.h"
+#include "hkl_list.h"
 
 typedef struct HklScope {
 
@@ -27,7 +27,7 @@ typedef struct HklRuntime
 {
   HklObject* gc_roots;  // Dummy nodes used for bacon gc
   HklObject* gc_tail;
-  HklDeque* gc_to_free; // Cyclic roots queued for collection
+  HklList* gc_to_free;  // Cyclic roots queued for collection
   size_t gc_runs;       // Number of times gc has ran
   size_t gc_created;    // Number of objects the gc has created
   size_t gc_freed;      // Number of objects the gc has freed
