@@ -10,6 +10,7 @@ static HklListNode* hkl_listnode_new(void* data)
 
   node->data = data;
   node->next = NULL;
+  node->last = NULL;
 
   return node;
 }
@@ -47,12 +48,19 @@ void hkl_list_push_back(HklList *list, void *data)
 
   HklListNode *node = hkl_listnode_new(data);
 
-  if(list->head == NULL)
-    list->head = node;
-  else 
-    list->tail->next = node;
+  //if there is one or more
+  if(list->tail != NULL)
+  {
+    //point the nodes last pointer to the back node or NULL 
+    node->last = list->tail;
+    list->tail->next = node; 
+  }
 
-  list->tail = node; 
+  //if there is nothing
+  if (list->head == NULL)
+   list->head = node;  
+
+  list->tail = node;
 }
 
 void* hkl_list_pop_back(HklList *list)
@@ -60,19 +68,27 @@ void* hkl_list_pop_back(HklList *list)
   assert(list != NULL);
   void* data = NULL;
 
+  // if there is one or more
   if(list->tail != NULL)
   {
     list->size--;
-    HklListNode *temp = list->head;
+    HklListNode *node = list->tail;
 
-    // there is no back pointers, need to iterate 
-    // through the list to set the tail pointer 
-    while (temp->next != list->tail)    
-      temp = temp->next;
+    // if there is more than one
+    if (list->tail->last != NULL) 
+    {
+      list->tail = node->last;
+      list->tail->next = NULL;
+    }
+    else 
+    {
+      // if there is only one
+      list->head = NULL;
+      list->tail = NULL;
+    }
 
-    data = temp->next->data;
-    hkl_listnode_free(temp->next);
-    list->tail = temp;
+    data = node->data;
+    hkl_listnode_free(node);
   }
   return data;
 }
@@ -85,9 +101,18 @@ void hkl_list_push_front(HklList *list, void *data)
 
   HklListNode *node = hkl_listnode_new(data);
 
-  node->next = list->head;
+  //if there is one or more
+  if(list->head != NULL)
+  {
+    //point the nodes next pointer to the front node or NULL 
+    node->next = list->head;
+    list->head->last = node; 
+  }
+
+  //set the head of the list to the new node
   list->head = node;
 
+  //if there is nothing
   if (list->tail == NULL)
     list->tail = node;  
 }
@@ -96,15 +121,30 @@ void* hkl_list_pop_front(HklList *list)
 {
   assert(list != NULL);
 
+  //set node to the front of the list 
   HklListNode *node = list->head;
   void* data = NULL; 
 
-  if (node != NULL) 
+//if there is one or more
+  if (list->head != NULL) 
   {
     list->size--;
-    list->head = node->next;
-    data = node->data;
 
+    // if there is more than one 
+    if(list->head->next != NULL)
+    {
+     list->head = list->head->next;
+     list->head->last = NULL;
+    }
+    else 
+    {
+      //if there is only one 
+      list->head = NULL;
+      list->tail = NULL;
+    }
+    
+    //get the data from the node you removed
+    data = node->data;
     hkl_listnode_free(node);
   } 
     return data;

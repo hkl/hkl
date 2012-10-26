@@ -6,6 +6,7 @@
 typedef struct HklListNode {
 
   struct HklListNode* next;
+  struct HklListNode* last;
   void* data;
 
 } HklListNode;
