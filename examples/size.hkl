@@ -1,0 +1,1 @@
+puts "Size of string: " + #("123" + "456789") + "\n"
