@@ -163,6 +163,8 @@ void hkl_list_clear(HklList* list)
     temp = node->next;
     hkl_listnode_free(node);
     node = temp;
-    list->size = 0; 
   }
+
+  list->head = list->tail = NULL;
+  list->size = 0;
 }
