@@ -41,7 +41,10 @@ typedef enum HklOperatorType
   HKL_OP_BITWISE_AND,
   HKL_OP_BITWISE_OR,
   HKL_OP_BITWISE_XOR,
-  HKL_OP_SIZE
+  HKL_OP_SIZE,
+  HKL_OP_DOT,
+  HKL_OP_INDEX,
+  HKL_OP_CALL
 
 } HklOperatorType;
 

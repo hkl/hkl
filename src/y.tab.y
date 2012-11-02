@@ -23,6 +23,7 @@
   HklString*     string;
   HklStatement*  statement;
   HklExpression* expression;
+  HklList*       list;
 }
 
 /*
@@ -123,8 +124,12 @@
 %type <statement> puts_stmt
 %type <statement> hklr_stmt
 
+%type <list> expr_list
+
 %type <expression> expr
 %type <expression> primary_expr
+%type <expression> variable
+%type <expression> nocall_variable
 
 %token END 0                               "end of file"
 
@@ -139,6 +144,10 @@
 %left HKL_T_LESS HKL_T_GREATER HKL_T_LESS_EQUAL HKL_T_GREATER_EQUAL
 %left HKL_T_PLUS HKL_T_MINUS
 %left HKL_T_DIVIDE HKL_T_ASTERISK HKL_T_MOD
+
+%left HKL_T_DOT          // member    
+%left HKL_T_LBRACKET     // index
+%left HKL_T_LPAREN       // function call
 
 %nonassoc UNARY_OPS
 
@@ -225,13 +234,13 @@ class_content_list:
 class_content:
   class_stmt
   | function_stmt
-  | no_call_init_assign
+  | qualifier_list nocall_variable optional_init
 
 function_stmt:
   qualifier_list HKL_T_FUNCTION nocall_variable HKL_T_LPAREN id_list HKL_T_RPAREN stmt_list HKL_T_END
 
 assign_stmt:
-  init_assign
+  qualifier_list variable optional_init
   | variable HKL_T_PLUS_ASSIGN expr
   | variable HKL_T_MINUS_ASSIGN expr
   | variable HKL_T_ASTERISK_ASSIGN expr
@@ -266,11 +275,6 @@ default_case:
   HKL_T_DEFAULT HKL_T_COLON stmt_list
   | empty 
 
-init_assign:
-  qualifier_list variable optional_init
-
-no_call_init_assign:
-  qualifier_list nocall_variable optional_init
 
 qualifier_list:
   qualifier qualifier_list
@@ -370,43 +374,32 @@ type:
   | HKL_T_INSTANCE
 
 variable:
-  object_list
+  HKL_T_ID
+  |
+  variable HKL_T_DOT variable
+  {
+    $$ = hkl_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_DOT, $3);
+  }
+  | variable HKL_T_LBRACKET expr HKL_T_RBRACKET
+  {
+    $$ = hkl_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_INDEX, $3);
+  }
+  | variable HKL_T_LPAREN expr_list HKL_T_RPAREN
+  {
+    $$ = hkl_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_CALL, $3);
+  }
 
 nocall_variable:
-  nocall_object_list
-
-object_list:
-  object_list HKL_T_DOT object
-  | object
-
-nocall_object_list:
-  nocall_object_list HKL_T_DOT nocall_object
-  | nocall_object
-
-object:
-  HKL_T_ID action_list 
-
-nocall_object:
-  HKL_T_ID nocall_action_list
-
-action_list:
-  action_list action
-  | empty
-
-nocall_action_list:
-  nocall_action_list index
-  | empty
-
-action:
-  index
-  | call
-
-index:
-  HKL_T_LBRACKET expr HKL_T_RBRACKET
-  | HKL_T_LBRACKET expr HKL_T_RANGE expr HKL_T_RBRACKET
-
-call:
-  HKL_T_LPAREN expr_list HKL_T_RPAREN
+  HKL_T_ID
+  |
+  variable HKL_T_DOT variable
+  {
+    $$ = hkl_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_DOT, $3);
+  }
+  | variable HKL_T_LBRACKET expr HKL_T_RBRACKET
+  {
+    $$ = hkl_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_INDEX, $3);
+  }
 
 hash:
   HKL_T_LBRACE key_val_list HKL_T_RBRACE
