@@ -241,6 +241,7 @@ function_stmt:
 
 assign_stmt:
   qualifier_list variable optional_init
+  | variable HKL_T_ASSIGN expr
   | variable HKL_T_PLUS_ASSIGN expr
   | variable HKL_T_MINUS_ASSIGN expr
   | variable HKL_T_ASTERISK_ASSIGN expr
@@ -274,7 +275,6 @@ case:
 default_case:
   HKL_T_DEFAULT HKL_T_COLON stmt_list
   | empty 
-
 
 qualifier_list:
   qualifier qualifier_list
@@ -375,6 +375,9 @@ type:
 
 variable:
   HKL_T_ID
+  {
+    $$ = hkl_expression_new(HKL_EXPR_VARIABLE, $1);
+  }
   |
   variable HKL_T_DOT variable
   {
