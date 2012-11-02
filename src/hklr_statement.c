@@ -2,14 +2,14 @@
 #include <stdio.h>
 
 #include "hkl_alloc.h"
-#include "hkl_statement.h"
+#include "hklr_statement.h"
 #include "hklr.h"
 
-HklStatement* hkl_statement_new(HklStatementType type, ...)
+HklrStatement* hklr_statement_new(HklStatementType type, ...)
 {
   assert(type != HKL_STMT_NONE);
 
-  HklStatement* stmt = hkl_alloc_object(HklStatement);
+  HklrStatement* stmt = hkl_alloc_object(HklrStatement);
   stmt->type = type;
 
   va_list argp;
@@ -19,7 +19,7 @@ HklStatement* hkl_statement_new(HklStatementType type, ...)
   {
     case HKL_STMT_PUTS:
       // puts requires 1 expression
-      stmt->arg[0].expression = va_arg(argp, HklExpression*);
+      stmt->arg[0].expression = va_arg(argp, HklrExpression*);
 
       break;
 
@@ -32,7 +32,7 @@ HklStatement* hkl_statement_new(HklStatementType type, ...)
   return stmt;
 }
 
-void hkl_statement_exec(HklStatement* stmt)
+void hklr_statement_exec(HklrStatement* stmt)
 {
   assert(stmt != NULL);
 
@@ -41,7 +41,7 @@ void hkl_statement_exec(HklStatement* stmt)
 
     case HKL_STMT_PUTS:
     {
-      HklValue* value = hkl_expression_eval(stmt->arg[0].expression);  
+      HklValue* value = hklr_expression_eval(stmt->arg[0].expression);  
 
       assert(value != NULL);
       
@@ -93,7 +93,7 @@ void hkl_statement_exec(HklStatement* stmt)
   HKLR.ops++;
 }
 
-void hkl_statement_free(HklStatement* stmt)
+void hklr_statement_free(HklrStatement* stmt)
 {
 
   assert(stmt != NULL);
@@ -103,7 +103,7 @@ void hkl_statement_free(HklStatement* stmt)
     case HKL_STMT_PUTS:
     {
       // Free the expression
-      hkl_expression_free(stmt->arg[0].expression);
+      hklr_expression_free(stmt->arg[0].expression);
     }
     break;
 

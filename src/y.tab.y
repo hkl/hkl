@@ -4,8 +4,8 @@
 
   #include "hkl_string.h"
   #include "hklr.h"
-  #include "hkl_expression.h"
-  #include "hkl_statement.h"
+  #include "hklr_expression.h"
+  #include "hklr_statement.h"
 
   // These will be defined at link time
   extern int yylex();
@@ -21,8 +21,8 @@
   int            integer;
   double         real;
   HklString*     string;
-  HklStatement*  statement;
-  HklExpression* expression;
+  HklrStatement*  statement;
+  HklrExpression* expression;
   HklList*       list;
 }
 
@@ -165,10 +165,10 @@ stmt_list:
 
     if (HKLR.scope_level == 1)
     {
-      hkl_statement_exec($2);
+      hklr_statement_exec($2);
 
       // clean up the statement as we dont need it anymore
-      hkl_statement_free($2);
+      hklr_statement_free($2);
     }
     else
     {
@@ -196,7 +196,7 @@ stmt:
 puts_stmt:
   HKL_T_PUTS expr
   {
-    $$ = hkl_statement_new(HKL_STMT_PUTS, $2);
+    $$ = hklr_statement_new(HKL_STMT_PUTS, $2);
   }
 
 if_stmt:
@@ -255,7 +255,7 @@ assign_stmt:
 hklr_stmt:
   HKL_T_HKLR
   {
-    $$ = hkl_statement_new(HKL_STMT_HKLR);
+    $$ = hklr_statement_new(HKL_STMT_HKLR);
   }
 
 // The statemens in a switch should be stored in a normal
@@ -309,7 +309,7 @@ expr:
 
   | expr HKL_T_PLUS expr
   {
-    $$ = hkl_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_PLUS, $3);  
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_PLUS, $3);  
   }
 
   | expr HKL_T_MINUS expr
@@ -324,12 +324,12 @@ expr:
 
   | HKL_T_MINUS expr %prec UNARY_OPS
   {
-    $$ = hkl_expression_new(HKL_EXPR_UNARY, HKL_OP_UNARY_MINUS, $2);
+    $$ = hklr_expression_new(HKL_EXPR_UNARY, HKL_OP_UNARY_MINUS, $2);
   }
 
   | HKL_T_CRUNCH expr %prec UNARY_OPS
   {
-    $$ = hkl_expression_new(HKL_EXPR_UNARY, HKL_OP_SIZE, $2);
+    $$ = hklr_expression_new(HKL_EXPR_UNARY, HKL_OP_SIZE, $2);
   }
 
   | HKL_T_INCREMENT expr %prec UNARY_OPS
@@ -338,19 +338,19 @@ expr:
 primary_expr:
   HKL_T_INT_CONSTANT
   {
-    $$ = hkl_expression_new(HKL_EXPR_INT, $1);
+    $$ = hklr_expression_new(HKL_EXPR_INT, $1);
   }
   | HKL_T_REAL_CONSTANT
   {
-    $$ = hkl_expression_new(HKL_EXPR_REAL, $1);
+    $$ = hklr_expression_new(HKL_EXPR_REAL, $1);
   }
   | HKL_T_STRING_CONSTANT
   {
-    $$ = hkl_expression_new(HKL_EXPR_STRING, $1);
+    $$ = hklr_expression_new(HKL_EXPR_STRING, $1);
   }
   | HKL_T_GETS
   {
-    $$ = hkl_expression_new(HKL_EXPR_GETS);
+    $$ = hklr_expression_new(HKL_EXPR_GETS);
   }
   | HKL_T_TRUE
   | HKL_T_FALSE
@@ -376,20 +376,20 @@ type:
 variable:
   HKL_T_ID
   {
-    $$ = hkl_expression_new(HKL_EXPR_VARIABLE, $1);
+    $$ = hklr_expression_new(HKL_EXPR_VARIABLE, $1);
   }
   |
   variable HKL_T_DOT variable
   {
-    $$ = hkl_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_DOT, $3);
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_DOT, $3);
   }
   | variable HKL_T_LBRACKET expr HKL_T_RBRACKET
   {
-    $$ = hkl_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_INDEX, $3);
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_INDEX, $3);
   }
   | variable HKL_T_LPAREN expr_list HKL_T_RPAREN
   {
-    $$ = hkl_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_CALL, $3);
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_CALL, $3);
   }
 
 nocall_variable:
@@ -397,11 +397,11 @@ nocall_variable:
   |
   variable HKL_T_DOT variable
   {
-    $$ = hkl_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_DOT, $3);
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_DOT, $3);
   }
   | variable HKL_T_LBRACKET expr HKL_T_RBRACKET
   {
-    $$ = hkl_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_INDEX, $3);
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_INDEX, $3);
   }
 
 hash:

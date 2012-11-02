@@ -2,13 +2,13 @@
 #include <assert.h>
 
 #include "hkl_alloc.h"
-#include "hkl_expression.h"
+#include "hklr_expression.h"
 
-HklExpression* hkl_expression_new(HklExpressionType type, ...)
+HklrExpression* hklr_expression_new(HklExpressionType type, ...)
 {
   assert(type != HKL_EXPR_NONE);
 
-  HklExpression* expr = hkl_alloc_object(HklExpression);
+  HklrExpression* expr = hkl_alloc_object(HklrExpression);
 
   expr->type = type;
 
@@ -31,13 +31,13 @@ HklExpression* hkl_expression_new(HklExpressionType type, ...)
 
     case HKL_EXPR_UNARY:
       expr->arg[0].op = va_arg(argp, HklOperatorType);
-      expr->arg[1].expression = va_arg(argp, HklExpression*);
+      expr->arg[1].expression = va_arg(argp, HklrExpression*);
       break;
       
     case HKL_EXPR_BINARY:
-      expr->arg[0].expression = va_arg(argp, HklExpression*);
+      expr->arg[0].expression = va_arg(argp, HklrExpression*);
       expr->arg[1].op = va_arg(argp, HklOperatorType);
-      expr->arg[2].expression = va_arg(argp, HklExpression*);
+      expr->arg[2].expression = va_arg(argp, HklrExpression*);
       break;
 
     default:
@@ -49,7 +49,7 @@ HklExpression* hkl_expression_new(HklExpressionType type, ...)
   return expr;
 }
 
-HklValue* hkl_expression_eval(HklExpression* expr)
+HklValue* hklr_expression_eval(HklrExpression* expr)
 {
   assert(expr != NULL);
 
@@ -82,7 +82,7 @@ HklValue* hkl_expression_eval(HklExpression* expr)
 
     case HKL_EXPR_UNARY:
     {
-      HklValue* value = hkl_expression_eval(expr->arg[1].expression);
+      HklValue* value = hklr_expression_eval(expr->arg[1].expression);
       assert(value != NULL);
 
       switch (expr->arg[0].op)
@@ -134,8 +134,8 @@ HklValue* hkl_expression_eval(HklExpression* expr)
 
     case HKL_EXPR_BINARY:
     {
-      HklValue *left_value = hkl_expression_eval(expr->arg[0].expression);
-      HklValue *right_value = hkl_expression_eval(expr->arg[2].expression);
+      HklValue *left_value = hklr_expression_eval(expr->arg[0].expression);
+      HklValue *right_value = hklr_expression_eval(expr->arg[2].expression);
       HklValue *result = NULL;
 
       assert(left_value != NULL);
@@ -258,7 +258,7 @@ HklValue* hkl_expression_eval(HklExpression* expr)
   return NULL;
 }
 
-void hkl_expression_free(HklExpression* expr)
+void hklr_expression_free(HklrExpression* expr)
 {
   assert(expr != NULL);
 
@@ -270,12 +270,12 @@ void hkl_expression_free(HklExpression* expr)
       break;
 
     case HKL_EXPR_UNARY:
-      hkl_expression_free(expr->arg[1].expression);
+      hklr_expression_free(expr->arg[1].expression);
       break;
 
     case HKL_EXPR_BINARY:
-      hkl_expression_free(expr->arg[0].expression);
-      hkl_expression_free(expr->arg[2].expression);
+      hklr_expression_free(expr->arg[0].expression);
+      hklr_expression_free(expr->arg[2].expression);
       break;
 
     default:

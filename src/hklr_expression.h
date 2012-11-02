@@ -1,5 +1,5 @@
-#ifndef HKL_EXPRESSION_H
-#define HKL_EXPRESSION_H
+#ifndef HKLR_EXPRESSION_H
+#define HKLR_EXPRESSION_H
 
 #include <stdarg.h>
 
@@ -49,7 +49,7 @@ typedef enum HklOperatorType
 
 } HklOperatorType;
 
-typedef struct HklExpression
+typedef struct HklrExpression
 {
   HklExpressionType type;
 
@@ -58,17 +58,17 @@ typedef struct HklExpression
     int integer;
     double real;
     HklString* string;
-    struct HklExpression* expression;
+    struct HklrExpression* expression;
     HklOperatorType op;
 
   } arg[3];
 
-} HklExpression;
+} HklrExpression;
 
-HklExpression* hkl_expression_new(HklExpressionType type, ...);
+HklrExpression* hklr_expression_new(HklExpressionType type, ...);
 
-HklValue* hkl_expression_eval(HklExpression* expr);
+HklValue* hklr_expression_eval(HklrExpression* expr);
 
-void hkl_expression_free(HklExpression* expr);
+void hklr_expression_free(HklrExpression* expr);
   
-#endif // HKL_EXPRESSION_H
+#endif // HKLR_EXPRESSION_H
