@@ -16,15 +16,15 @@ typedef enum HklColor
 
 } HklColor;
 
-typedef enum HklFlags
+typedef enum HklFlag
 {
   HKL_FLAG_NONE     = 0x000000,
   HKL_FLAG_CONST    = 0x000001,
   HKL_FLAG_UNIQUE   = 0x000002
 
-} HklFlags;
+} HklFlag;
 
-typedef enum HklTypes
+typedef enum HklType
 {
 
   HKL_TYPE_NONE,
@@ -42,7 +42,7 @@ typedef enum HklTypes
   HKL_TYPE_CFUNC,
   HKL_TYPE_CDATA
 
-} HklTypes;
+} HklType;
 
 /**
 @struct HklObject The top-level object used by the HKLR
@@ -59,8 +59,8 @@ typedef struct HklObject {
   uint32_t is_buffered: 1;
   HklColor color:       3;
 
-  HklTypes type:        24;
-  HklFlags flags:       8;
+  HklType type:        24;
+  HklFlag flags:       8;
 
   union asobject {
 
@@ -87,7 +87,7 @@ the chosen type.
 will be owned by the object and will therefore be automatically
 garbage collected by the HKLR.
 */
-HklObject* hklr_object_new(HklTypes type, HklFlags flags, void* value);
+HklObject* hklr_object_new(HklType type, HklFlag flags, void* value);
 
 /**
 Free resources used by a HklObject

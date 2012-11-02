@@ -4,7 +4,7 @@
 #include "hkl_alloc.h"
 #include "hklr.h"
 
-HklObject* hklr_object_new(HklTypes type, HklFlags flags, void* value)
+HklObject* hklr_object_new(HklType type, HklFlag flags, void* value)
 {
   assert(type != HKL_TYPE_NONE);
 

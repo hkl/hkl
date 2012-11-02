@@ -3,7 +3,7 @@
 #include "hkl_value.h"
 #include "hkl_alloc.h"
 
-HklValue* hkl_value_new(HklTypes type, ...)
+HklValue* hkl_value_new(HklType type, ...)
 {
   assert(type != HKL_TYPE_NONE);
 

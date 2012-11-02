@@ -10,8 +10,8 @@
 typedef struct HklValue 
 {
 
-  HklTypes type:  24;
-  HklFlags flags: 8;
+  HklType type:  24;
+  HklFlag flags: 8;
 
   union asvalue {
 
@@ -25,7 +25,7 @@ typedef struct HklValue
 
 } HklValue;
 
-HklValue* hkl_value_new(HklTypes type, ...);
+HklValue* hkl_value_new(HklType type, ...);
 
 void hkl_value_free(HklValue* value);
 

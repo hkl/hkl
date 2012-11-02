@@ -14,7 +14,8 @@ typedef enum HklExpressionType
   HKL_EXPR_STRING,
   HKL_EXPR_GETS,
   HKL_EXPR_UNARY,
-  HKL_EXPR_BINARY
+  HKL_EXPR_BINARY,
+  HKL_EXPR_VARIABLE
 
 } HklExpressionType;
 
