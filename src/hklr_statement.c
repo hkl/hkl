@@ -113,8 +113,11 @@ void hklr_statement_exec(HklrStatement* stmt)
 
     case HKL_STMT_ASSIGN:
     {
-      HklrObject* object
-        = hklr_expression_eval(stmt->arg[0].expression)->as.object;  
+
+      // Evaluate the left hand side and then discard the value object
+      HklValue* vobj = hklr_expression_eval(stmt->arg[0].expression);
+      HklrObject* object = vobj->as.object;
+      hkl_value_free(vobj);
 
       HklValue* value = hklr_expression_eval(stmt->arg[1].expression);
 
@@ -147,29 +150,29 @@ void hklr_statement_exec(HklrStatement* stmt)
 
         case HKL_TYPE_STRING:
           object->type = HKL_TYPE_STRING;
-          object->as.string = value->as.string;
+          object->as.string = hkl_string_new_from_string(value->as.string);
         break;
 
         case HKL_TYPE_REF:
         {
-          HklrObject* object = value->as.object;
-          assert(object != NULL);
+          HklrObject* ref = value->as.object;
+          assert(ref != NULL);
 
-          switch(object->type)
+          switch(ref->type)
           {
             case HKL_TYPE_INT:
               object->type = HKL_TYPE_INT;
-              object->as.integer = object->as.integer;
+              object->as.integer = ref->as.integer;
             break;
 
             case HKL_TYPE_REAL:
               object->type = HKL_TYPE_REAL;
-              object->as.real = object->as.real;
+              object->as.real = ref->as.real;
             break;
 
             case HKL_TYPE_STRING:
               object->type = HKL_TYPE_STRING;
-              object->as.string = object->as.string;
+              object->as.string = hkl_string_new_from_string(ref->as.string);
             break;
 
             default:
@@ -178,6 +181,8 @@ void hklr_statement_exec(HklrStatement* stmt)
         }
         break; // HKL_TYPE_REF
       }
+
+      hkl_value_free(value);
     }
     break; // HKL_STMT_ASSIGN
 
@@ -197,11 +202,14 @@ void hklr_statement_free(HklrStatement* stmt)
   switch (stmt->type)
   {
     case HKL_STMT_PUTS:
-    {
       // Free the expression
       hklr_expression_free(stmt->arg[0].expression);
-    }
-    break;
+      break;
+
+    case HKL_STMT_ASSIGN:
+      hklr_expression_free(stmt->arg[0].expression);
+      hklr_expression_free(stmt->arg[1].expression);
+      break;
 
     default:
     break;

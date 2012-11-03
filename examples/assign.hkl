@@ -1,6 +1,4 @@
 a = "Hello World\n"
 puts a
-puts "\n"
 b = a
 puts b
-puts "\n"

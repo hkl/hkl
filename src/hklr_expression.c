@@ -287,6 +287,10 @@ void hklr_expression_free(HklrExpression* expr)
       hklr_expression_free(expr->arg[2].expression);
       break;
 
+    case HKL_EXPR_ID:
+      hkl_string_free(expr->arg[0].string);
+      break;
+
     default:
       break;
   }
