@@ -10,5 +10,4 @@ hkl_deque.c hklr.c hklr_object.c hklr_expression.c hklr_statement.c \
 hkl_value.c hkl_list.c
 
 testbed_SOURCES = hkl_tree.c hkl_string.c hkl_test.c hklr.c hklr_object.c \
-hkl_deque.c hkl_hash.c test/hash.c test/gc.c test/traversal.c \
-hkl_list.c
+hkl_deque.c hkl_hash.c hkl_list.c test/hash.c test/traversal.c

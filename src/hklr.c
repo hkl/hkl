@@ -32,7 +32,7 @@ void hklr_init()
 
 static void hklr_gc_dec_hash(HklPair* pair, void* data)
 {
-  hklr_gc_dec((HklObject*) pair->value);
+  hklr_gc_dec((HklrObject*) pair->value);
 }
 
 void hklr_shutdown()
@@ -92,22 +92,22 @@ void hklr_scope_pop()
   hkl_free_object(scope);
 }
 
-void hklr_local_insert(HklString* key, HklObject* value)
+void hklr_local_insert(HklString* key, HklrObject* value)
 {
   hkl_hash_insert(HKLR.scopes->locals, key, value);
 }
 
-void hklr_upval_insert(HklString* key, HklObject* value)
+void hklr_upval_insert(HklString* key, HklrObject* value)
 {
   hkl_hash_insert(HKLR.scopes->upvals, key, value);
 }
 
-void hklr_global_insert(HklString* key, HklObject* value)
+void hklr_global_insert(HklString* key, HklrObject* value)
 {
   hkl_hash_insert(HKLR.globals, key, value);
 }
 
-HklObject* hklr_search(HklString* key)
+HklrObject* hklr_search(HklString* key)
 {
   assert(key != NULL);
 
@@ -151,7 +151,7 @@ HklObject* hklr_search(HklString* key)
   return NULL;
 }
 
-void hklr_gc_inc(HklObject* object)
+void hklr_gc_inc(HklrObject* object)
 {
   assert(object != NULL);
 
@@ -159,7 +159,7 @@ void hklr_gc_inc(HklObject* object)
   object->color = HKL_COLOR_BLACK;
 }
 
-static void hklr_gc_possible_root(HklObject* object)
+static void hklr_gc_possible_root(HklrObject* object)
 { 
   if (object->color != HKL_COLOR_PURPLE)
   {
@@ -180,7 +180,7 @@ static void hklr_gc_possible_root(HklObject* object)
   }
 }
 
-static void hklr_gc_release(HklObject* object)
+static void hklr_gc_release(HklrObject* object)
 {
   switch (object->type)
   {
@@ -207,7 +207,7 @@ static void hklr_gc_release(HklObject* object)
   }
 }
 
-void hklr_gc_dec(HklObject* object)
+void hklr_gc_dec(HklrObject* object)
 {
   assert(object != NULL);
 
@@ -222,10 +222,10 @@ void hklr_gc_dec(HklObject* object)
   }
 }
 
-static void hklr_gc_scanblack(HklObject* object);
+static void hklr_gc_scanblack(HklrObject* object);
 static void hklr_gc_scanblack_hash(HklPair* pair, void* data)
 {
-  HklObject* object = (HklObject*) pair->value;
+  HklrObject* object = (HklrObject*) pair->value;
   object->rc++;
 
   if (object->color != HKL_COLOR_BLACK)
@@ -234,7 +234,7 @@ static void hklr_gc_scanblack_hash(HklPair* pair, void* data)
   }
 }
 
-static void hklr_gc_scanblack(HklObject* object)
+static void hklr_gc_scanblack(HklrObject* object)
 {
   object->color = HKL_COLOR_BLACK;
 
@@ -256,15 +256,15 @@ static void hklr_gc_scanblack(HklObject* object)
 }
 
 // Foward declaration
-static void hklr_gc_markgray(HklObject* object);
+static void hklr_gc_markgray(HklrObject* object);
 static void hklr_gc_markgray_hash(HklPair* pair, void* data)
 {
-  HklObject* object = pair->value;
+  HklrObject* object = pair->value;
   object->rc--;
   hklr_gc_markgray(object);
 }
 
-static void hklr_gc_markgray(HklObject* object)
+static void hklr_gc_markgray(HklrObject* object)
 {
   if (object->color != HKL_COLOR_GRAY)
   {
@@ -293,7 +293,7 @@ static void hklr_gc_markgray(HklObject* object)
 static void hklr_gc_markroots()
 {
   // For all possible roots
-  HklObject* s = HKLR.gc_roots->next;
+  HklrObject* s = HKLR.gc_roots->next;
   for ( ; s != HKLR.gc_tail; s = s->next)
   {
     if (s->color == HKL_COLOR_PURPLE && s->rc > 0)
@@ -320,13 +320,13 @@ static void hklr_gc_markroots()
 }
 
 // Foward declaration
-static void hklr_gc_scan(HklObject* object);
+static void hklr_gc_scan(HklrObject* object);
 static void hklr_gc_scan_hash(HklPair* pair, void* data)
 {
-  hklr_gc_scan((HklObject*) pair->value);
+  hklr_gc_scan((HklrObject*) pair->value);
 }
 
-static void hklr_gc_scan(HklObject* object)
+static void hklr_gc_scan(HklrObject* object)
 {
   if (object->color == HKL_COLOR_GRAY)
   {
@@ -360,20 +360,20 @@ static void hklr_gc_scan(HklObject* object)
 static void hklr_gc_scanroots()
 {
   // For all possible roots
-  HklObject* s = HKLR.gc_roots->next;
+  HklrObject* s = HKLR.gc_roots->next;
   for ( ; s != HKLR.gc_tail; s = s->next)
   {
     hklr_gc_scan(s);
   }
 }
 
-static void hklr_gc_collectwhite(HklObject* object);
+static void hklr_gc_collectwhite(HklrObject* object);
 static void hklr_gc_collectwhite_hash(HklPair* pair, void* data)
 {
-  hklr_gc_collectwhite((HklObject*) pair->value);
+  hklr_gc_collectwhite((HklrObject*) pair->value);
 }
 
-static void hklr_gc_collectwhite(HklObject* object)
+static void hklr_gc_collectwhite(HklrObject* object)
 {
   assert(object != NULL);
 
@@ -408,7 +408,7 @@ static void hklr_gc_collectwhite(HklObject* object)
 static void hklr_gc_collectroots()
 {
   // For all possible roots
-  HklObject* s = HKLR.gc_roots->next;
+  HklrObject* s = HKLR.gc_roots->next;
   for ( ; s != HKLR.gc_tail; s = s->next)
   {
     // Remove node from possible roots
@@ -422,7 +422,7 @@ static void hklr_gc_collectroots()
   }
 
   // Free the queued roots
-  while ((s = (HklObject*) hkl_list_pop_front(HKLR.gc_to_free)))
+  while ((s = (HklrObject*) hkl_list_pop_front(HKLR.gc_to_free)))
   {
     HKLR.gc_freed++;
     hklr_object_free(s);

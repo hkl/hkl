@@ -29,6 +29,10 @@ HklrExpression* hklr_expression_new(HklExpressionType type, ...)
       expr->arg[0].string = va_arg(argp, HklString*);
       break;
 
+    case HKL_EXPR_ID:
+      expr->arg[0].string = va_arg(argp, HklString*);
+      break;
+
     case HKL_EXPR_UNARY:
       expr->arg[0].op = va_arg(argp, HklOperatorType);
       expr->arg[1].expression = va_arg(argp, HklrExpression*);

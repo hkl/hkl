@@ -20,7 +20,6 @@ typedef struct HklrStatement
 
   union stmtarg {
   
-    HklString* id;
     HklrExpression* expression;
 
   } arg[2];

@@ -376,7 +376,7 @@ type:
 variable:
   HKL_T_ID
   {
-    $$ = hklr_expression_new(HKL_EXPR_VARIABLE, $1);
+    $$ = hklr_expression_new(HKL_EXPR_ID, $1);
   }
   |
   variable HKL_T_DOT variable
