@@ -148,7 +148,10 @@ HklrObject* hklr_search(HklString* key)
     return pair->value;
   }
 
-  return NULL;
+  // Didn't find it, make a nil object
+  HklrObject* object = hklr_object_new(HKL_TYPE_NIL, HKL_FLAG_NONE);
+  hklr_local_insert(key, object);
+  return object;
 }
 
 void hklr_gc_inc(HklrObject* object)
@@ -192,7 +195,7 @@ static void hklr_gc_release(HklrObject* object)
 
     // If the object is a reference
     case HKL_TYPE_REF:
-      hklr_gc_dec(object->as.ref);
+      hklr_gc_dec(object->as.object);
       break; 
 
     default: break;
@@ -248,7 +251,7 @@ static void hklr_gc_scanblack(HklrObject* object)
 
     // If the object is a reference
     case HKL_TYPE_REF:
-      hklr_gc_scanblack(object->as.ref);
+      hklr_gc_scanblack(object->as.object);
       break;
 
     default: break;
@@ -281,8 +284,8 @@ static void hklr_gc_markgray(HklrObject* object)
       // If the object is a reference
       case HKL_TYPE_REF:
 
-        object->as.ref->rc--;
-        hklr_gc_markgray(object->as.ref);
+        object->as.object->rc--;
+        hklr_gc_markgray(object->as.object);
         break;
 
       default: break;
@@ -348,7 +351,7 @@ static void hklr_gc_scan(HklrObject* object)
 
         // If the object is a reference
         case HKL_TYPE_REF:
-          hklr_gc_scan(object->as.ref);
+          hklr_gc_scan(object->as.object);
           break;
 
         default: break;
@@ -391,7 +394,7 @@ static void hklr_gc_collectwhite(HklrObject* object)
 
       // If the object is a reference
       case HKL_TYPE_REF:
-        hklr_gc_collectwhite(object->as.ref);
+        hklr_gc_collectwhite(object->as.object);
         break;
 
       default: break;

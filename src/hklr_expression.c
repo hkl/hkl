@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "hklr.h"
 #include "hkl_alloc.h"
 #include "hklr_expression.h"
 
@@ -252,6 +253,10 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
       return result;
     }
     break; // HKL_EXPR_BINARY
+
+    case HKL_EXPR_ID:
+      return hkl_value_new(HKL_TYPE_REF, hklr_search(expr->arg[0].string));
+    break;
 
     default:
     assert(false);

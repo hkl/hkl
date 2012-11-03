@@ -15,11 +15,11 @@ typedef struct HklValue
 
   union asvalue {
 
-    uint32_t          integer;
-    double            real;
-    HklString*        string;
-    HklHash*          hash;
-    struct HklObject* ref;
+    uint32_t           integer;
+    double             real;
+    HklString*         string;
+    HklHash*           hash;
+    struct HklrObject* object;
 
   } as;
 

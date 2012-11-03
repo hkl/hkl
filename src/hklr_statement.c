@@ -20,7 +20,12 @@ HklrStatement* hklr_statement_new(HklStatementType type, ...)
     case HKL_STMT_PUTS:
       // puts requires 1 expression
       stmt->arg[0].expression = va_arg(argp, HklrExpression*);
+      break;
 
+    case HKL_STMT_ASSIGN:
+
+      stmt->arg[0].expression = va_arg(argp, HklrExpression*);
+      stmt->arg[1].expression = va_arg(argp, HklrExpression*);
       break;
 
     default:
@@ -59,7 +64,28 @@ void hklr_statement_exec(HklrStatement* stmt)
           fprintf(stdout, "%s", value->as.string->utf8_data);
           break;
 
+        case HKL_TYPE_REF:
+        {
+          HklrObject* object = value->as.object;
+          assert(object != NULL);
+
+          switch(object->type)
+          {
+            case HKL_TYPE_INT:
+              fprintf(stdout, "%i", object->as.integer);
+            break;
+            case HKL_TYPE_REAL:
+              fprintf(stdout, "%lg", object->as.real);
+            break;
+            case HKL_TYPE_STRING:
+              fprintf(stdout, "%s", object->as.string->utf8_data);
+            break;
+          }
+        }
+        break; // HKL_TYPE_REF
+
         default:
+          assert(false);
           break;
       }
 
@@ -84,6 +110,76 @@ void hklr_statement_exec(HklrStatement* stmt)
       fprintf(stdout, "Upvals:          %zu\n", HKLR.scopes->upvals->length);
       fflush(stdout);
       break;
+
+    case HKL_STMT_ASSIGN:
+    {
+      HklrObject* object
+        = hklr_expression_eval(stmt->arg[0].expression)->as.object;  
+
+      HklValue* value = hklr_expression_eval(stmt->arg[1].expression);
+
+      assert(object != NULL);
+      assert(value != NULL);
+
+      // wipe out the original value
+      // if need be
+      switch (object->type)
+      {
+        case HKL_TYPE_STRING:
+          hkl_string_free(object->as.string);
+        break;
+
+        default:
+        break;
+      }
+
+      switch (value->type)
+      {
+        case HKL_TYPE_INT:
+          object->type = HKL_TYPE_INT;
+          object->as.integer = value->as.integer;
+        break;
+
+        case HKL_TYPE_REAL:
+          object->type = HKL_TYPE_REAL;
+          object->as.real = value->as.real;
+        break;
+
+        case HKL_TYPE_STRING:
+          object->type = HKL_TYPE_STRING;
+          object->as.string = value->as.string;
+        break;
+
+        case HKL_TYPE_REF:
+        {
+          HklrObject* object = value->as.object;
+          assert(object != NULL);
+
+          switch(object->type)
+          {
+            case HKL_TYPE_INT:
+              object->type = HKL_TYPE_INT;
+              object->as.integer = object->as.integer;
+            break;
+
+            case HKL_TYPE_REAL:
+              object->type = HKL_TYPE_REAL;
+              object->as.real = object->as.real;
+            break;
+
+            case HKL_TYPE_STRING:
+              object->type = HKL_TYPE_STRING;
+              object->as.string = object->as.string;
+            break;
+
+            default:
+            break;
+          }
+        }
+        break; // HKL_TYPE_REF
+      }
+    }
+    break; // HKL_STMT_ASSIGN
 
     default:
       break;

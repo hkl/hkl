@@ -123,6 +123,8 @@
 %type <statement> stmt
 %type <statement> puts_stmt
 %type <statement> hklr_stmt
+%type <statement> assign_stmt
+
 
 %type <list> expr_list
 
@@ -241,7 +243,13 @@ function_stmt:
 
 assign_stmt:
   qualifier_list variable optional_init
+  {
+
+  }
   | variable HKL_T_ASSIGN expr
+  {
+    $$ = hklr_statement_new(HKL_STMT_ASSIGN, $1, $3);
+  }
   | variable HKL_T_PLUS_ASSIGN expr
   | variable HKL_T_MINUS_ASSIGN expr
   | variable HKL_T_ASTERISK_ASSIGN expr

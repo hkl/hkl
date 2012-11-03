@@ -28,6 +28,10 @@ HklValue* hkl_value_new(HklType type, ...)
       value->as.string = va_arg(argp, HklString*);
       break;
 
+    case HKL_TYPE_REF:
+      value->as.object = va_arg(argp, HklrObject*);
+      break;
+
     default:
       break;
   }

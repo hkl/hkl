@@ -56,7 +56,7 @@ typedef struct HklrObject {
   struct HklrObject* prev;
   struct HklrObject* next;
   uint32_t rc:          28;
-  uint32_t is_buffered: 1;
+  bool is_buffered:     1;
   HklColor color:       3;
 
   HklType type:        24;
@@ -64,11 +64,11 @@ typedef struct HklrObject {
 
   union asobject {
 
-    uint32_t          integer;
-    double            real;
-    HklString*        string;
-    HklHash*          hash;
-    struct HklrObject* ref;
+    uint32_t           integer;
+    double             real;
+    HklString*         string;
+    HklHash*           hash;
+    struct HklrObject* object;
   
   } as;
 

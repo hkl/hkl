@@ -31,6 +31,9 @@ HklrObject* hklr_object_new(HklType type, HklFlag flags, ...)
   //void* pointer = NULL;
   switch (type)
   {
+    case HKL_TYPE_NIL:
+    break;
+
     case HKL_TYPE_INT:
       object->as.integer = va_arg(argp, int);
     break;
@@ -47,6 +50,8 @@ HklrObject* hklr_object_new(HklType type, HklFlag flags, ...)
       assert(false);
     break;
   }
+
+  va_end(argp);
 
   return object;
 }
