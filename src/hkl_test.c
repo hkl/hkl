@@ -19,10 +19,6 @@ int main(int argc, const char* argv[])
   hkl_string_set_utf8(testname, "hash");
   hkl_tree_insert(testtree, testname, &hashtest);
 
-  extern HklTestFunction gctest;
-  hkl_string_set_utf8(testname, "gc");
-  hkl_tree_insert(testtree, testname, &gctest);
-
   extern HklTestFunction traversaltest;
   hkl_string_set_utf8(testname, "traversal");
   hkl_tree_insert(testtree, testname, &traversaltest);

@@ -25,8 +25,8 @@ the throughput of the language.
 */
 typedef struct HklRuntime
 {
-  HklObject* gc_roots;  // Dummy nodes used for bacon gc
-  HklObject* gc_tail;
+  HklrObject* gc_roots;  // Dummy nodes used for bacon gc
+  HklrObject* gc_tail;
   HklList* gc_to_free;  // Cyclic roots queued for collection
   size_t gc_runs;       // Number of times gc has ran
   size_t gc_created;    // Number of objects the gc has created
@@ -64,7 +64,7 @@ Requests bacon to increment the reference count of an object.
 
 @param object The object to mutate.
 */
-void hklr_gc_inc(HklObject* object);
+void hklr_gc_inc(HklrObject* object);
 
 /**
 Decrement the reference count manually on an object.
@@ -76,7 +76,7 @@ object still exists.
 
 @param object The object to mutate.
 */
-void hklr_gc_dec(HklObject* object);
+void hklr_gc_dec(HklrObject* object);
 
 /**
 Initializes collection of cyclic nodes.
@@ -115,7 +115,7 @@ collected. It is probably best to use this in conjunction with hklr_search.
 @param key The name of the object.
 @param value An object to make local.
 */ 
-void hklr_local_insert(HklString* key, HklObject* value);
+void hklr_local_insert(HklString* key, HklrObject* value);
 
 /**
 Manually force a variable into the upper context.
@@ -130,7 +130,7 @@ collected. It is probably best to use this in conjunction with hklr_search.
 @param key The name of the object.
 @param value An object to make into an upval.
 */ 
-void hklr_upval_insert(HklString* key, HklObject* value);
+void hklr_upval_insert(HklString* key, HklrObject* value);
 
 /**
 Manually force a variable into the global context.
@@ -145,11 +145,11 @@ collected. It is probably best to use this in conjunction with hklr_search.
 @param key The name of the object.
 @param value An object to make into a global.
 */ 
-void hklr_global_insert(HklString* key, HklObject* value);
+void hklr_global_insert(HklString* key, HklrObject* value);
 
 // You are given the nearest object of name, key
 // if the object of name, key is a ref you get what
 // it is referencing
-HklObject* hklr_search(HklString* key);
+HklrObject* hklr_search(HklString* key);
 
 #endif // HKLR_H

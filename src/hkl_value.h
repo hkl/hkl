@@ -10,22 +10,22 @@
 typedef struct HklValue 
 {
 
-  HklTypes type:  24;
-  HklFlags flags: 8;
+  HklType type:  24;
+  HklFlag flags: 8;
 
   union asvalue {
 
-    uint32_t          integer;
-    double            real;
-    HklString*        string;
-    HklHash*          hash;
-    struct HklObject* ref;
+    uint32_t           integer;
+    double             real;
+    HklString*         string;
+    HklHash*           hash;
+    struct HklrObject* object;
 
   } as;
 
 } HklValue;
 
-HklValue* hkl_value_new(HklTypes type, ...);
+HklValue* hkl_value_new(HklType type, ...);
 
 void hkl_value_free(HklValue* value);
 
