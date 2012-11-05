@@ -363,6 +363,9 @@ primary_expr:
   | HKL_T_TRUE
   | HKL_T_FALSE
   | HKL_T_NIL
+  {
+    $$ = hklr_expression_new(HKL_EXPR_NIL);
+  }
   | HKL_T_NULL
   | HKL_T_SELF
   | variable

@@ -5,6 +5,8 @@
 #include "hkl_alloc.h"
 #include "hklr_expression.h"
 
+extern HklValue* hklr_op_plus(HklValue* left_value, HklValue* right_value);
+
 HklrExpression* hklr_expression_new(HklExpressionType type, ...)
 {
   assert(type != HKL_EXPR_NONE);
@@ -60,6 +62,9 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
 
   switch (expr->type)
   {
+    case HKL_EXPR_NIL:
+      return hkl_value_new(HKL_TYPE_NIL);
+      break;
 
     case HKL_EXPR_INT:
       return hkl_value_new(HKL_TYPE_INT, expr->arg[0].integer);
@@ -149,98 +154,8 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
       switch (expr->arg[1].op)
       {
         case HKL_OP_PLUS:
-          switch (left_value->type)
-          {
-            case HKL_TYPE_INT:
-              switch(right_value->type)
-              {
-                case HKL_TYPE_INT:
-                  result = hkl_value_new(HKL_TYPE_INT,
-                    left_value->as.integer + right_value->as.integer);
-                  break;
-
-                case HKL_TYPE_REAL:
-                  result = hkl_value_new(HKL_TYPE_INT,
-                    left_value->as.integer + right_value->as.real);
-                  break;
-
-                case HKL_TYPE_STRING:
-                  assert(false);
-                  break;
-
-                default:
-                  assert(false);
-                  break;
-              }
-              break; // HKL_TYPE_INT
-
-            case HKL_TYPE_REAL:
-              switch(right_value->type)
-              {
-                case HKL_TYPE_INT:
-                  result = hkl_value_new(HKL_TYPE_REAL,
-                    left_value->as.real + right_value->as.integer);
-                  break;
-
-                case HKL_TYPE_REAL:
-                  result = hkl_value_new(HKL_TYPE_REAL,
-                    left_value->as.real + right_value->as.real);
-                  break;
-
-                case HKL_TYPE_STRING:
-                  assert(false);
-                  break;
-
-                default:
-                  assert(false);
-                  break;
-              }
-              break; // HKL_TYPE_REAL
-            
-            case HKL_TYPE_STRING:
-              switch(right_value->type)
-              {
-                
-                case HKL_TYPE_INT:
-                {
-                  result = hkl_value_new(HKL_TYPE_STRING,
-                    hkl_string_new_from_string(left_value->as.string));
-                  HklString* right_string = 
-                    hkl_string_new_from_integer(right_value->as.integer);
-                  hkl_string_cat(result->as.string, right_string);
-                  hkl_string_free(right_string);
-                }
-                break;
-
-                case HKL_TYPE_REAL:
-                {
-                  result = hkl_value_new(HKL_TYPE_STRING,
-                    hkl_string_new_from_string(left_value->as.string));
-                  HklString* right_string = 
-                    hkl_string_new_from_real(right_value->as.real);
-                  hkl_string_cat(result->as.string, right_string);
-                  hkl_string_free(right_string);
-                }
-                break;
-                
-                case HKL_TYPE_STRING:
-                  result = hkl_value_new(HKL_TYPE_STRING,
-                    hkl_string_new_from_string(left_value->as.string));
-
-                  hkl_string_cat(result->as.string, right_value->as.string);
-                  break;
-
-                default:
-                  assert(false);
-                  break;
-              }
-              break; // HKL_TYPE_STRING
-
-            default:
-              assert(false);
-              break;
-          }
-          break; // HKL_OP_PLUS
+          result = hklr_op_plus(left_value, right_value);
+          break;
 
         default:
           assert(false);

@@ -89,6 +89,8 @@ garbage collected by the HKLR.
 */
 HklrObject* hklr_object_new(HklType type, HklFlag flags, ...);
 
+struct HklValue* hklr_object_dereference(HklrObject* object);
+
 /**
 Free resources used by a HklObject
 
