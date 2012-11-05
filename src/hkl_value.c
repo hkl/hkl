@@ -3,7 +3,7 @@
 #include "hkl_value.h"
 #include "hkl_alloc.h"
 
-HklValue* hkl_value_new(HklTypes type, ...)
+HklValue* hkl_value_new(HklType type, ...)
 {
   assert(type != HKL_TYPE_NONE);
 
@@ -26,6 +26,10 @@ HklValue* hkl_value_new(HklTypes type, ...)
 
     case HKL_TYPE_STRING:
       value->as.string = va_arg(argp, HklString*);
+      break;
+
+    case HKL_TYPE_REF:
+      value->as.object = va_arg(argp, HklrObject*);
       break;
 
     default:

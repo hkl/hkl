@@ -1,0 +1,4 @@
+a = "Hello World\n"
+puts a
+b = a
+puts b

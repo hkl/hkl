@@ -16,15 +16,15 @@ typedef enum HklColor
 
 } HklColor;
 
-typedef enum HklFlags
+typedef enum HklFlag
 {
   HKL_FLAG_NONE     = 0x000000,
   HKL_FLAG_CONST    = 0x000001,
   HKL_FLAG_UNIQUE   = 0x000002
 
-} HklFlags;
+} HklFlag;
 
-typedef enum HklTypes
+typedef enum HklType
 {
 
   HKL_TYPE_NONE,
@@ -42,44 +42,44 @@ typedef enum HklTypes
   HKL_TYPE_CFUNC,
   HKL_TYPE_CDATA
 
-} HklTypes;
+} HklType;
 
 /**
-@struct HklObject The top-level object used by the HKLR
+@struct HklrObject The top-level object used by the HKLR
 
 @authors Barrett Lewis, Scott LaVigne 
 @date 10/8/2012
 */
-typedef struct HklObject {
+typedef struct HklrObject {
 
   // Used for garbage collection
-  struct HklObject* prev;
-  struct HklObject* next;
+  struct HklrObject* prev;
+  struct HklrObject* next;
   uint32_t rc:          28;
-  uint32_t is_buffered: 1;
+  bool is_buffered:     1;
   HklColor color:       3;
 
-  HklTypes type:        24;
-  HklFlags flags:       8;
+  HklType type:        24;
+  HklFlag flags:       8;
 
   union asobject {
 
-    uint32_t          integer;
-    double            real;
-    HklString*        string;
-    HklHash*          hash;
-    struct HklObject* ref;
+    uint32_t           integer;
+    double             real;
+    HklString*         string;
+    HklHash*           hash;
+    struct HklrObject* object;
   
   } as;
 
-} HklObject;
+} HklrObject;
 
 /**
 Allocate a new HklObject.
 
 @param type The object type.
 @param flags The informative flags for the object.
-@param value An optional value to hand off to the object.
+@param ... Optional value(s) to hand off to the object.
 Passing NULL will result in a default allocation of the object of
 the chosen type.
 
@@ -87,7 +87,9 @@ the chosen type.
 will be owned by the object and will therefore be automatically
 garbage collected by the HKLR.
 */
-HklObject* hklr_object_new(HklTypes type, HklFlags flags, void* value);
+HklrObject* hklr_object_new(HklType type, HklFlag flags, ...);
+
+struct HklValue* hklr_object_dereference(HklrObject* object);
 
 /**
 Free resources used by a HklObject
@@ -98,38 +100,6 @@ Free resources used by a HklObject
 objects created by hkl_object_new will attempt to communicate
 with the HKLR for automatic memory management.
 */
-void hklr_object_free(HklObject* object);
-
-/**
-Create a reference link between two objects.
-
-This function is mostly unimplemented.
-
-If the child to reference is also a reference, there is a garuntee
-that a link will be made to a leaf object. Chaining references can
-cause long stalls in the HKLR.
-
-@param object The parent object.
-@param reference The child.
-*/
-void hklr_reference(HklObject* object, HklObject* reference);
-
-/**
-Add a child to a HklObject.
-
-This function is mostly unimplemented.
-
-This function is intended for mutating hklhash-based objects at runtime.
-This should work for both hashes and classes
-
-This should follow basic rules for evaluation.
-There should be a garuntee that if value is a composite object, a reference to
-it is stored.
-
-@param object The parent object.
-@param name An object to use as a key.
-@param value An object to insert.
-*/
-void hklr_member_insert(HklObject* object, HklObject* name, HklObject* value);
+void hklr_object_free(HklrObject* object);
 
 #endif // HKL_OBJECT_H

@@ -2,14 +2,17 @@
 #include <stdio.h>
 
 #include "hkl_alloc.h"
-#include "hkl_statement.h"
+#include "hklr_statement.h"
 #include "hklr.h"
 
-HklStatement* hkl_statement_new(HklStatementType type, ...)
+extern void hklr_statement_puts(HklrExpression* expr);
+void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs);
+
+HklrStatement* hklr_statement_new(HklStatementType type, ...)
 {
   assert(type != HKL_STMT_NONE);
 
-  HklStatement* stmt = hkl_alloc_object(HklStatement);
+  HklrStatement* stmt = hkl_alloc_object(HklrStatement);
   stmt->type = type;
 
   va_list argp;
@@ -19,8 +22,13 @@ HklStatement* hkl_statement_new(HklStatementType type, ...)
   {
     case HKL_STMT_PUTS:
       // puts requires 1 expression
-      stmt->arg[0].expression = va_arg(argp, HklExpression*);
+      stmt->arg[0].expression = va_arg(argp, HklrExpression*);
+      break;
 
+    case HKL_STMT_ASSIGN:
+
+      stmt->arg[0].expression = va_arg(argp, HklrExpression*);
+      stmt->arg[1].expression = va_arg(argp, HklrExpression*);
       break;
 
     default:
@@ -32,7 +40,7 @@ HklStatement* hkl_statement_new(HklStatementType type, ...)
   return stmt;
 }
 
-void hkl_statement_exec(HklStatement* stmt)
+void hklr_statement_exec(HklrStatement* stmt)
 {
   assert(stmt != NULL);
 
@@ -40,34 +48,7 @@ void hkl_statement_exec(HklStatement* stmt)
   {
 
     case HKL_STMT_PUTS:
-    {
-      HklValue* value = hkl_expression_eval(stmt->arg[0].expression);  
-
-      assert(value != NULL);
-      
-      switch (value->type)
-      {
-        case HKL_TYPE_INT:
-          fprintf(stdout, "%i", value->as.integer);
-          break;
-
-        case HKL_TYPE_REAL:
-          fprintf(stdout, "%lg", value->as.real);
-          break;
-
-        case HKL_TYPE_STRING:
-          fprintf(stdout, "%s", value->as.string->utf8_data);
-          break;
-
-        default:
-          break;
-      }
-
-      // flush the output
-      fflush(stdout);
-
-      hkl_value_free(value);
-    }
+      hklr_statement_puts(stmt->arg[0].expression);
     break;
 
     case HKL_STMT_HKLR:
@@ -85,6 +66,10 @@ void hkl_statement_exec(HklStatement* stmt)
       fflush(stdout);
       break;
 
+    case HKL_STMT_ASSIGN:
+      hklr_statement_assign(stmt->arg[0].expression, stmt->arg[1].expression);
+    break; // HKL_STMT_ASSIGN
+
     default:
       break;
   }
@@ -93,7 +78,7 @@ void hkl_statement_exec(HklStatement* stmt)
   HKLR.ops++;
 }
 
-void hkl_statement_free(HklStatement* stmt)
+void hklr_statement_free(HklrStatement* stmt)
 {
 
   assert(stmt != NULL);
@@ -101,11 +86,14 @@ void hkl_statement_free(HklStatement* stmt)
   switch (stmt->type)
   {
     case HKL_STMT_PUTS:
-    {
       // Free the expression
-      hkl_expression_free(stmt->arg[0].expression);
-    }
-    break;
+      hklr_expression_free(stmt->arg[0].expression);
+      break;
+
+    case HKL_STMT_ASSIGN:
+      hklr_expression_free(stmt->arg[0].expression);
+      hklr_expression_free(stmt->arg[1].expression);
+      break;
 
     default:
     break;
