@@ -10,6 +10,7 @@
   // These will be defined at link time
   extern int yylex();
   extern int yyerror(char const*);
+  HklList* array_builder;
 %}
 
 // Verbose Errors
@@ -66,6 +67,7 @@
 
 %token HKL_T_TRUE                          "true"
 %token HKL_T_FALSE                         "false"
+%token HKL_T_MAYBE                         "maybe"
 
 %token HKL_T_PUTS                          "puts"
 %token HKL_T_GETS                          "gets"
@@ -360,8 +362,22 @@ primary_expr:
   {
     $$ = hklr_expression_new(HKL_EXPR_GETS);
   }
+  | HKL_T_MAYBE
+  {
+    $$ = hklr_expression_new(HKL_EXPR_MAYBE);
+  }
   | HKL_T_TRUE
+  {
+    $$ = hklr_expression_new(HKL_EXPR_INT, 1);
+  }
   | HKL_T_FALSE
+  {
+    $$ = hklr_expression_new(HKL_EXPR_INT, 0);
+  }
+  | HKL_T_MAYBE
+  {
+    $$ = hklr_expression_new(HKL_EXPR_MAYBE);
+  }
   | HKL_T_NIL
   {
     $$ = hklr_expression_new(HKL_EXPR_NIL);

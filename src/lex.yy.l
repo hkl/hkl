@@ -57,6 +57,7 @@ HklString* string_buf = NULL;
 
 "true"                 return HKL_T_TRUE;
 "false"                return HKL_T_FALSE;
+"maybe"                return HKL_T_MAYBE;
 
 "puts"                 return HKL_T_PUTS;
 "gets"                 return HKL_T_GETS;
@@ -130,6 +131,6 @@ HklString* string_buf = NULL;
 <stringbuild>\\\"          { hkl_string_cat_utf8(string_buf, "\""); }
 <stringbuild>\"            { yylval.string = string_buf; BEGIN 0; return HKL_T_STRING_CONSTANT; }
 
-<stringbuild>\\.           yyerror(yytext);
+<stringbuild>\\.           yyerror(string_buf->utf8_data);
 
 .                          yyerror(yytext);

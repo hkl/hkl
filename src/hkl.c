@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
 
 #include "hkl.h"
 
@@ -7,6 +9,8 @@ extern FILE* yyin;
 extern FILE* yyout;
 extern int yylex();
 extern int yyparse();
+extern HklString* string_buf;
+extern char* yytext;
 extern int yylineno;
 
 int yywrap()
@@ -16,12 +20,17 @@ int yywrap()
 
 int yyerror(const char* msg)
 {
-  fprintf(stderr, "On line %i: %s\n", yylineno, msg);
+  if (string_buf)
+  fprintf(stderr, "On line %i: %s, \"%s\"\n", yylineno, msg, string_buf->utf8_data);
+  else
+  fprintf(stderr, "On line %i: %s, \"%s\"\n", yylineno, msg, yytext);
   return true;
 }
 
 int main(int argc, const char* argv[])
 {
+  srand(time(NULL));
+
   // If there is a filename
   if (argv[1])
   {

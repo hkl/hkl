@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
 
@@ -64,6 +65,10 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
   {
     case HKL_EXPR_NIL:
       return hkl_value_new(HKL_TYPE_NIL);
+      break;
+
+    case HKL_EXPR_MAYBE:
+      return hkl_value_new(HKL_TYPE_INT, rand() % 2 == 1);
       break;
 
     case HKL_EXPR_INT:
