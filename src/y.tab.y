@@ -79,10 +79,10 @@
 %token HKL_T_LPAREN                        "("
 %token HKL_T_RPAREN                        ")"
 %token HKL_T_LBRACE                        "{"
-%token HKL_T_RBRACE                        "}"
 %token HKL_T_LBRACKET                      "["
 %token HKL_T_RBRACKET                      "]"
 %token HKL_T_COLON                         ":"
+%token HKL_T_SEMICOLON                     ";"
 %token HKL_T_COMMA                         ","
 %token HKL_T_DOT                           "."
 
@@ -126,6 +126,7 @@
 %token <string>  HKL_T_STRING_CONSTANT     "string literal"
 
 %type <statement> stmt
+%type <statement> stmt_explicit
 %type <statement> puts_stmt
 %type <statement> hklr_stmt
 %type <statement> assign_stmt
@@ -167,7 +168,7 @@ program:
   stmt_list
 
 stmt_list:
-  stmt_list stmt
+  stmt_list stmt_explicit
   {
     // if we made a statement, and are in scope 1,
     // then execute the statement
@@ -185,6 +186,10 @@ stmt_list:
     }
   }
   | empty
+
+stmt_explicit:
+  stmt HKL_T_SEMICOLON
+  | stmt
 
 stmt:
   puts_stmt
