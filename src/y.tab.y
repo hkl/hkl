@@ -79,6 +79,7 @@
 %token HKL_T_LPAREN                        "("
 %token HKL_T_RPAREN                        ")"
 %token HKL_T_LBRACE                        "{"
+%token HKL_T_RBRACE                        "}"
 %token HKL_T_LBRACKET                      "["
 %token HKL_T_RBRACKET                      "]"
 %token HKL_T_COLON                         ":"
@@ -252,6 +253,7 @@ class_content:
 
 function_stmt:
   qualifier_list HKL_T_FUNCTION nocall_variable HKL_T_LPAREN id_list HKL_T_RPAREN stmt_list HKL_T_END
+  | HKL_T_FUNCTION nocall_variable HKL_T_LPAREN id_list HKL_T_RPAREN stmt_list HKL_T_END
 
 assign_stmt:
   qualifier_list HKL_T_ID optional_init

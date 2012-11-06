@@ -36,8 +36,11 @@ HklValue* hklr_op_plus(HklValue* left_value, HklValue* right_value)
           break;
 
         case HKL_TYPE_STRING:
-          assert(false);
-          break;
+          result = hkl_value_new(HKL_TYPE_STRING,
+            hkl_string_new_from_integer(left_value->as.integer));
+
+          hkl_string_cat(result->as.string, right_value->as.string);
+        break;
 
         default:
           assert(false);
@@ -59,7 +62,10 @@ HklValue* hklr_op_plus(HklValue* left_value, HklValue* right_value)
           break;
 
         case HKL_TYPE_STRING:
-          assert(false);
+          result = hkl_value_new(HKL_TYPE_STRING,
+            hkl_string_new_from_real(left_value->as.real));
+
+          hkl_string_cat(result->as.string, right_value->as.string);
           break;
 
         default:
