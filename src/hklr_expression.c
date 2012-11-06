@@ -6,6 +6,7 @@
 #include "hkl_alloc.h"
 #include "hklr_expression.h"
 
+extern HklValue* hklr_op_size(HklValue* value);
 extern HklValue* hklr_op_plus(HklValue* left_value, HklValue* right_value);
 
 HklrExpression* hklr_expression_new(HklExpressionType type, ...)
@@ -122,22 +123,7 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
           break; // HKL_OP_UNARY_MINUS
 
         case HKL_OP_SIZE:
-          switch (value->type)
-          {
-            case HKL_TYPE_STRING:
-            {
-              HklString* string = value->as.string;
-              value->type = HKL_TYPE_INT;
-              value->as.integer = string->length;
-              hkl_string_free(string);
-              return value;
-            }
-            break;
-
-            default:
-              assert(false);
-              break;
-          }
+          return hklr_op_size(value);
           break; // HKL_OP_SIZE
 
         default:

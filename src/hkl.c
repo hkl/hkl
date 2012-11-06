@@ -13,6 +13,8 @@ extern HklString* string_buf;
 extern char* yytext;
 extern int yylineno;
 
+uint32_t qualifier_builder;
+
 int yywrap()
 {
   return true;

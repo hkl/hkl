@@ -12,7 +12,8 @@
   // These will be defined at link time
   extern int yylex();
   extern int yyerror(char const*);
-  HklList* array_builder;
+  extern HklList* array_builder;
+  extern uint32_t qualifier_builder;
 %}
 
 // Verbose Errors
@@ -21,12 +22,13 @@
 // YYSUNION Definition
 %union
 {
-  int            integer;
-  double         real;
-  HklString*     string;
+  int             integer;
+  double          real;
+  HklFlag         flag;
+  HklString*      string;
   HklrStatement*  statement;
   HklrExpression* expression;
-  HklList*       list;
+  HklList*        list;
 }
 
 /*
@@ -131,9 +133,12 @@
 %type <list> expr_list
 
 %type <expression> expr
+%type <expression> optional_init
 %type <expression> primary_expr
 %type <expression> variable
 %type <expression> nocall_variable
+
+%type <flag> qualifier_list
 
 %token END 0                               "end of file"
 
@@ -244,9 +249,9 @@ function_stmt:
   qualifier_list HKL_T_FUNCTION nocall_variable HKL_T_LPAREN id_list HKL_T_RPAREN stmt_list HKL_T_END
 
 assign_stmt:
-  qualifier_list variable optional_init
+  qualifier_list HKL_T_ID optional_init
   {
-
+    $$ = hklr_statement_new(HKL_STMT_INIT, $1, $2, $3);
   }
   | variable HKL_T_ASSIGN expr
   {
@@ -287,26 +292,52 @@ default_case:
   | empty 
 
 qualifier_list:
-  qualifier qualifier_list
+  qualifier_list qualifier {
+
+    uint32_t temp = qualifier_builder;
+    qualifier_builder = 0;
+    $$ = temp;
+  }
+  | qualifier {
+
+    uint32_t temp = qualifier_builder;
+    qualifier_builder = 0;
+    $$ = temp;
+  }
 
 qualifier:
   HKL_T_UNIQUE
+  {
+    qualifier_builder |= HKL_FLAG_UNIQUE;
+  }
   | HKL_T_CONSTANT
-  | HKL_T_PROTOTYPE
-  | HKL_T_PROTECTED
+  {
+    qualifier_builder |= HKL_FLAG_CONST;
+  }
   | HKL_T_LOCAL
+  {
+    qualifier_builder |= HKL_FLAG_LOCAL;
+  }
   | HKL_T_GLOBAL
+  {
+    qualifier_builder |= HKL_FLAG_GLOBAL;
+  }
 
 optional_init:
   HKL_T_ASSIGN expr
+  {
+    $$ = $2;
+  }
   | empty
+  {
+    $$ = hklr_expression_new(HKL_EXPR_NIL);
+  }
 
 expr:
   HKL_T_LPAREN expr HKL_T_RPAREN
   {
     $$ = $2;
   }
-
   | primary_expr
   | expr HKL_T_OR expr
   | expr HKL_T_AND expr
@@ -417,11 +448,11 @@ variable:
 nocall_variable:
   HKL_T_ID
   |
-  variable HKL_T_DOT variable
+  nocall_variable HKL_T_DOT nocall_variable
   {
     $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_DOT, $3);
   }
-  | variable HKL_T_LBRACKET expr HKL_T_RBRACKET
+  | nocall_variable HKL_T_LBRACKET expr HKL_T_RBRACKET
   {
     $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_INDEX, $3);
   }
