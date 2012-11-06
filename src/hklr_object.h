@@ -20,7 +20,9 @@ typedef enum HklFlag
 {
   HKL_FLAG_NONE     = 0x000000,
   HKL_FLAG_CONST    = 0x000001,
-  HKL_FLAG_UNIQUE   = 0x000002
+  HKL_FLAG_UNIQUE   = 0x000002,
+  HKL_FLAG_LOCAL    = 0x000004,
+  HKL_FLAG_GLOBAL   = 0x000008
 
 } HklFlag;
 
