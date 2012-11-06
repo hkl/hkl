@@ -1,5 +1,6 @@
 %{
 
+#include <assert.h>
 #include <stdio.h>      // for scan functions
 
 #include "hkl.h"
@@ -13,6 +14,8 @@ HklString* string_buf = NULL;
 
 /* Exclusive start state for strings */
 %x stringbuild
+%x includebuild
+%x includename
 
 %%
 
@@ -29,7 +32,27 @@ HklString* string_buf = NULL;
 "break"                return HKL_T_BREAK;
 "continue"             return HKL_T_CONTINUE;
 "assert"               return HKL_T_ASSERT;
-"include"              return HKL_T_INCLUDE;
+
+"include"              BEGIN includebuild;
+<includebuild>[ \t\r]  /* Ignore Whitespace */
+<includebuild>[\n]     yylineno++;
+<includebuild>\"       { BEGIN(includename); string_buf = hkl_string_new(); }
+<includebuild>.        return yyerror(yytext);
+
+<includename>[^\\"]*   { hkl_string_cat_utf8(string_buf, yytext); }
+<includename>\"        {
+                         yyin = fopen(string_buf->utf8_data, "r");
+
+                         assert(yyin != NULL);
+
+                         yypush_buffer_state(yy_create_buffer(yyin, YY_BUF_SIZE));
+
+                         hkl_string_free(string_buf);
+
+                         BEGIN 0; 
+                       }
+<includename>.         return yyerror(yytext);
+
 "case"				         return HKL_T_CASE;
 "switch"               return HKL_T_SWITCH;
 "default"              return HKL_T_DEFAULT;
@@ -123,6 +146,7 @@ HklString* string_buf = NULL;
 }
 
 \"                         { BEGIN stringbuild; string_buf = hkl_string_new(); }
+<includebuild>[\n]         { hkl_string_cat_utf8(string_buf, "\n"); yylineno++; }
 <stringbuild>[^\\"]*       { hkl_string_cat_utf8(string_buf, yytext); }
 <stringbuild>\\n           { hkl_string_cat_utf8(string_buf, "\n"); }
 <stringbuild>\\\n          { /* ignore backslashed newlines */ }
@@ -132,5 +156,14 @@ HklString* string_buf = NULL;
 <stringbuild>\"            { yylval.string = string_buf; BEGIN 0; return HKL_T_STRING_CONSTANT; }
 
 <stringbuild>\\.           return yyerror(yytext);
+
+<<EOF>>                    {
+                             yypop_buffer_state();
+                 
+                             if (YY_CURRENT_BUFFER == NULL)
+                             {
+                              yyterminate();
+                             }
+                           }
 
 .                          return yyerror(yytext);

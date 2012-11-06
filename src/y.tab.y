@@ -44,7 +44,6 @@
 %token HKL_T_BREAK                         "break"
 %token HKL_T_CONTINUE                      "continue"
 %token HKL_T_ASSERT                        "assert"
-%token HKL_T_INCLUDE                       "include"
 
 %token HKL_T_CLASS                         "class"
 %token HKL_T_FUNCTION                      "function"
@@ -201,7 +200,6 @@ stmt:
   | break_stmt
   | continue_stmt
   | assert_stmt
-  | include_stmt
   | class_stmt
   | function_stmt
   | assign_stmt
@@ -235,9 +233,6 @@ continue_stmt:
 
 assert_stmt:
   HKL_T_ASSERT expr
-
-include_stmt:
-  HKL_T_INCLUDE expr
 
 class_stmt:
   qualifier_list HKL_T_CLASS variable class_content_list HKL_T_END
