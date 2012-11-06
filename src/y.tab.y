@@ -7,6 +7,8 @@
   #include "hklr_expression.h"
   #include "hklr_statement.h"
 
+  #define YYDEBUG 0
+
   // These will be defined at link time
   extern int yylex();
   extern int yyerror(char const*);
@@ -45,7 +47,6 @@
 %token HKL_T_CLASS                         "class"
 %token HKL_T_FUNCTION                      "function"
 %token HKL_T_NIL                           "nil"
-%token HKL_T_NULL                          "null"
 %token HKL_T_INT                           "integer"
 %token HKL_T_REAL                          "real"
 %token HKL_T_STRING                        "string"
@@ -126,7 +127,6 @@
 %type <statement> puts_stmt
 %type <statement> hklr_stmt
 %type <statement> assign_stmt
-
 
 %type <list> expr_list
 
@@ -374,15 +374,10 @@ primary_expr:
   {
     $$ = hklr_expression_new(HKL_EXPR_INT, 0);
   }
-  | HKL_T_MAYBE
-  {
-    $$ = hklr_expression_new(HKL_EXPR_MAYBE);
-  }
   | HKL_T_NIL
   {
     $$ = hklr_expression_new(HKL_EXPR_NIL);
   }
-  | HKL_T_NULL
   | HKL_T_SELF
   | variable
   | hash

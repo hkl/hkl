@@ -21,9 +21,9 @@ int yywrap()
 int yyerror(const char* msg)
 {
   if (string_buf)
-  fprintf(stderr, "On line %i: %s, \"%s\"\n", yylineno, msg, string_buf->utf8_data);
+  fprintf(stderr, "On line %i: %s, read as \"%s\"\n", yylineno, msg, string_buf->utf8_data);
   else
-  fprintf(stderr, "On line %i: %s, \"%s\"\n", yylineno, msg, yytext);
+  fprintf(stderr, "On line %i: %s, read as \"%s\"\n", yylineno, msg, yytext);
   return true;
 }
 

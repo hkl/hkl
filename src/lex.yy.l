@@ -37,7 +37,6 @@ HklString* string_buf = NULL;
 "class"                return HKL_T_CLASS;
 "function"             return HKL_T_FUNCTION;
 "nil"                  return HKL_T_NIL;
-"null"                 return HKL_T_NULL;
 
 "int"                  return HKL_T_INT;
 "real"                 return HKL_T_REAL;
@@ -131,6 +130,6 @@ HklString* string_buf = NULL;
 <stringbuild>\\\"          { hkl_string_cat_utf8(string_buf, "\""); }
 <stringbuild>\"            { yylval.string = string_buf; BEGIN 0; return HKL_T_STRING_CONSTANT; }
 
-<stringbuild>\\.           yyerror(string_buf->utf8_data);
+<stringbuild>\\.           return yyerror(yytext);
 
-.                          yyerror(yytext);
+.                          return yyerror(yytext);
