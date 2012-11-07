@@ -10,6 +10,7 @@ hkl_deque.c hklr.c hklr_object.c hklr_expression.c hklr_statement.c \
 hkl_value.c hkl_list.c \
 expression/hklr_op_size.c \
 expression/hklr_op_plus.c \
+expression/hklr_op_equal.c \
 statement/hklr_statement_puts.c \
 statement/hklr_statement_assign.c
 

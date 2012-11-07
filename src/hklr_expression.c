@@ -8,6 +8,7 @@
 
 extern HklValue* hklr_op_size(HklValue* value);
 extern HklValue* hklr_op_plus(HklValue* left_value, HklValue* right_value);
+extern HklValue* hklr_op_equal(HklValue* left_value, HklValue* right_value);
 
 HklrExpression* hklr_expression_new(HklExpressionType type, ...)
 {
@@ -146,6 +147,10 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
       {
         case HKL_OP_PLUS:
           result = hklr_op_plus(left_value, right_value);
+          break;
+
+        case HKL_OP_EQUAL:
+          result = hklr_op_equal(left_value, right_value);
           break;
 
         default:
