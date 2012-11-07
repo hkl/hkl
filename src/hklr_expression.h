@@ -10,6 +10,7 @@ typedef enum HklExpressionType
 {
   HKL_EXPR_NONE,
   HKL_EXPR_NIL,
+  HKL_EXPR_MAYBE,
   HKL_EXPR_INT,
   HKL_EXPR_REAL,
   HKL_EXPR_STRING,

@@ -44,17 +44,26 @@ HklString* hkl_string_new_from_string(const HklString* string)
 HklString* hkl_string_new_from_integer(int integer)
 {
   // create a buffer to store the integer
-  HklString* string = hkl_string_new_from_utf8("               ");
-  sprintf(string->utf8_data,"%d", integer);
+  HklString* string = hkl_string_new();
+
+  string->size = snprintf(NULL, 0, "%d", integer) + 1;
+  string->utf8_data = realloc(string->utf8_data, string->size);
+  snprintf(string->utf8_data, string->size, "%d", integer);
   string->length = utf8_length(string->utf8_data);
+
   return string;
 }
 
 HklString* hkl_string_new_from_real(double real)
 {
-  HklString* string = hkl_string_new_from_utf8("               ");
-  sprintf(string->utf8_data, "%lg", real);
+  // create a buffer to store the integer
+  HklString* string = hkl_string_new();
+
+  string->size = snprintf(NULL, 0, "%lg", real) + 1;
+  string->utf8_data = realloc(string->utf8_data, string->size);
+  snprintf(string->utf8_data, string->size, "%lg", real);
   string->length = utf8_length(string->utf8_data);
+
   return string;
 }
 

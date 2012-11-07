@@ -23,8 +23,10 @@ typedef struct HklrStatement
   union stmtarg {
   
     HklrExpression* expression;
+    HklString*      string;
+    HklFlag         flags;
 
-  } arg[2];
+  } arg[3];
 
 } HklrStatement;
 

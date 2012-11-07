@@ -7,9 +7,13 @@
   #include "hklr_expression.h"
   #include "hklr_statement.h"
 
+  #define YYDEBUG 0
+
   // These will be defined at link time
   extern int yylex();
   extern int yyerror(char const*);
+  extern HklList* array_builder;
+  extern uint32_t qualifier_builder;
 %}
 
 // Verbose Errors
@@ -18,12 +22,13 @@
 // YYSUNION Definition
 %union
 {
-  int            integer;
-  double         real;
-  HklString*     string;
+  int             integer;
+  double          real;
+  HklFlag         flag;
+  HklString*      string;
   HklrStatement*  statement;
   HklrExpression* expression;
-  HklList*       list;
+  HklList*        list;
 }
 
 /*
@@ -39,12 +44,10 @@
 %token HKL_T_BREAK                         "break"
 %token HKL_T_CONTINUE                      "continue"
 %token HKL_T_ASSERT                        "assert"
-%token HKL_T_INCLUDE                       "include"
 
 %token HKL_T_CLASS                         "class"
 %token HKL_T_FUNCTION                      "function"
 %token HKL_T_NIL                           "nil"
-%token HKL_T_NULL                          "null"
 %token HKL_T_INT                           "integer"
 %token HKL_T_REAL                          "real"
 %token HKL_T_STRING                        "string"
@@ -66,6 +69,7 @@
 
 %token HKL_T_TRUE                          "true"
 %token HKL_T_FALSE                         "false"
+%token HKL_T_MAYBE                         "maybe"
 
 %token HKL_T_PUTS                          "puts"
 %token HKL_T_GETS                          "gets"
@@ -78,6 +82,7 @@
 %token HKL_T_LBRACKET                      "["
 %token HKL_T_RBRACKET                      "]"
 %token HKL_T_COLON                         ":"
+%token HKL_T_SEMICOLON                     ";"
 %token HKL_T_COMMA                         ","
 %token HKL_T_DOT                           "."
 
@@ -121,17 +126,20 @@
 %token <string>  HKL_T_STRING_CONSTANT     "string literal"
 
 %type <statement> stmt
+%type <statement> stmt_explicit
 %type <statement> puts_stmt
 %type <statement> hklr_stmt
 %type <statement> assign_stmt
 
-
 %type <list> expr_list
 
 %type <expression> expr
+%type <expression> optional_init
 %type <expression> primary_expr
 %type <expression> variable
 %type <expression> nocall_variable
+
+%type <flag> qualifier_list
 
 %token END 0                               "end of file"
 
@@ -160,7 +168,7 @@ program:
   stmt_list
 
 stmt_list:
-  stmt_list stmt
+  stmt_list stmt_explicit
   {
     // if we made a statement, and are in scope 1,
     // then execute the statement
@@ -179,6 +187,10 @@ stmt_list:
   }
   | empty
 
+stmt_explicit:
+  stmt HKL_T_SEMICOLON
+  | stmt
+
 stmt:
   puts_stmt
   | if_stmt
@@ -188,7 +200,6 @@ stmt:
   | break_stmt
   | continue_stmt
   | assert_stmt
-  | include_stmt
   | class_stmt
   | function_stmt
   | assign_stmt
@@ -223,9 +234,6 @@ continue_stmt:
 assert_stmt:
   HKL_T_ASSERT expr
 
-include_stmt:
-  HKL_T_INCLUDE expr
-
 class_stmt:
   qualifier_list HKL_T_CLASS variable class_content_list HKL_T_END
 
@@ -240,11 +248,12 @@ class_content:
 
 function_stmt:
   qualifier_list HKL_T_FUNCTION nocall_variable HKL_T_LPAREN id_list HKL_T_RPAREN stmt_list HKL_T_END
+  | HKL_T_FUNCTION nocall_variable HKL_T_LPAREN id_list HKL_T_RPAREN stmt_list HKL_T_END
 
 assign_stmt:
-  qualifier_list variable optional_init
+  qualifier_list HKL_T_ID optional_init
   {
-
+    $$ = hklr_statement_new(HKL_STMT_INIT, $1, $2, $3);
   }
   | variable HKL_T_ASSIGN expr
   {
@@ -285,26 +294,52 @@ default_case:
   | empty 
 
 qualifier_list:
-  qualifier qualifier_list
+  qualifier_list qualifier {
+
+    uint32_t temp = qualifier_builder;
+    qualifier_builder = 0;
+    $$ = temp;
+  }
+  | qualifier {
+
+    uint32_t temp = qualifier_builder;
+    qualifier_builder = 0;
+    $$ = temp;
+  }
 
 qualifier:
   HKL_T_UNIQUE
+  {
+    qualifier_builder |= HKL_FLAG_UNIQUE;
+  }
   | HKL_T_CONSTANT
-  | HKL_T_PROTOTYPE
-  | HKL_T_PROTECTED
+  {
+    qualifier_builder |= HKL_FLAG_CONST;
+  }
   | HKL_T_LOCAL
+  {
+    qualifier_builder |= HKL_FLAG_LOCAL;
+  }
   | HKL_T_GLOBAL
+  {
+    qualifier_builder |= HKL_FLAG_GLOBAL;
+  }
 
 optional_init:
   HKL_T_ASSIGN expr
+  {
+    $$ = $2;
+  }
   | empty
+  {
+    $$ = hklr_expression_new(HKL_EXPR_NIL);
+  }
 
 expr:
   HKL_T_LPAREN expr HKL_T_RPAREN
   {
     $$ = $2;
   }
-
   | primary_expr
   | expr HKL_T_OR expr
   | expr HKL_T_AND expr
@@ -360,13 +395,22 @@ primary_expr:
   {
     $$ = hklr_expression_new(HKL_EXPR_GETS);
   }
+  | HKL_T_MAYBE
+  {
+    $$ = hklr_expression_new(HKL_EXPR_MAYBE);
+  }
   | HKL_T_TRUE
+  {
+    $$ = hklr_expression_new(HKL_EXPR_INT, 1);
+  }
   | HKL_T_FALSE
+  {
+    $$ = hklr_expression_new(HKL_EXPR_INT, 0);
+  }
   | HKL_T_NIL
   {
     $$ = hklr_expression_new(HKL_EXPR_NIL);
   }
-  | HKL_T_NULL
   | HKL_T_SELF
   | variable
   | hash
@@ -406,11 +450,11 @@ variable:
 nocall_variable:
   HKL_T_ID
   |
-  variable HKL_T_DOT variable
+  nocall_variable HKL_T_DOT nocall_variable
   {
     $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_DOT, $3);
   }
-  | variable HKL_T_LBRACKET expr HKL_T_RBRACKET
+  | nocall_variable HKL_T_LBRACKET expr HKL_T_RBRACKET
   {
     $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_INDEX, $3);
   }
