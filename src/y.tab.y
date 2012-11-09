@@ -342,26 +342,54 @@ expr:
   }
   | primary_expr
   | expr HKL_T_OR expr
+  {
+
+  }
   | expr HKL_T_AND expr
   | expr HKL_T_LESS_EQUAL expr
+  {
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_LESS_EQUAL, $3);
+  }
   | expr HKL_T_GREATER_EQUAL expr
+  {
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_GREATER_EQUAL, $3);
+  }
   | expr HKL_T_LESS expr
+  {
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_LESS, $3);
+  }
   | expr HKL_T_GREATER expr
+  {
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_GREATER, $3);
+  }
   | expr HKL_T_EQUAL expr
   {
     $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_EQUAL, $3);
   }
   | expr HKL_T_NOT_EQUAL expr
-
+  {
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_NOT_EQUAL, $3);
+  }
   | expr HKL_T_PLUS expr
   {
     $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_PLUS, $3);  
   }
-
   | expr HKL_T_MINUS expr
+  {
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_MINUS, $3);  
+  }
   | expr HKL_T_ASTERISK expr
+  {
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_ASTERISK, $3);
+  }
   | expr HKL_T_DIVIDE expr
+  {
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_DIVIDE, $3);
+  }
   | expr HKL_T_MOD expr
+  {
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_DIVIDE, $3);
+  }
   | expr HKL_T_BITWISE_AND expr
   | expr HKL_T_BITWISE_OR expr
   | expr HKL_T_BITWISE_XOR expr
