@@ -14,6 +14,7 @@ extern char* yytext;
 extern int yylineno;
 
 uint32_t qualifier_builder;
+HklList* stmt_stack;
 
 int yywrap()
 {
@@ -25,7 +26,7 @@ int yyerror(const char* msg)
   if (string_buf)
   fprintf(stderr, "On line %i: %s, read as \"%s\"\n", yylineno, msg, string_buf->utf8_data);
   else
-  fprintf(stderr, "On line %i: %s, read as \"%s\"\n", yylineno, msg, yytext);
+  fprintf(stderr, "On line %i: %s\n", yylineno, msg);
   return true;
 }
 
@@ -45,6 +46,9 @@ int main(int argc, const char* argv[])
   }
 
   hklr_init();
+
+  stmt_stack = hkl_list_new();
+
   yyparse();
 
   hklr_shutdown();

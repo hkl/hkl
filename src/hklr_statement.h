@@ -5,6 +5,7 @@
 #include <stddef.h>
 
 #include "hklr_expression.h"
+#include "hkl_list.h"
 
 typedef enum HklStatementType
 {
@@ -12,7 +13,9 @@ typedef enum HklStatementType
   HKL_STMT_PUTS,
   HKL_STMT_HKLR,
   HKL_STMT_INIT,
-  HKL_STMT_ASSIGN
+  HKL_STMT_ASSIGN,
+  HKL_STMT_IF,
+  HKL_STMT_WHILE
 
 } HklStatementType;
 
@@ -23,6 +26,7 @@ typedef struct HklrStatement
   union stmtarg {
   
     HklrExpression* expression;
+    HklList*        list;
     HklString*      string;
     HklFlag         flags;
 

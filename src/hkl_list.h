@@ -84,4 +84,6 @@ Empty all data from a list.
 */
 void hkl_list_clear(HklList* list);
 
+void hkl_list_traverse(HklList* list, void(*fn)(void*, void*), void* data);
+
 #endif // HKL_LIST_H

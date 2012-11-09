@@ -168,3 +168,13 @@ void hkl_list_clear(HklList* list)
   list->head = list->tail = NULL;
   list->size = 0;
 }
+
+void hkl_list_traverse(HklList* list, void(*fn)(void*, void*), void* data)
+{
+  HklListNode* node = list->head;
+  while (node != NULL)
+  {
+    fn(node->data, data);
+    node = node->next;
+  }
+}

@@ -6,9 +6,6 @@
 
 typedef struct HklScope {
 
-  struct HklScope* prev;
-  struct HklScope* next;
-
   HklHash* locals;
   HklHash* upvals;
 
@@ -34,8 +31,8 @@ typedef struct HklRuntime
   size_t gc_rootsize;   // The number of cyclic roots queued for baconing
 
   HklHash* globals;     // Runtime global variables list
-  HklScope* scopes;     // Runtime stack frams
-  size_t scope_level;   // Current scope depth
+  HklList* scopes;      // Runtime stack frames
+  size_t scope_level;   // Current scope depth (while parsing)
   size_t ops;           // Number of executed operations
 
 } HklRuntime;
