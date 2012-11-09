@@ -227,7 +227,7 @@ if_stmt:
           (HklList*) hkl_list_pop_back(stmt_stack));
   }
 
-  | HKL_T_IF { hkl_list_push_back(stmt_stack, hkl_list_new()); HKLR.scope_level++; } 
+/*  | HKL_T_IF { hkl_list_push_back(stmt_stack, hkl_list_new()); HKLR.scope_level++; } 
   HKL_T_LPAREN expr HKL_T_RPAREN stmt_list HKL_T_ELSE stmt_list HKL_T_END
   {
     HKLR.scope_level--;
@@ -235,7 +235,7 @@ if_stmt:
     $$ = hklr_statement_new(HKL_STMT_IF, $4,
           (HklList*) hkl_list_pop_back(stmt_stack));
   }
-
+*/
 for_stmt:
   HKL_T_FOR HKL_T_LPAREN HKL_T_RPAREN stmt_list HKL_T_END
 
