@@ -14,6 +14,8 @@
   extern int yyerror(char const*);
   extern HklList* array_builder;
   extern uint32_t qualifier_builder;
+
+  extern HklList* stmt_stack;
 %}
 
 // Verbose Errors
@@ -130,6 +132,8 @@
 %type <statement> puts_stmt
 %type <statement> hklr_stmt
 %type <statement> assign_stmt
+%type <statement> if_stmt
+%type <statement> while_stmt
 
 %type <list> expr_list
 
@@ -170,10 +174,10 @@ program:
 stmt_list:
   stmt_list stmt_explicit
   {
-    // if we made a statement, and are in scope 1,
+    // if we made a statement, and are in scope 0,
     // then execute the statement
 
-    if (HKLR.scope_level == 1)
+    if (HKLR.scope_level == 0)
     {
       hklr_statement_exec($2);
 
@@ -183,6 +187,7 @@ stmt_list:
     else
     {
       // add the statement to the current stmt_list
+      hkl_list_push_back((HklList*) stmt_stack->tail->data, $2);
     }
   }
   | empty
@@ -213,14 +218,37 @@ puts_stmt:
   }
 
 if_stmt:
-  HKL_T_IF HKL_T_LPAREN expr HKL_T_RPAREN stmt_list HKL_T_END
-  | HKL_T_IF HKL_T_LPAREN expr HKL_T_RPAREN stmt_list HKL_T_ELSE stmt_list HKL_T_END
+  HKL_T_IF { hkl_list_push_back(stmt_stack, hkl_list_new()); HKLR.scope_level++; } 
+  HKL_T_LPAREN expr HKL_T_RPAREN stmt_list HKL_T_END
+  {
+    HKLR.scope_level--;
+
+    $$ = hklr_statement_new(HKL_STMT_IF, $4,
+          (HklList*) hkl_list_pop_back(stmt_stack));
+  }
+
+  | HKL_T_IF { hkl_list_push_back(stmt_stack, hkl_list_new()); HKLR.scope_level++; } 
+  HKL_T_LPAREN expr HKL_T_RPAREN stmt_list HKL_T_ELSE stmt_list HKL_T_END
+  {
+    HKLR.scope_level--;
+
+    $$ = hklr_statement_new(HKL_STMT_IF, $4,
+          (HklList*) hkl_list_pop_back(stmt_stack));
+  }
 
 for_stmt:
   HKL_T_FOR HKL_T_LPAREN HKL_T_RPAREN stmt_list HKL_T_END
 
+
 while_stmt:
-  HKL_T_WHILE HKL_T_LPAREN expr HKL_T_RPAREN stmt_list HKL_T_END
+  HKL_T_WHILE { hkl_list_push_back(stmt_stack, hkl_list_new()); HKLR.scope_level++; }
+  HKL_T_LPAREN expr HKL_T_RPAREN stmt_list HKL_T_END
+  {
+    HKLR.scope_level--;
+
+    $$ = hklr_statement_new(HKL_STMT_WHILE, $4,
+          (HklList*) hkl_list_pop_back(stmt_stack));
+  }
 
 return_stmt:
   HKL_T_RETURN expr

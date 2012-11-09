@@ -24,7 +24,7 @@ void hklr_init()
   HKLR.gc_rootsize = 0;
 
   HKLR.globals = hkl_hash_new();
-  HKLR.scopes = NULL;
+  HKLR.scopes = hkl_list_new();
   HKLR.scope_level = 0;
 
   hklr_scope_push();
@@ -56,30 +56,15 @@ void hklr_scope_push()
 {
   HklScope* scope = hkl_alloc_object(HklScope);
 
-  scope->prev = HKLR.scopes;
-  scope->next = NULL;
-
   scope->locals = hkl_hash_new();
   scope->upvals = hkl_hash_new();
 
-  if (HKLR.scopes != NULL)
-  {
-    HKLR.scopes->next = scope;
-  }
-  else
-  {
-    HKLR.scopes = scope;
-  }
-
-  HKLR.scope_level++;
+  hkl_list_push_back(HKLR.scopes, scope);
 }
 
 void hklr_scope_pop()
 {
-  HklScope* scope = HKLR.scopes;
-
-  HKLR.scopes = scope->prev;
-  HKLR.scope_level--;
+  HklScope* scope = hkl_list_pop_back(HKLR.scopes);
 
   // decrement all the locals
   hkl_hash_traverse(scope->locals, hklr_gc_dec_hash, NULL);
@@ -94,12 +79,12 @@ void hklr_scope_pop()
 
 void hklr_local_insert(HklString* key, HklrObject* value)
 {
-  hkl_hash_insert(HKLR.scopes->locals, key, value);
+  hkl_hash_insert(((HklScope*) HKLR.scopes->tail->data)->locals, key, value);
 }
 
 void hklr_upval_insert(HklString* key, HklrObject* value)
 {
-  hkl_hash_insert(HKLR.scopes->upvals, key, value);
+  hkl_hash_insert(((HklScope*) HKLR.scopes->tail->data)->upvals, key, value);
 }
 
 void hklr_global_insert(HklString* key, HklrObject* value)
@@ -111,7 +96,7 @@ HklrObject* hklr_search(HklString* key)
 {
   assert(key != NULL);
 
-  HklScope* scope = HKLR.scopes;
+  HklScope* scope = ((HklScope*) HKLR.scopes->tail->data);
   HklPair* pair = NULL;
 
   // check your scope first
@@ -123,9 +108,12 @@ HklrObject* hklr_search(HklString* key)
   if (pair) return pair->value;
 
   // Now try scopes above
-  scope = scope->prev;
-  while(scope != NULL)
+
+  HklListNode* node = HKLR.scopes->tail;
+  node = node->last;
+  while(node != NULL)
   {
+    scope = ((HklScope*) node->data);
     // check locals first then upvals
     pair = hkl_hash_search(scope->locals, key);
     if (!pair) pair = hkl_hash_search(scope->upvals, key);    
@@ -137,7 +125,8 @@ HklrObject* hklr_search(HklString* key)
       hklr_upval_insert(key, pair->value);
       return pair->value;
     }
-    scope = scope->prev;
+
+    node = node->last;
   }
 
   // Finally try global scope
