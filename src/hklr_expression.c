@@ -8,6 +8,14 @@
 
 extern HklValue* hklr_op_size(HklValue* value);
 extern HklValue* hklr_op_plus(HklValue* left_value, HklValue* right_value);
+extern HklValue* hklr_op_minus(HklValue* left_value, HklValue* right_value);
+extern HklValue* hklr_op_less(HklValue* left_value, HklValue* right_value);
+extern HklValue* hklr_op_less_equal(HklValue* left_value, HklValue* right_value);
+extern HklValue* hklr_op_greater(HklValue* left_value, HklValue* right_value);
+extern HklValue* hklr_op_greater_equal(HklValue* left_value, HklValue* right_value);
+extern HklValue* hklr_op_multiply(HklValue* left_value, HklValue* right_value);
+extern HklValue* hklr_op_divide(HklValue* left_value, HklValue* right_value);
+extern HklValue* hklr_op_not_equal(HklValue* left_value, HklValue* right_value);
 
 HklrExpression* hklr_expression_new(HklExpressionType type, ...)
 {
@@ -147,7 +155,27 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
         case HKL_OP_PLUS:
           result = hklr_op_plus(left_value, right_value);
           break;
-
+        case HKL_OP_MINUS:
+          result = hklr_op_minus(left_value, right_value);
+          break;
+        case HKL_OP_LESS:
+          result = hklr_op_less(left_value, right_value);
+          break;  
+        case HKL_OP_LESS_EQUAL:
+          result = hklr_op_less_equal(left_value, right_value);
+          break;   
+        case HKL_OP_GREATER:
+          result = hklr_op_greater(left_value, right_value);
+          break;  
+        case HKL_OP_GREATER_EQUAL:
+          result = hklr_op_greater_equal(left_value, right_value);
+          break;
+        case HKL_OP_ASTERISK: 
+          result = hklr_op_multiply(left_value, right_value); 
+          break;
+        case HKL_OP_DIVIDE:
+          result = hklr_op_divide(left_value, right_value);
+          break;
         default:
           assert(false);
           break;
