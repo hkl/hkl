@@ -18,6 +18,7 @@ expression/hklr_op_plus.c \
 expression/hklr_op_multiply.c \
 expression/hklr_op_divide.c \
 expression/hklr_op_not_equal.c \
+expression/hklr_op_equal.c \
 statement/hklr_statement_puts.c \
 statement/hklr_statement_assign.c
 

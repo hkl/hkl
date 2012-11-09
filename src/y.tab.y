@@ -364,7 +364,7 @@ expr:
   }
   | expr HKL_T_EQUAL expr
   {
-
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_EQUAL, $3);
   }
   | expr HKL_T_NOT_EQUAL expr
   {
