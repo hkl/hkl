@@ -20,7 +20,9 @@ expression/hklr_op_divide.c \
 expression/hklr_op_not_equal.c \
 expression/hklr_op_equal.c \
 statement/hklr_statement_puts.c \
-statement/hklr_statement_assign.c
+statement/hklr_statement_assign.c \
+statement/hklr_statement_if.c \
+statement/hklr_statement_while.c
 
 testbed_SOURCES = hkl_tree.c hkl_string.c hkl_test.c hklr.c hklr_object.c \
 hkl_deque.c hkl_hash.c hkl_list.c hkl_value.c test/hash.c test/traversal.c

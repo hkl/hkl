@@ -6,7 +6,9 @@
 #include "hklr.h"
 
 extern void hklr_statement_puts(HklrExpression* expr);
-void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs);
+extern void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs);
+extern void hklr_statement_if(HklrExpression* expr, HklList* list);
+extern void hklr_statement_while(HklrExpression* expr, HklList* list);
 
 HklrStatement* hklr_statement_new(HklStatementType type, ...)
 {
@@ -36,6 +38,14 @@ HklrStatement* hklr_statement_new(HklStatementType type, ...)
       stmt->arg[1].string = va_arg(argp, HklString*);
       stmt->arg[2].expression = va_arg(argp, HklrExpression*);
       break;
+
+    case HKL_STMT_IF:
+    case HKL_STMT_WHILE:
+
+      stmt->arg[0].expression = va_arg(argp, HklrExpression*);
+      stmt->arg[1].list = va_arg(argp, HklList*);
+      break;
+
 
     default:
       break;
@@ -67,8 +77,8 @@ void hklr_statement_exec(HklrStatement* stmt)
       fprintf(stdout, "GC Runs:         %zu\n", HKLR.gc_runs);
       fprintf(stdout, "Scope Level:     %zu\n", HKLR.scope_level);
       fprintf(stdout, "Globals:         %zu\n", HKLR.globals->length);
-      fprintf(stdout, "Locals:          %zu\n", HKLR.scopes->locals->length);
-      fprintf(stdout, "Upvals:          %zu\n", HKLR.scopes->upvals->length);
+      fprintf(stdout, "Locals:          %zu\n", ((HklScope*) HKLR.scopes->tail->data)->locals->length);
+      fprintf(stdout, "Upvals:          %zu\n", ((HklScope*) HKLR.scopes->tail->data)->upvals->length);
       fflush(stdout);
       break;
 
@@ -92,6 +102,14 @@ void hklr_statement_exec(HklrStatement* stmt)
       hklr_statement_assign(stmt->arg[0].expression, stmt->arg[1].expression);
     break; // HKL_STMT_ASSIGN
 
+    case HKL_STMT_IF:
+      hklr_statement_if(stmt->arg[0].expression, stmt->arg[1].list);
+      break;
+
+    case HKL_STMT_WHILE:
+      hklr_statement_while(stmt->arg[0].expression, stmt->arg[1].list);
+      break;
+
     default:
       break;
   }
@@ -100,9 +118,14 @@ void hklr_statement_exec(HklrStatement* stmt)
   HKLR.ops++;
 }
 
+// helper function to free all items in a statement list
+static void hklr_statement_free_list(void* stmt, void* data) {
+
+  hklr_statement_free((HklrStatement*) stmt);
+}
+
 void hklr_statement_free(HklrStatement* stmt)
 {
-
   assert(stmt != NULL);
 
   switch (stmt->type)
@@ -119,6 +142,13 @@ void hklr_statement_free(HklrStatement* stmt)
     case HKL_STMT_ASSIGN:
       hklr_expression_free(stmt->arg[0].expression);
       hklr_expression_free(stmt->arg[1].expression);
+      break;
+
+    case HKL_STMT_IF:
+    case HKL_STMT_WHILE:
+      hklr_expression_free(stmt->arg[0].expression);
+      hkl_list_traverse(stmt->arg[1].list, hklr_statement_free_list, NULL);
+      hkl_list_free(stmt->arg[1].list);
       break;
 
     default:
