@@ -34,6 +34,23 @@ void hklr_statement_puts(HklrExpression* expr)
       fprintf(stdout, "%s", value->as.string->utf8_data);
       break;
 
+    case HKL_TYPE_ARRAY:
+    {
+      HklDeque* deque = value->as.deque;
+      size_t i;
+      fprintf(stdout, "[");
+      for (i = 0; i < value->as.deque->size - 1; ++i)
+      {
+        fprintf(stdout, "%i, ", ((HklValue*) hkl_deque_findn(deque, i))->as.integer);
+      }
+      if (i < value->as.deque->size)
+      {
+        fprintf(stdout, "%i", ((HklValue*) hkl_deque_findn(deque, i))->as.integer);
+      }
+      fprintf(stdout, "]");
+    }
+    break;
+
     default:
       assert(false);
       break;

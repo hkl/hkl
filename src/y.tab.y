@@ -12,10 +12,10 @@
   // These will be defined at link time
   extern int yylex();
   extern int yyerror(char const*);
-  extern HklList* array_builder;
   extern uint32_t qualifier_builder;
 
   extern HklList* stmt_stack;
+  extern HklList* array_stack;
 %}
 
 // Verbose Errors
@@ -135,7 +135,7 @@
 %type <statement> if_stmt
 %type <statement> while_stmt
 
-%type <list> expr_list
+%type <list> array
 
 %type <expression> expr
 %type <expression> optional_init
@@ -474,6 +474,9 @@ primary_expr:
   | variable
   | hash
   | array
+  {
+    $$ = hklr_expression_new(HKL_EXPR_ARRAY, $1);
+  }
   | inline_function
   | inline_class
 
@@ -503,7 +506,7 @@ variable:
   }
   | variable HKL_T_LPAREN expr_list HKL_T_RPAREN
   {
-    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_CALL, $3);
+    //$$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_CALL, $3);
   }
 
 nocall_variable:
@@ -540,10 +543,17 @@ optional_value:
   | empty
 
 array:
-  HKL_T_LBRACKET expr_list HKL_T_RBRACKET
+  HKL_T_LBRACKET { hkl_list_push_back(array_stack, hkl_list_new()); } expr_list HKL_T_RBRACKET
+  {
+    $$ = hkl_list_pop_back(array_stack);
+  }
 
 expr_list:
   expr expr_more
+  {
+    // add the statement to the current expr_list
+    hkl_list_push_back((HklList*) array_stack->tail->data, $1);
+  }
   | empty
 
 expr_more:

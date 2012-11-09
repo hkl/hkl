@@ -32,6 +32,10 @@ HklValue* hkl_value_new(HklType type, ...)
       value->as.object = va_arg(argp, HklrObject*);
       break;
 
+    case HKL_TYPE_ARRAY:
+      value->as.deque = va_arg(argp, HklDeque*);
+      break;
+
     default:
       break;
   }

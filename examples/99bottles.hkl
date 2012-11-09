@@ -1,0 +1,37 @@
+bottles = 99
+
+while (bottles)
+
+  if (bottles > 1)
+    puts bottles + " bottles of beer on the wall, "
+    puts bottles + " bottles of beer.\n"
+  end
+
+  if (bottles == 1)
+    puts bottles + " more bottle of beer on the wall, "
+    puts bottles + " more bottle of beer.\n"
+  end
+
+  puts "Take one down and pass it around, "
+
+  bottles = bottles - 1
+
+  if (bottles > 1)
+    puts bottles + " bottles of beer on the wall.\n"
+  end
+
+  if (bottles == 1)
+    puts bottles + " more bottle of beer on the wall.\n"
+  end
+
+  if (bottles == 0)
+    puts "no more bottles of beer on the wall.\n"
+  end
+
+  puts "\n"
+
+end
+
+puts
+"No more bottles of beer on the wall, no more bottles of beer. 
+Go to the store and buy some more, 99 bottles of beer on the wall.\n"

@@ -47,6 +47,10 @@ HklrExpression* hklr_expression_new(HklExpressionType type, ...)
       expr->arg[0].string = va_arg(argp, HklString*);
       break;
 
+    case HKL_EXPR_ARRAY:
+      expr->arg[0].list = va_arg(argp, HklList*);
+      break;
+
     case HKL_EXPR_UNARY:
       expr->arg[0].op = va_arg(argp, HklOperatorType);
       expr->arg[1].expression = va_arg(argp, HklrExpression*);
@@ -65,6 +69,13 @@ HklrExpression* hklr_expression_new(HklExpressionType type, ...)
   va_end(argp);
 
   return expr;
+}
+
+static void hklr_array_add_list(void* expr, void* array)
+{
+  HklValue* value = hklr_expression_eval((HklrExpression*) expr);
+
+  hkl_deque_push_back((HklDeque*) array, value);
 }
 
 HklValue* hklr_expression_eval(HklrExpression* expr)
@@ -102,6 +113,24 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
       HklString* string = hkl_string_new_from_stream(stdin);
       assert(string != NULL);
       return hkl_value_new(HKL_TYPE_STRING, string);
+    }
+    break;
+
+    case HKL_EXPR_ID:
+      return hkl_value_new(HKL_TYPE_REF, hklr_search(expr->arg[0].string));
+    break;
+
+    case HKL_EXPR_ARRAY:
+    {
+      HklList* list = expr->arg[0].list;
+
+      // allocate space ahead of time
+      HklDeque* deque = hkl_deque_new_sized(list->size);
+      HklValue* result = hkl_value_new(HKL_TYPE_ARRAY, deque);
+
+      hkl_list_traverse(list, hklr_array_add_list, deque);
+
+      return result;
     }
     break;
 
@@ -191,10 +220,6 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
       return result;
     }
     break; // HKL_EXPR_BINARY
-
-    case HKL_EXPR_ID:
-      return hkl_value_new(HKL_TYPE_REF, hklr_search(expr->arg[0].string));
-    break;
 
     default:
     assert(false);
