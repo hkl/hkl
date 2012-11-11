@@ -10,7 +10,7 @@ void hkl_deque_grow(HklDeque* deque)
   if((deque->back == deque->max-1) && (deque->front == 0))//special case of array in order
   {
     deque->queue = realloc(deque->queue, deque->max * 2 * sizeof(void*));
-  }                                   
+  }
   //We need to move the chunk representing first part of the queue to the front
   //and move back of the array to the back
   else if(deque->back < deque->front)
@@ -48,7 +48,7 @@ HklDeque* hkl_deque_new()
   deque->front = deque->back = 0;
   deque->queue = malloc(sizeof(void*));
 
-  return deque;                             
+  return deque;
 }
 
 HklDeque *hkl_deque_new_sized(size_t size)
@@ -57,10 +57,11 @@ HklDeque *hkl_deque_new_sized(size_t size)
 
   deque->size = 0;
   deque->max = size;
-  deque->front = deque->back = 0;
   deque->queue = malloc(size * sizeof(void*));
+  deque->front = 0;
+  deque->back = size - 1;
 
-  return deque;                             
+  return deque;
 }
 
 void hkl_deque_push_back(HklDeque* deque, void* data)
@@ -112,7 +113,7 @@ void* hkl_deque_pop_front(HklDeque* deque)
 {
   assert(deque != NULL);
   void* data = NULL;
-  
+
   if (deque->size > 0)
   {
     data = deque->queue[deque->front];
@@ -150,14 +151,14 @@ void* hkl_deque_pop_back(HklDeque* deque)
       deque->front = deque->back = 0;
     }
   }
-  
+
   return data;
 }
 
 void hkl_deque_free(HklDeque* deque)
 {
   assert(deque != NULL);
-  
+
   free(deque->queue);
   free(deque);
 }
@@ -179,7 +180,7 @@ void hkl_deque_clear(HklDeque* deque)
 void *hkl_deque_findn(HklDeque *deque, int n)
 {
   assert(deque != NULL);
-  
+
   int *data = NULL;
   if(n >= 0 && n < (int)deque->size)
   {
@@ -189,7 +190,7 @@ void *hkl_deque_findn(HklDeque *deque, int n)
   else if(n < 0 && -n < (int)deque->size + 1)
   {
     //we want to offset the value so that -1 is the back
-    int location = (deque->back + (n + 1)) % deque->max;  
+    int location = (deque->back + (n + 1)) % deque->max;
     data = deque->queue[location];
   }
 
@@ -203,10 +204,10 @@ void *hkl_deque_findn_cyclical(HklDeque *deque, int n)
 
   if((int)deque->size > 0)//only null on an empty queue
   {
-    int index = ((n % deque->size) % deque->max) + deque->front;//get a cyclical index 
+    int index = ((n % deque->size) % deque->max) + deque->front;//get a cyclical index
     data = deque->queue[index];
   }
-  
+
   return data;
 }
 
@@ -222,7 +223,7 @@ void hkl_deque_trim(HklDeque *deque)
     {
       tmp[i] = hkl_deque_findn(deque, i);
     }
-    
+
     free(deque->queue);
     deque->queue = tmp;
     deque->front = 0;
