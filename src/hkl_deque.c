@@ -58,8 +58,7 @@ HklDeque *hkl_deque_new_sized(size_t size)
   deque->size = 0;
   deque->max = size;
   deque->queue = malloc(size * sizeof(void*));
-  deque->front = 0;
-  deque->back = size - 1;
+  deque->front = deque->back = 0;
 
   return deque;
 }
