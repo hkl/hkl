@@ -16,6 +16,7 @@ extern int yylineno;
 uint32_t qualifier_builder;
 HklList* stmt_stack;
 HklList* array_stack;
+HklList* var_stack;
 
 int yywrap()
 {
@@ -50,6 +51,7 @@ int main(int argc, const char* argv[])
 
   stmt_stack = hkl_list_new();
   array_stack = hkl_list_new();
+  var_stack = hkl_list_new();
 
   yyparse();
 

@@ -1,6 +1,7 @@
 #include <assert.h>
 
 #include "hklr_expression.h"
+#include "hklr.h"
 
 void hklr_statement_puts(HklrExpression* expr)
 {

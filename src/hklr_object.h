@@ -5,6 +5,7 @@
 
 #include "hkl_string.h"
 #include "hkl_hash.h"
+#include "hkl_deque.h"
 
 typedef enum HklColor
 {
@@ -71,6 +72,7 @@ typedef struct HklrObject {
     HklString*         string;
     HklHash*           hash;
     struct HklrObject* object;
+    HklDeque*          deque;
   
   } as;
 

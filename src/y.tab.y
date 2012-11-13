@@ -6,6 +6,7 @@
   #include "hklr.h"
   #include "hklr_expression.h"
   #include "hklr_statement.h"
+  #include "hkl_variable.h"
 
   #define YYDEBUG 0
 
@@ -15,6 +16,7 @@
   extern uint32_t qualifier_builder;
 
   extern HklList* stmt_stack;
+  extern HklList* var_stack;
   extern HklList* array_stack;
 %}
 
@@ -141,7 +143,6 @@
 %type <expression> optional_init
 %type <expression> primary_expr
 %type <expression> variable
-%type <expression> nocall_variable
 
 %type <flag> qualifier_list
 
@@ -209,6 +210,7 @@ stmt:
   | function_stmt
   | assign_stmt
   | hklr_stmt
+  | call_stmt
   //| switch_stmt
 
 puts_stmt:
@@ -236,9 +238,9 @@ if_stmt:
           (HklList*) hkl_list_pop_back(stmt_stack));
   }
 */
+
 for_stmt:
   HKL_T_FOR HKL_T_LPAREN HKL_T_RPAREN stmt_list HKL_T_END
-
 
 while_stmt:
   HKL_T_WHILE { hkl_list_push_back(stmt_stack, hkl_list_new()); HKLR.scope_level++; }
@@ -272,17 +274,14 @@ class_content_list:
 class_content:
   class_stmt
   | function_stmt
-  | qualifier_list nocall_variable optional_init
+  | qualifier_list variable optional_init
 
 function_stmt:
-  qualifier_list HKL_T_FUNCTION nocall_variable HKL_T_LPAREN id_list HKL_T_RPAREN stmt_list HKL_T_END
-  | HKL_T_FUNCTION nocall_variable HKL_T_LPAREN id_list HKL_T_RPAREN stmt_list HKL_T_END
+  qualifier_list HKL_T_FUNCTION variable HKL_T_LPAREN id_list HKL_T_RPAREN stmt_list HKL_T_END
+  | HKL_T_FUNCTION variable HKL_T_LPAREN id_list HKL_T_RPAREN stmt_list HKL_T_END
 
 assign_stmt:
-  qualifier_list HKL_T_ID optional_init
-  {
-    $$ = hklr_statement_new(HKL_STMT_INIT, $1, $2, $3);
-  }
+  qualifier_list variable optional_init
   | variable HKL_T_ASSIGN expr
   {
     $$ = hklr_statement_new(HKL_STMT_ASSIGN, $1, $3);
@@ -296,6 +295,9 @@ assign_stmt:
   | variable HKL_T_BITWISE_OR_ASSIGN expr
   | variable HKL_T_BITWISE_XOR_ASSIGN expr
   | variable HKL_T_BITWISE_NOT_ASSIGN expr
+
+call_stmt:
+  variable HKL_T_LPAREN expr_list HKL_T_RPAREN
 
 hklr_stmt:
   HKL_T_HKLR
@@ -471,6 +473,7 @@ primary_expr:
     $$ = hklr_expression_new(HKL_EXPR_NIL);
   }
   | HKL_T_SELF
+  | variable HKL_T_LPAREN expr_list HKL_T_RPAREN
   | variable
   | hash
   | array
@@ -491,35 +494,21 @@ type:
   | HKL_T_INSTANCE
 
 variable:
-  HKL_T_ID
+  HKL_T_ID { hkl_list_push_back(var_stack, hkl_list_new()); } variable_more
   {
-    $$ = hklr_expression_new(HKL_EXPR_ID, $1);
-  }
-  |
-  variable HKL_T_DOT variable
-  {
-    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_DOT, $3);
-  }
-  | variable HKL_T_LBRACKET expr HKL_T_RBRACKET
-  {
-    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_INDEX, $3);
-  }
-  | variable HKL_T_LPAREN expr_list HKL_T_RPAREN
-  {
-    //$$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_CALL, $3);
+    $$ = hklr_expression_new(HKL_EXPR_VAR, $1, hkl_list_pop_back(var_stack));
   }
 
-nocall_variable:
-  HKL_T_ID
-  |
-  nocall_variable HKL_T_DOT nocall_variable
+variable_more:
+  variable_more HKL_T_DOT HKL_T_ID
   {
-    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_DOT, $3);
+    hkl_list_push_back((HklList*) var_stack->tail->data, hkl_variable_new(HKL_VAR_ID, $3));
   }
-  | nocall_variable HKL_T_LBRACKET expr HKL_T_RBRACKET
+  | variable_more HKL_T_LBRACKET expr HKL_T_RBRACKET
   {
-    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_INDEX, $3);
+    hkl_list_push_back((HklList*) var_stack->tail->data, hkl_variable_new(HKL_VAR_INDEX, $3));
   }
+  | empty
 
 hash:
   HKL_T_LBRACE key_val_list HKL_T_RBRACE
