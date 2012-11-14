@@ -6,6 +6,7 @@
 #include "hkl_string.h"
 #include "hkl_hash.h"
 #include "hklr_object.h"
+#include "hkl_deque.h"
 
 typedef struct HklValue 
 {
@@ -19,7 +20,8 @@ typedef struct HklValue
     double             real;
     HklString*         string;
     HklHash*           hash;
-    struct HklrObject* object;
+    HklDeque*          deque;
+    HklrObject*        object;
 
   } as;
 

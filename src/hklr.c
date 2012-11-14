@@ -9,8 +9,8 @@
 void hklr_init()
 {
   // The first and last gc_root are dummy objects
-  HKLR.gc_roots = hklr_object_new(HKL_TYPE_INT, HKL_FLAG_NONE, NULL);
-  HKLR.gc_tail = hklr_object_new(HKL_TYPE_INT, HKL_FLAG_NONE, NULL);
+  HKLR.gc_roots = hklr_object_new(HKL_TYPE_INT, HKL_FLAG_NONE, 80075);
+  HKLR.gc_tail = hklr_object_new(HKL_TYPE_INT, HKL_FLAG_NONE, 1457);
   // Dont count them in the object count
   HKLR.gc_created-=2;
 
@@ -38,6 +38,7 @@ static void hklr_gc_dec_hash(HklPair* pair, void* data)
 void hklr_shutdown()
 {
   hklr_scope_pop();
+  hkl_list_free(HKLR.scopes);
 
   // free globals
   hkl_hash_traverse(HKLR.globals, hklr_gc_dec_hash, NULL);
@@ -174,6 +175,7 @@ static void hklr_gc_possible_root(HklrObject* object)
 
 static void hklr_gc_release(HklrObject* object)
 {
+
   switch (object->type)
   {
     // If the object is a hash table

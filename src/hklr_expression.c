@@ -43,8 +43,13 @@ HklrExpression* hklr_expression_new(HklExpressionType type, ...)
       expr->arg[0].string = va_arg(argp, HklString*);
       break;
 
-    case HKL_EXPR_ID:
+    case HKL_EXPR_VAR:
       expr->arg[0].string = va_arg(argp, HklString*);
+      expr->arg[1].list = va_arg(argp, HklList*);
+      break;
+
+    case HKL_EXPR_ARRAY:
+      expr->arg[0].list = va_arg(argp, HklList*);
       break;
 
     case HKL_EXPR_UNARY:
@@ -65,6 +70,13 @@ HklrExpression* hklr_expression_new(HklExpressionType type, ...)
   va_end(argp);
 
   return expr;
+}
+
+static void hklr_array_add_list(void* expr, void* array)
+{
+  HklValue* value = hklr_expression_eval((HklrExpression*) expr);
+
+  hkl_deque_push_front((HklDeque*) array, value);
 }
 
 HklValue* hklr_expression_eval(HklrExpression* expr)
@@ -97,11 +109,31 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
     }
     break;
 
+    case HKL_EXPR_VAR:
+    {
+      HklrObject* object = hklr_search(expr->arg[0].string);
+
+      // apply more list items to the object to fetch deeper ones
+
+      return hkl_value_new(HKL_TYPE_REF, object);
+    }
+    break;
+
     case HKL_EXPR_GETS:
     {
       HklString* string = hkl_string_new_from_stream(stdin);
       assert(string != NULL);
       return hkl_value_new(HKL_TYPE_STRING, string);
+    }
+    break;
+
+    case HKL_EXPR_ARRAY:
+    {
+      // allocate space ahead of time
+      HklDeque* deque = hkl_deque_new();//_sized(list->size);
+      hkl_list_traverse(expr->arg[0].list, hklr_array_add_list, deque);
+
+      return hkl_value_new(HKL_TYPE_ARRAY, deque);
     }
     break;
 
@@ -192,10 +224,6 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
     }
     break; // HKL_EXPR_BINARY
 
-    case HKL_EXPR_ID:
-      return hkl_value_new(HKL_TYPE_REF, hklr_search(expr->arg[0].string));
-    break;
-
     default:
     assert(false);
       break;
@@ -203,6 +231,11 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
 
   assert(false);
   return NULL;
+}
+
+static void hklr_array_free_list(void* expr, void* data)
+{
+  hklr_expression_free(expr);
 }
 
 void hklr_expression_free(HklrExpression* expr)
@@ -225,9 +258,16 @@ void hklr_expression_free(HklrExpression* expr)
       hklr_expression_free(expr->arg[2].expression);
       break;
 
-    case HKL_EXPR_ID:
+    case HKL_EXPR_VAR:
+
       hkl_string_free(expr->arg[0].string);
+      hkl_list_free(expr->arg[1].list);
       break;
+      
+    case HKL_EXPR_ARRAY:
+     hkl_list_traverse(expr->arg[0].list, hklr_array_free_list, NULL);
+     hkl_list_free(expr->arg[0].list);
+     break;
 
     default:
       break;

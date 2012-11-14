@@ -33,12 +33,6 @@ HklrStatement* hklr_statement_new(HklStatementType type, ...)
       stmt->arg[1].expression = va_arg(argp, HklrExpression*);
       break;
 
-    case HKL_STMT_INIT:
-      stmt->arg[0].flags = va_arg(argp, HklFlag);
-      stmt->arg[1].string = va_arg(argp, HklString*);
-      stmt->arg[2].expression = va_arg(argp, HklrExpression*);
-      break;
-
     case HKL_STMT_IF:
     case HKL_STMT_WHILE:
 
@@ -82,25 +76,9 @@ void hklr_statement_exec(HklrStatement* stmt)
       fflush(stdout);
       break;
 
-    case HKL_STMT_INIT:
-    {
-      // This is very much a hack and needs to be made ALOT better
-      // this doesn't actually play nice with flags, but will
-      // do for now to create globals and locals
-      if (stmt->arg[0].flags & HKL_FLAG_GLOBAL)
-        hklr_global_insert(stmt->arg[1].string, hklr_object_new(HKL_TYPE_NIL, stmt->arg[0].flags));
-      else
-        hklr_local_insert(stmt->arg[1].string, hklr_object_new(HKL_TYPE_NIL, stmt->arg[0].flags));
-
-      HklrExpression* temp = hklr_expression_new(HKL_EXPR_ID, stmt->arg[1].string);
-      hklr_statement_assign(temp, stmt->arg[2].expression);
-      hklr_expression_free(temp);
-    }
-    break;
-
     case HKL_STMT_ASSIGN:
       hklr_statement_assign(stmt->arg[0].expression, stmt->arg[1].expression);
-    break; // HKL_STMT_ASSIGN
+    break;
 
     case HKL_STMT_IF:
       hklr_statement_if(stmt->arg[0].expression, stmt->arg[1].list);
@@ -133,10 +111,6 @@ void hklr_statement_free(HklrStatement* stmt)
     case HKL_STMT_PUTS:
       // Free the expression
       hklr_expression_free(stmt->arg[0].expression);
-      break;
-
-    case HKL_STMT_INIT:
-      hklr_expression_free(stmt->arg[2].expression);
       break;
 
     case HKL_STMT_ASSIGN:

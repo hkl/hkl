@@ -23,6 +23,14 @@ HklValue* hklr_op_size(HklValue* value)
     }
     break;
 
+    case HKL_TYPE_ARRAY:
+    {
+      HklDeque* deque = value->as.deque;
+      value->type = HKL_TYPE_INT;
+      value->as.integer = deque->size;
+    }
+    break;
+
     default:
       assert(false);
       break;

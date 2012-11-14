@@ -1,6 +1,7 @@
 #include <assert.h>
 
 #include "hklr_expression.h"
+#include "hklr.h"
 
 void hklr_statement_puts(HklrExpression* expr)
 {
@@ -8,11 +9,22 @@ void hklr_statement_puts(HklrExpression* expr)
 
   HklValue* value = hklr_expression_eval(expr);
 
+  bool temporary = true;
+
   // derefence the object
   if (value->type == HKL_TYPE_REF)
   {
     HklValue* temp = value;
     value = hklr_object_dereference(value->as.object);
+    
+    // Don't free the deque or hash since it can't be a temporary
+    if (value->type == HKL_TYPE_ARRAY)
+    {
+      temporary = false;
+      // simply spoof the value
+      temp->type = HKL_TYPE_NIL;
+    }
+    
     hkl_value_free(temp);
   }
 
@@ -34,6 +46,23 @@ void hklr_statement_puts(HklrExpression* expr)
       fprintf(stdout, "%s", value->as.string->utf8_data);
       break;
 
+    case HKL_TYPE_ARRAY:
+    {
+      HklDeque* deque = value->as.deque;
+      size_t i;
+      fprintf(stdout, "[");
+      for (i = 0; i < value->as.deque->size - 1; ++i)
+      {
+        fprintf(stdout, "%i, ", ((HklValue*) hkl_deque_findn(deque, i))->as.integer);
+      }
+      if (i < value->as.deque->size)
+      {
+        fprintf(stdout, "%i", ((HklValue*) hkl_deque_findn(deque, i))->as.integer);
+      }
+      fprintf(stdout, "]");
+    }
+    break;
+
     default:
       assert(false);
       break;
@@ -41,6 +70,12 @@ void hklr_statement_puts(HklrExpression* expr)
 
   // flush the output
   fflush(stdout);
-
+  
+  // Be sure not to delete the deque if its not a temporary
+  if (value->type == HKL_TYPE_ARRAY && temporary == false)
+  {
+    value->type = HKL_TYPE_NIL;
+  }
+  
   hkl_value_free(value);
 }
