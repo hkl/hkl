@@ -86,7 +86,12 @@ HklValue* hklr_object_dereference(HklrObject* object)
 
     case HKL_TYPE_ARRAY:
       return hkl_value_new(HKL_TYPE_ARRAY, object->as.deque);
-    break;   
+    break;
+    
+    // A composite object reference
+    case HKL_TYPE_REF:
+      return hklr_object_dereference(object->as.object);
+    break;     
 
     default:
       assert(false);
@@ -106,7 +111,16 @@ void hklr_object_free(HklrObject* object)
     break;
 
     case HKL_TYPE_ARRAY:
+    {
+      size_t i;
+
+      for (i = 0; i < object->as.deque->size; ++i)
+      {
+        hkl_value_free((HklValue*) hkl_deque_findn(object->as.deque, i));
+      }
+
       hkl_deque_free(object->as.deque);
+    }
     break;
 
     default:

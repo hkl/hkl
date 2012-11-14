@@ -19,6 +19,14 @@ void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs)
   {
     HklValue* temp = value;
     value = hklr_object_dereference(value->as.object);
+    
+    // Don't free the deque or hash since it can't be a temporary
+    if (value->type == HKL_TYPE_ARRAY)
+    {
+      // simply spoof the value
+      temp->type = HKL_TYPE_NIL;
+    }
+    
     hkl_value_free(temp);
   }
 
@@ -58,14 +66,22 @@ void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs)
       object->as.string = hkl_string_new_from_string(value->as.string);
     break;
 
-    case HKL_TYPE_ARRAY:
-      object->type = HKL_TYPE_ARRAY;
-      object->as.deque = value->as.deque;
+    case HKL_TYPE_ARRAY:   
+
+      // Make a reference to an array
+      object->type = HKL_TYPE_REF;
+      object->as.object = hklr_object_new(HKL_TYPE_ARRAY, HKL_FLAG_NONE, value->as.deque);
     break;
 
     default:
     assert(false);
     break;
+  }
+
+  // Be sure not to delete the deque
+  if (value->type == HKL_TYPE_ARRAY)
+  {
+    value->type = HKL_TYPE_NIL;
   }
 
   hkl_value_free(value);

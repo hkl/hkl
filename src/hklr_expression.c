@@ -129,17 +129,11 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
 
     case HKL_EXPR_ARRAY:
     {
-      HklList* list = expr->arg[0].list;
-
       // allocate space ahead of time
       HklDeque* deque = hkl_deque_new();//_sized(list->size);
-      hkl_list_traverse(list, hklr_array_add_list, deque);
+      hkl_list_traverse(expr->arg[0].list, hklr_array_add_list, deque);
 
-      HklrObject* object = hklr_object_new(HKL_TYPE_ARRAY, HKL_FLAG_NONE, deque);
-
-      HklValue* result = hkl_value_new(HKL_TYPE_REF, object);
-
-      return result;
+      return hkl_value_new(HKL_TYPE_ARRAY, deque);
     }
     break;
 
@@ -239,6 +233,11 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
   return NULL;
 }
 
+static void hklr_array_free_list(void* expr, void* data)
+{
+  hklr_expression_free(expr);
+}
+
 void hklr_expression_free(HklrExpression* expr)
 {
   assert(expr != NULL);
@@ -264,6 +263,11 @@ void hklr_expression_free(HklrExpression* expr)
       hkl_string_free(expr->arg[0].string);
       hkl_list_free(expr->arg[1].list);
       break;
+      
+    case HKL_EXPR_ARRAY:
+     hkl_list_traverse(expr->arg[0].list, hklr_array_free_list, NULL);
+     hkl_list_free(expr->arg[0].list);
+     break;
 
     default:
       break;
