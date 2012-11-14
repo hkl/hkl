@@ -12,6 +12,7 @@
   flex_and_bison_buffer_stack
   Memcheck:Leak
   fun:malloc
+  fun:yyalloc
   fun:yyensure_buffer_stack
   fun:yylex
   fun:yyparse

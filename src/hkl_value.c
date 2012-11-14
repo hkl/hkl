@@ -1,5 +1,7 @@
 #include <assert.h>
 
+#include "hklr.h"
+
 #include "hkl_value.h"
 #include "hkl_alloc.h"
 

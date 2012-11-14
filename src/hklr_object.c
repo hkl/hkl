@@ -4,6 +4,7 @@
 #include "hklr_object.h"
 #include "hkl_alloc.h"
 #include "hklr.h"
+#include "hkl_deque.h"
 #include "hkl_value.h"
 
 HklrObject* hklr_object_new(HklType type, HklFlag flags, ...)
@@ -102,6 +103,10 @@ void hklr_object_free(HklrObject* object)
   {
     case HKL_TYPE_STRING:
       hkl_string_free(object->as.string);
+    break;
+
+    case HKL_TYPE_ARRAY:
+      hkl_deque_free(object->as.deque);
     break;
 
     default:

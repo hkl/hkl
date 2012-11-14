@@ -55,6 +55,10 @@ int main(int argc, const char* argv[])
 
   yyparse();
 
+  hkl_list_free(stmt_stack);
+  hkl_list_free(array_stack);
+  hkl_list_free(var_stack);
+
   hklr_shutdown();
   
   if (yyin != NULL)

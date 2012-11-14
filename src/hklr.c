@@ -38,6 +38,7 @@ static void hklr_gc_dec_hash(HklPair* pair, void* data)
 void hklr_shutdown()
 {
   hklr_scope_pop();
+  hkl_list_free(HKLR.scopes);
 
   // free globals
   hkl_hash_traverse(HKLR.globals, hklr_gc_dec_hash, NULL);
