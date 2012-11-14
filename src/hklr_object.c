@@ -4,6 +4,7 @@
 #include "hklr_object.h"
 #include "hkl_alloc.h"
 #include "hklr.h"
+#include "hkl_deque.h"
 #include "hkl_value.h"
 
 HklrObject* hklr_object_new(HklType type, HklFlag flags, ...)
@@ -47,6 +48,10 @@ HklrObject* hklr_object_new(HklType type, HklFlag flags, ...)
       object->as.string = va_arg(argp, HklString*);
     break;
 
+    case HKL_TYPE_ARRAY:
+      object->as.deque = va_arg(argp, HklDeque*);
+    break;
+
     default: 
       assert(false);
     break;
@@ -79,6 +84,15 @@ HklValue* hklr_object_dereference(HklrObject* object)
       return hkl_value_new(HKL_TYPE_STRING, hkl_string_new_from_string(object->as.string));
     break;    
 
+    case HKL_TYPE_ARRAY:
+      return hkl_value_new(HKL_TYPE_ARRAY, object->as.deque);
+    break;
+    
+    // A composite object reference
+    case HKL_TYPE_REF:
+      return hklr_object_dereference(object->as.object);
+    break;     
+
     default:
       assert(false);
       return NULL;
@@ -94,6 +108,19 @@ void hklr_object_free(HklrObject* object)
   {
     case HKL_TYPE_STRING:
       hkl_string_free(object->as.string);
+    break;
+
+    case HKL_TYPE_ARRAY:
+    {
+      size_t i;
+
+      for (i = 0; i < object->as.deque->size; ++i)
+      {
+        hkl_value_free((HklValue*) hkl_deque_findn(object->as.deque, i));
+      }
+
+      hkl_deque_free(object->as.deque);
+    }
     break;
 
     default:

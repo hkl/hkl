@@ -12,7 +12,6 @@ typedef enum HklStatementType
   HKL_STMT_NONE,
   HKL_STMT_PUTS,
   HKL_STMT_HKLR,
-  HKL_STMT_INIT,
   HKL_STMT_ASSIGN,
   HKL_STMT_IF,
   HKL_STMT_WHILE
