@@ -150,7 +150,7 @@
 
 // Precedence
 
-%left HKL_T_ASSIGN
+%right HKL_T_ASSIGN
 %left HKL_T_OR
 %left HKL_T_AND
 %left HKL_T_BITWISE_OR

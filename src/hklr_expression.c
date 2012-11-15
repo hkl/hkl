@@ -217,6 +217,7 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
           break;
         case HKL_OP_ASSIGN:
           hklr_statement_assign(expr->arg[0].expression, expr->arg[2].expression);
+          // This technically doesnt count as an op
           result = hklr_expression_eval(expr->arg[0].expression);
           break;
         default:
