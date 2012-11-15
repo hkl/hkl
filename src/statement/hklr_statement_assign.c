@@ -56,6 +56,10 @@ void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs)
           // dec the rc of the array
           hklr_gc_dec(object->as.object);
         break;
+
+        default:
+          assert(false);
+        break;
       }
     break;
 
