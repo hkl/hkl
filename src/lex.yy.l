@@ -92,7 +92,7 @@ HklString* string_buf = NULL;
 "["                    return HKL_T_LBRACKET;
 "]"                    return HKL_T_RBRACKET;
 ":"                    return HKL_T_COLON;
-";"                    return HKL_T_SEMICOLON;
+";"*                   return HKL_T_SEMICOLON;
 ","                    return HKL_T_COMMA;
 "."                    return HKL_T_DOT;
 
