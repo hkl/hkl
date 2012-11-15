@@ -1,10 +1,11 @@
 #include <assert.h>
 
+#include "hklr.h"
 #include "hklr_expression.h"
 
 void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs)
 {
-  // Evaluate the left hand side and then discard the value object
+  // Evaluate the left hand side
   HklValue* vobj = hklr_expression_eval(lhs);
   HklrObject* object = vobj->as.object;
   hkl_value_free(vobj);
@@ -14,20 +15,26 @@ void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs)
   assert(object != NULL);
   assert(value != NULL);
 
+  // The right hand object's compositeness
+  bool composite = false;
+
+  HklValue* temp = value;
   // dereference the objcet
   if (value->type == HKL_TYPE_REF)
   {
-    HklValue* temp = value;
     value = hklr_object_dereference(value->as.object);
     
     // Don't free the deque or hash since it can't be a temporary
     if (value->type == HKL_TYPE_ARRAY)
     {
-      // simply spoof the value
-      temp->type = HKL_TYPE_NIL;
+      // The right hand side is a composite
+      composite = true;
+      // increase its ref count since its about to be ref'ed
+      hklr_gc_inc(temp->as.object->as.object);
     }
     
-    hkl_value_free(temp);
+    if (composite == false)
+      hkl_value_free(temp);
   }
 
   // wipe out the original value
@@ -39,6 +46,17 @@ void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs)
   {
     case HKL_TYPE_STRING:
       hkl_string_free(object->as.string);
+    break;
+
+    case HKL_TYPE_REF:
+      switch(object->as.object->type)
+      {
+        // Double reference (Arrays and Hashes)
+        case HKL_TYPE_ARRAY:
+          // dec the rc of the array
+          hklr_gc_dec(object->as.object);
+        break;
+      }
     break;
 
     default:
@@ -70,7 +88,17 @@ void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs)
 
       // Make a reference to an array
       object->type = HKL_TYPE_REF;
-      object->as.object = hklr_object_new(HKL_TYPE_ARRAY, HKL_FLAG_NONE, value->as.deque);
+
+      if (composite)
+      {
+        object->as.object = temp->as.object->as.object;
+        hkl_value_free(temp); // free the temp rhsma
+      }
+      else
+      {
+        object->as.object = hklr_object_new(HKL_TYPE_ARRAY, HKL_FLAG_NONE, value->as.deque);
+      }
+
     break;
 
     default:
