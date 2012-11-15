@@ -5,6 +5,9 @@
 #include "hklr.h"
 #include "hkl_alloc.h"
 #include "hklr_expression.h"
+#include "hklr_statement.h"
+
+extern void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs);
 
 extern HklValue* hklr_op_size(HklValue* value);
 extern HklValue* hklr_op_plus(HklValue* left_value, HklValue* right_value);
@@ -211,6 +214,11 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
           break;
         case HKL_OP_EQUAL:
           result = hklr_op_equal(left_value, right_value);
+          break;
+        case HKL_OP_ASSIGN:
+          hklr_statement_assign(expr->arg[0].expression, expr->arg[2].expression);
+          // This technically doesnt count as an op
+          result = hklr_expression_eval(expr->arg[0].expression);
           break;
         default:
           assert(false);

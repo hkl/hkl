@@ -4,6 +4,11 @@
 
 typedef void(*HklTestFunction)(const char**);
 
+void hkl_list_tree(HklPair* pair, void* data) {
+
+  fprintf(stderr, "%s ", pair->key->utf8_data);
+}
+
 int main(int argc, const char* argv[])
 {
 
@@ -25,7 +30,9 @@ int main(int argc, const char* argv[])
 
   if (argv[1] == NULL)
   {
-    fprintf(stderr, "No test given. Exiting.\n");
+    fprintf(stderr, "No test given. Valid tests:\n");
+    hkl_tree_traverse(testtree, hkl_list_tree, NULL);
+    fprintf(stderr, "\n");
     return 1;
   }
 

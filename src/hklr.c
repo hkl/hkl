@@ -141,6 +141,7 @@ HklrObject* hklr_search(HklString* key)
   // Didn't find it, make a nil object
   HklrObject* object = hklr_object_new(HKL_TYPE_NIL, HKL_FLAG_NONE);
   hklr_local_insert(key, object);
+
   return object;
 }
 
@@ -175,7 +176,6 @@ static void hklr_gc_possible_root(HklrObject* object)
 
 static void hklr_gc_release(HklrObject* object)
 {
-
   switch (object->type)
   {
     // If the object is a hash table
@@ -184,12 +184,17 @@ static void hklr_gc_release(HklrObject* object)
       hkl_hash_traverse(object->as.hash, hklr_gc_dec_hash, NULL);
       break;
 
+    case HKL_TYPE_ARRAY:
+
+      break;
+
     // If the object is a reference
     case HKL_TYPE_REF:
       hklr_gc_dec(object->as.object);
       break; 
 
-    default: break;
+    default:
+    break;
   }
 
   object->color = HKL_COLOR_BLACK;
@@ -240,12 +245,18 @@ static void hklr_gc_scanblack(HklrObject* object)
       hkl_hash_traverse(object->as.hash, hklr_gc_scanblack_hash, NULL);
       break;
 
+    case HKL_TYPE_ARRAY:
+      // Traverse the deque scanning every child
+      break;
+
     // If the object is a reference
     case HKL_TYPE_REF:
       hklr_gc_scanblack(object->as.object);
       break;
 
-    default: break;
+    default:
+      assert(false);
+    break;
   }
 }
 
@@ -272,6 +283,9 @@ static void hklr_gc_markgray(HklrObject* object)
         hkl_hash_traverse(object->as.hash, hklr_gc_markgray_hash, NULL);
         break;
 
+      case HKL_TYPE_ARRAY:
+        break;
+
       // If the object is a reference
       case HKL_TYPE_REF:
 
@@ -279,7 +293,9 @@ static void hklr_gc_markgray(HklrObject* object)
         hklr_gc_markgray(object->as.object);
         break;
 
-      default: break;
+      default:
+        assert(false);
+      break;
     }
   }
 }
@@ -307,7 +323,9 @@ static void hklr_gc_markroots()
       if (s->color == HKL_COLOR_BLACK && s->rc == 0)
       {
         HKLR.gc_freed++;
-        hklr_object_free(s);
+        //hklr_object_free(s);
+        // queue the object for collection
+        hkl_list_push_back(HKLR.gc_to_free, s);
       }
     }
   }
@@ -345,7 +363,9 @@ static void hklr_gc_scan(HklrObject* object)
           hklr_gc_scan(object->as.object);
           break;
 
-        default: break;
+        default:
+          assert(false);
+        break;
       }
     }
   }
@@ -388,12 +408,10 @@ static void hklr_gc_collectwhite(HklrObject* object)
         hklr_gc_collectwhite(object->as.object);
         break;
 
-      default: break;
+      default:
+        assert(false);
+      break;
     }
-
-    // queue up roots to free
-    /* HKLR.gc_freed++;
-    hklr_object_free(object);*/
 
     hkl_list_push_back(HKLR.gc_to_free, object);
   }
@@ -419,6 +437,7 @@ static void hklr_gc_collectroots()
   while ((s = (HklrObject*) hkl_list_pop_front(HKLR.gc_to_free)))
   {
     HKLR.gc_freed++;
+
     hklr_object_free(s);
   }
 }

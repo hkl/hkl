@@ -150,6 +150,7 @@
 
 // Precedence
 
+%right HKL_T_ASSIGN
 %left HKL_T_OR
 %left HKL_T_AND
 %left HKL_T_BITWISE_OR
@@ -419,6 +420,10 @@ expr:
   | expr HKL_T_MOD expr
   {
     $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_DIVIDE, $3);
+  }
+  | expr HKL_T_ASSIGN expr
+  {
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_ASSIGN, $3);
   }
   | expr HKL_T_BITWISE_AND expr
   | expr HKL_T_BITWISE_OR expr
