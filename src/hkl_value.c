@@ -65,7 +65,7 @@ void hkl_value_free(HklValue* value)
       {
         hkl_value_free((HklValue*) hkl_deque_findn(value->as.deque, i));
       }
-      printf("array free\n");
+
       hkl_deque_free(value->as.deque);
     }
     break;
