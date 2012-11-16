@@ -10,6 +10,8 @@
 extern void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs);
 
 extern HklValue* hklr_op_size(HklValue* value);
+extern HklValue* hklr_op_typeof(HklValue* value);
+
 extern HklValue* hklr_op_plus(HklValue* left_value, HklValue* right_value);
 extern HklValue* hklr_op_minus(HklValue* left_value, HklValue* right_value);
 extern HklValue* hklr_op_less(HklValue* left_value, HklValue* right_value);
@@ -36,6 +38,10 @@ HklrExpression* hklr_expression_new(HklExpressionType type, ...)
   {
     case HKL_EXPR_INT:
       expr->arg[0].integer = va_arg(argp, int);
+      break;
+
+    case HKL_EXPR_TYPE:
+      expr->arg[0].type = va_arg(argp, HklType);
       break;
 
     case HKL_EXPR_REAL:
@@ -98,6 +104,10 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
 
     case HKL_EXPR_INT:
       return hkl_value_new(HKL_TYPE_INT, expr->arg[0].integer);
+      break;
+
+    case HKL_EXPR_TYPE:
+      return hkl_value_new(HKL_TYPE_TYPE, expr->arg[0].type);
       break;
 
     case HKL_EXPR_REAL:
@@ -169,6 +179,10 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
         case HKL_OP_SIZE:
           return hklr_op_size(value);
           break; // HKL_OP_SIZE
+
+        case HKL_OP_TYPEOF:
+          return hklr_op_typeof(value);
+          break; // HKL_OP_TYPE
 
         default:
           assert(false);

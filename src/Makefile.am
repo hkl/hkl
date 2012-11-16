@@ -9,6 +9,7 @@ hkl_SOURCES = y.tab.y lex.yy.l hkl_string.c hkl_hash.c hkl_tree.c hkl.c \
 hkl_deque.c hklr.c hklr_object.c hklr_expression.c hklr_statement.c \
 hkl_value.c hkl_list.c hkl_variable.c \
 expression/hklr_op_size.c \
+expression/hklr_op_typeof.c \
 expression/hklr_op_minus.c \
 expression/hklr_op_less.c \
 expression/hklr_op_less_equal.c \

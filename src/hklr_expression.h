@@ -6,6 +6,7 @@
 #include "hkl_string.h"
 #include "hkl_value.h"
 #include "hkl_list.h"
+#include "hklr_object.h"
 
 typedef enum HklExpressionType 
 {
@@ -13,6 +14,7 @@ typedef enum HklExpressionType
   HKL_EXPR_NIL,
   HKL_EXPR_MAYBE,
   HKL_EXPR_INT,
+  HKL_EXPR_TYPE,
   HKL_EXPR_REAL,
   HKL_EXPR_STRING,
   HKL_EXPR_GETS,
@@ -50,7 +52,8 @@ typedef enum HklOperatorType
   HKL_OP_DOT,
   HKL_OP_INDEX,
   HKL_OP_CALL,
-  HKL_OP_ASSIGN
+  HKL_OP_ASSIGN,
+  HKL_OP_TYPEOF
 
 } HklOperatorType;
 
@@ -66,6 +69,7 @@ typedef struct HklrExpression
     struct HklrExpression* expression;
     HklOperatorType op;
     HklList* list;
+    HklType type;
 
   } arg[3];
 

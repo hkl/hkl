@@ -38,6 +38,43 @@ void hklr_statement_puts(HklrExpression* expr)
       fprintf(stdout, "%i", value->as.integer);
       break;
 
+    case HKL_TYPE_TYPE:
+      switch (value->as.type)
+      {
+        case HKL_TYPE_NIL:
+          fprintf(stdout, "nil");
+        break;
+
+        case HKL_TYPE_INT:
+          fprintf(stdout, "int");
+        break;
+
+        case HKL_TYPE_TYPE:
+          fprintf(stdout, "type");
+        break;
+
+        case HKL_TYPE_REAL:
+          fprintf(stdout, "real");
+        break;
+
+        case HKL_TYPE_STRING:
+          fprintf(stdout, "string");
+        break;
+
+        case HKL_TYPE_ARRAY:
+          fprintf(stdout, "array");
+        break;
+
+        case HKL_TYPE_FUNCTION:
+          fprintf(stdout, "func");
+        break;
+
+        default:
+          assert(false);
+        break;
+      }
+      break;
+
     case HKL_TYPE_REAL:
       fprintf(stdout, "%lg", value->as.real);
       break;
