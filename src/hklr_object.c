@@ -76,6 +76,10 @@ HklValue* hklr_object_dereference(HklrObject* object)
       return hkl_value_new(HKL_TYPE_INT, object->as.integer);
     break;
 
+    case HKL_TYPE_TYPE:
+      return hkl_value_new(HKL_TYPE_TYPE, object->as.type);
+    break;
+
     case HKL_TYPE_REAL:
       return hkl_value_new(HKL_TYPE_REAL, object->as.real);
     break;

@@ -22,6 +22,13 @@ HklValue* hklr_op_not_equal(HklValue* left_value, HklValue* right_value)
 
   switch (left_value->type)
   {
+    case HKL_TYPE_NIL:
+      if (right_value->type == HKL_TYPE_NIL)
+        result = hkl_value_new(HKL_TYPE_INT, 0);
+      else
+        result = hkl_value_new(HKL_TYPE_INT, 1);
+    break;
+
     case HKL_TYPE_INT:
       switch(right_value->type)
       {
@@ -40,6 +47,20 @@ HklValue* hklr_op_not_equal(HklValue* left_value, HklValue* right_value)
           break;
       }
       break; // HKL_TYPE_INT
+
+    case HKL_TYPE_TYPE:
+      switch(right_value->type)
+      {
+        case HKL_TYPE_TYPE:
+          result = hkl_value_new(HKL_TYPE_INT,
+            left_value->as.type != right_value->as.type);
+          break;
+
+        default:
+          assert(false);
+          break;
+      }
+      break; // HKL_TYPE_TYPE
 
     case HKL_TYPE_REAL:
       switch(right_value->type)
