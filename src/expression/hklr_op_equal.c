@@ -48,6 +48,20 @@ HklValue* hklr_op_equal(HklValue* left_value, HklValue* right_value)
       }
       break; // HKL_TYPE_INT
 
+    case HKL_TYPE_TYPE:
+      switch(right_value->type)
+      {
+        case HKL_TYPE_TYPE:
+          result = hkl_value_new(HKL_TYPE_INT,
+            left_value->as.type == right_value->as.type);
+          break;
+
+        default:
+          assert(false);
+          break;
+      }
+      break; // HKL_TYPE_TYPE
+
     case HKL_TYPE_REAL:
       switch(right_value->type)
       {

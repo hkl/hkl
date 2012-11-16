@@ -38,9 +38,9 @@ typedef enum HklType
   HKL_TYPE_ARRAY,
   HKL_TYPE_INT,
   HKL_TYPE_REAL,
+  HKL_TYPE_TYPE,
   HKL_TYPE_FUNCTION,
   HKL_TYPE_NIL,
-  HKL_TYPE_NULL,
   HKL_TYPE_REF,
   HKL_TYPE_CFUNC,
   HKL_TYPE_CDATA
@@ -73,6 +73,7 @@ typedef struct HklrObject {
     HklHash*           hash;
     struct HklrObject* object;
     HklDeque*          deque;
+    HklType            type;
   
   } as;
 

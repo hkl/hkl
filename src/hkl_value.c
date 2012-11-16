@@ -22,6 +22,10 @@ HklValue* hkl_value_new(HklType type, ...)
       value->as.integer = va_arg(argp, int);
       break;
 
+    case HKL_TYPE_TYPE:
+      value->as.integer = va_arg(argp, HklType);
+      break;
+
     case HKL_TYPE_REAL:
       value->as.real = va_arg(argp, double);
       break;

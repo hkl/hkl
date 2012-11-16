@@ -22,6 +22,7 @@ typedef struct HklValue
     HklHash*           hash;
     HklDeque*          deque;
     HklrObject*        object;
+    HklType            type;
 
   } as;
 

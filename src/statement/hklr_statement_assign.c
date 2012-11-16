@@ -78,6 +78,11 @@ void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs)
       object->as.integer = value->as.integer;
     break;
 
+    case HKL_TYPE_TYPE:
+      object->type = HKL_TYPE_TYPE;
+      object->as.type = value->as.type;
+    break;
+
     case HKL_TYPE_REAL:
       object->type = HKL_TYPE_REAL;
       object->as.real = value->as.real;

@@ -57,7 +57,9 @@
 %token HKL_T_STRING                        "string"
 %token HKL_T_ARRAY                         "array"
 %token HKL_T_HASH                          "hash"
+%token HKL_T_TYPE                          "type"
 %token HKL_T_INSTANCE                      "instance"
+%token HKL_T_FUNC                          "func"
 %token HKL_T_SWITCH                        "switch"
 %token HKL_T_CASE                          "case"
 %token HKL_T_DEFAULT                       "default"
@@ -78,6 +80,7 @@
 %token HKL_T_PUTS                          "puts"
 %token HKL_T_GETS                          "gets"
 %token HKL_T_HKLR                          "hklr"
+%token HKL_T_TYPEOF                        "typeof"
 
 %token HKL_T_LPAREN                        "("
 %token HKL_T_RPAREN                        ")"
@@ -143,6 +146,7 @@
 %type <expression> optional_init
 %type <expression> primary_expr
 %type <expression> variable
+%type <expression> type
 
 %type <flag> qualifier_list
 
@@ -440,7 +444,10 @@ expr:
   {
     $$ = hklr_expression_new(HKL_EXPR_UNARY, HKL_OP_SIZE, $2);
   }
-
+  | HKL_T_TYPEOF expr %prec UNARY_OPS
+  {
+    $$ = hklr_expression_new(HKL_EXPR_UNARY, HKL_OP_TYPEOF, $2);
+  }
   | HKL_T_INCREMENT expr %prec UNARY_OPS
   | HKL_T_DECREMENT expr %prec UNARY_OPS
 
@@ -481,6 +488,7 @@ primary_expr:
   | variable HKL_T_LPAREN expr_list HKL_T_RPAREN
   | variable
   | hash
+  | type
   | array
   {
     $$ = hklr_expression_new(HKL_EXPR_ARRAY, $1);
@@ -489,14 +497,13 @@ primary_expr:
   | inline_class
 
 type:
-  HKL_T_INT
-  | HKL_T_REAL
-  | HKL_T_STRING
-  | HKL_T_HASH
-  | HKL_T_ARRAY
-  | HKL_T_FUNCTION
-  | HKL_T_CLASS
-  | HKL_T_INSTANCE
+  HKL_T_INT { $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_INT); }
+  | HKL_T_TYPE { $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_TYPE); }
+  | HKL_T_REAL { $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_REAL); }
+  | HKL_T_STRING { $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_STRING); }
+  | HKL_T_HASH { $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_HASH); }
+  | HKL_T_ARRAY { $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_ARRAY); }
+  | HKL_T_FUNC { $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_FUNCTION); }
 
 variable:
   HKL_T_ID { hkl_list_push_back(var_stack, hkl_list_new()); } variable_more
