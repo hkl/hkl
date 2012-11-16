@@ -226,11 +226,11 @@ puts_stmt:
 
 if_stmt:
   HKL_T_IF { hkl_list_push_back(stmt_stack, hkl_list_new()); HKLR.scope_level++; } 
-  HKL_T_LPAREN expr HKL_T_RPAREN stmt_list HKL_T_END
+  expr stmt_list HKL_T_END
   {
     HKLR.scope_level--;
 
-    $$ = hklr_statement_new(HKL_STMT_IF, $4,
+    $$ = hklr_statement_new(HKL_STMT_IF, $3,
           (HklList*) hkl_list_pop_back(stmt_stack));
   }
 
@@ -249,11 +249,11 @@ for_stmt:
 
 while_stmt:
   HKL_T_WHILE { hkl_list_push_back(stmt_stack, hkl_list_new()); HKLR.scope_level++; }
-  HKL_T_LPAREN expr HKL_T_RPAREN stmt_list HKL_T_END
+  expr stmt_list HKL_T_END
   {
     HKLR.scope_level--;
 
-    $$ = hklr_statement_new(HKL_STMT_WHILE, $4,
+    $$ = hklr_statement_new(HKL_STMT_WHILE, $3,
           (HklList*) hkl_list_pop_back(stmt_stack));
   }
 
