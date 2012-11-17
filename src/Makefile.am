@@ -1,4 +1,4 @@
-AM_CFLAGS = -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-function -std=c99 -D_POSIX_SOURCE -O0 -g
+AM_CFLAGS = -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-function -std=gnu99
 AM_LDFLAGS =
 AM_YFLAGS = -d -v
 AM_LFLAGS =
@@ -23,7 +23,8 @@ expression/hklr_op_equal.c \
 statement/hklr_statement_puts.c \
 statement/hklr_statement_assign.c \
 statement/hklr_statement_if.c \
-statement/hklr_statement_while.c
+statement/hklr_statement_while.c\
+linenoise/linenoise.c
 
 testbed_SOURCES = hkl_tree.c hkl_string.c hkl_test.c hklr.c hklr_object.c \
 hkl_deque.c hkl_hash.c hkl_list.c hkl_value.c test/hash.c test/traversal.c

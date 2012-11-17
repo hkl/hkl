@@ -41,6 +41,16 @@ Allocate a new Key-Value pair.
 HklPair* hkl_pair_new_from_data(HklString* key, void* value);
 
 /**
+Allocate a new Key-Value pair.
+
+@param key A utf8_string.
+@param value A generic pointer.
+@retval HklPair* A new HklPair.
+@brief Allocates a new HklPair.
+*/
+HklPair* hkl_pair_new_from_utf8(const char* key, void* value);
+
+/**
 Allocate a new Key-Value pair as a copy of an existing pair.
 
 @param pair A HklPair to copy.
