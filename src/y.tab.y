@@ -48,6 +48,7 @@
 %token HKL_T_BREAK                         "break"
 %token HKL_T_CONTINUE                      "continue"
 %token HKL_T_ASSERT                        "assert"
+%token HKL_T_COLLECT                       "collect"
 
 %token HKL_T_CLASS                         "class"
 %token HKL_T_FUNCTION                      "function"
@@ -136,6 +137,7 @@
 %type <statement> stmt_explicit
 %type <statement> puts_stmt
 %type <statement> hklr_stmt
+%type <statement> collect_stmt
 %type <statement> assign_stmt
 %type <statement> if_stmt
 %type <statement> while_stmt
@@ -216,6 +218,7 @@ stmt:
   | assign_stmt
   | hklr_stmt
   | call_stmt
+  | collect_stmt
   //| switch_stmt
 
 puts_stmt:
@@ -268,6 +271,12 @@ continue_stmt:
 
 assert_stmt:
   HKL_T_ASSERT expr
+
+collect_stmt:
+  HKL_T_COLLECT
+  {
+    $$ = hklr_statement_new(HKL_STMT_COLLECT);
+  }
 
 class_stmt:
   HKL_T_CLASS variable class_content_list HKL_T_END
