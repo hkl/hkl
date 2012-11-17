@@ -29,6 +29,18 @@ HklPair* hkl_pair_new_from_data(HklString* key, void* value)
   return pair;
 }
 
+HklPair* hkl_pair_new_from_utf8(const char* key, void* value)
+{
+  assert(key != NULL);
+
+  HklPair* pair = hkl_alloc_object(HklPair);
+
+  pair->key = hkl_string_new_from_utf8(key);
+  pair->value = value;
+
+  return pair;
+}
+
 HklPair* hkl_pair_new_from_pair(HklPair* pair)
 {
   assert(pair != NULL);
