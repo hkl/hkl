@@ -14,7 +14,8 @@ typedef enum HklStatementType
   HKL_STMT_HKLR,
   HKL_STMT_ASSIGN,
   HKL_STMT_IF,
-  HKL_STMT_WHILE
+  HKL_STMT_WHILE,
+  HKL_STMT_COLLECT
 
 } HklStatementType;
 

@@ -67,14 +67,18 @@ void hklr_statement_exec(HklrStatement* stmt)
       fprintf(stdout, "Ops:             %zu\n", HKLR.ops);
       fprintf(stdout, "Objects Created: %zu\n", HKLR.gc_created);
       fprintf(stdout, "Objects Freed:   %zu\n", HKLR.gc_freed);
-      fprintf(stdout, "Object Cycles:   %zu\n", HKLR.gc_rootsize);
+      fprintf(stdout, "Objects Alive:   %zu\n", HKLR.gc_created - HKLR.gc_freed);
+      fprintf(stdout, "Bacon:           %zu\n", HKLR.gc_rootsize);
       fprintf(stdout, "GC Runs:         %zu\n", HKLR.gc_runs);
-      fprintf(stdout, "Scope Level:     %zu\n", HKLR.scope_level);
       fprintf(stdout, "Globals:         %zu\n", HKLR.globals->length);
       fprintf(stdout, "Locals:          %zu\n", ((HklScope*) HKLR.scopes->tail->data)->locals->length);
       fprintf(stdout, "Upvals:          %zu\n", ((HklScope*) HKLR.scopes->tail->data)->upvals->length);
       fflush(stdout);
       break;
+
+    case HKL_STMT_COLLECT:
+      hklr_gc_collect();
+    break;
 
     case HKL_STMT_ASSIGN:
       hklr_statement_assign(stmt->arg[0].expression, stmt->arg[1].expression);

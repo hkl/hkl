@@ -106,6 +106,7 @@ void hklr_statement_puts(HklrExpression* expr)
   }
 
   // flush the output
+  fprintf(stdout, "\n");
   fflush(stdout);
   
   // Be sure not to delete the deque if its not a temporary

@@ -41,10 +41,10 @@ int yywrap()
 
     if (HKLR.scope_level > 0)
     {
-      if ((line = linenoise("...> ")) != NULL) {
-        
-        if (line[0] != '\0') {
-            
+      if ((line = linenoise("...> ")) != NULL)
+      {  
+        if (line[0] != '\0')
+        {    
           parse_state = yy_scan_string(line);
           linenoiseHistoryAdd(line);
         }
@@ -63,7 +63,8 @@ int yyerror(const char* msg)
   fprintf(stderr, "On line %i: %s, read as \"%s\"\n", yylineno, msg, string_buf->utf8_data);
   else
   fprintf(stderr, "On line %i: %s\n", yylineno, msg);
-  return true;
+  
+ return true;
 }
 
 HklTree* keywords_map;
@@ -82,6 +83,12 @@ void keywords_traverse(HklPair* pair, void* data) {
     linenoiseAddCompletion(((comp_data*) data)->lc, pair->key->utf8_data);
 }
 
+void vars_traverse(HklPair* pair, void* data) {
+
+  if (strncmp(((comp_data*) data)->buf, pair->key->utf8_data, MIN(((comp_data*) data)->len, pair->key->length))==0)
+    linenoiseAddCompletion(((comp_data*) data)->lc, pair->key->utf8_data);
+}
+
 void completion(const char* buf, linenoiseCompletions* lc) {
 
   const char* truebuf = strrchr(buf, ' ');
@@ -93,6 +100,8 @@ void completion(const char* buf, linenoiseCompletions* lc) {
   comp_data data = {truebuf, strlen(truebuf), lc};
 
   hkl_tree_traverse(keywords_map, keywords_traverse, &data);
+  hkl_hash_traverse(((HklScope*)HKLR.scopes->tail->data)->locals, vars_traverse, &data);
+  hkl_hash_traverse(HKLR.globals, vars_traverse, &data);
 }
 
 int main(int argc, const char* argv[])
@@ -118,6 +127,7 @@ int main(int argc, const char* argv[])
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("puts", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("gets", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("hklr", NULL));
+  hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("collect", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("typeof", NULL));
 
   // If there is a filename
@@ -144,26 +154,33 @@ int main(int argc, const char* argv[])
 
   // Parse files normally
   if (interactive == false)
-    yyparse();
-
+  {
+    if (yyparse())
+      return 1;
+  }
   // Drop into interactive mode with linenoise
   else
   {
     fprintf(stdout, "%s %s <%s>\n", PACKAGE_NAME, PACKAGE_VERSION, PACKAGE_URL);
+    fprintf(stdout, "Use Ctrl-D (i.e. EOF) to exit\n");
     linenoiseSetCompletionCallback(completion);
 
-    while((line = linenoise("hkl> ")) != NULL) {
-      
-      if (line[0] != '\0') {
-          
+    while((line = linenoise("hkl> ")) != NULL)
+    {  
+      yy_delete_buffer(parse_state);
+      if (line[0] != '\0')
+      {    
         parse_state = yy_scan_string(line);
         linenoiseHistoryAdd(line);
-        yyparse();
+        if (yyparse())
+        {
+          return 1;
+        }
       }
-
-      free(parse_state);
-      free(line);
     }
+
+    yy_delete_buffer(parse_state);
+    free(line);
   }
 
   hkl_list_free(stmt_stack);
