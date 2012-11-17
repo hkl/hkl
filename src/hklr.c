@@ -322,7 +322,7 @@ static void hklr_gc_markroots()
 
       if (s->color == HKL_COLOR_BLACK && s->rc == 0)
       {
-        HKLR.gc_freed++;
+        //HKLR.gc_freed++;
         //hklr_object_free(s);
         // queue the object for collection
         hkl_list_push_back(HKLR.gc_to_free, s);

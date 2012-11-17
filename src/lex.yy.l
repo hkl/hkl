@@ -32,6 +32,7 @@ HklString* string_buf = NULL;
 "break"                return HKL_T_BREAK;
 "continue"             return HKL_T_CONTINUE;
 "assert"               return HKL_T_ASSERT;
+"collect"              return HKL_T_COLLECT;
 
 "include"              BEGIN includebuild;
 <includebuild>[ \t\r]  /* Ignore Whitespace */
