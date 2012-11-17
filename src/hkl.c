@@ -127,6 +127,7 @@ int main(int argc, const char* argv[])
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("puts", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("gets", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("hklr", NULL));
+  hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("collect", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("typeof", NULL));
 
   // If there is a filename
