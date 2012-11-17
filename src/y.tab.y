@@ -270,7 +270,7 @@ assert_stmt:
   HKL_T_ASSERT expr
 
 class_stmt:
-  qualifier_list HKL_T_CLASS variable class_content_list HKL_T_END
+  HKL_T_CLASS variable class_content_list HKL_T_END
 
 class_content_list:
   class_content_list class_content
@@ -279,7 +279,7 @@ class_content_list:
 class_content:
   class_stmt
   | function_stmt
-  | qualifier_list variable optional_init
+  | assign_stmt
 
 function_stmt:
   qualifier_list HKL_T_FUNCTION variable HKL_T_LPAREN id_list HKL_T_RPAREN stmt_list HKL_T_END
