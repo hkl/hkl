@@ -92,7 +92,7 @@ static void hklr_array_add_list(void* expr, void* array)
 {
   HklValue* value = hklr_expression_eval((HklrExpression*) expr);
 
-  hkl_deque_push_front((HklDeque*) array, value);
+  hkl_deque_push_back((HklDeque*) array, value);
 }
 
 HklValue* hklr_expression_eval(HklrExpression* expr)
@@ -241,11 +241,6 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
           break;
         case HKL_OP_EQUAL:
           result = hklr_op_equal(left_value, right_value);
-          break;
-        case HKL_OP_ASSIGN:
-          hklr_statement_assign(expr->arg[0].expression, expr->arg[2].expression);
-          // This technically doesnt count as an op
-          result = hklr_expression_eval(expr->arg[0].expression);
           break;
         default:
           assert(false);

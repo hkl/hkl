@@ -20,6 +20,7 @@ HklList* stmt_stack;
 HklList* array_stack;
 HklList* var_stack;
 HklList* closure_stack;
+HklList* id_stack;
 
 typedef struct yy_buffer_state yy_buffer_state;
 extern yy_buffer_state* yy_scan_string(const char*);
@@ -49,6 +50,7 @@ int yywrap()
           parse_state = yy_scan_string(line);
           linenoiseHistoryAdd(line);
         }
+        else free(line);
       }
 
       return false;
@@ -152,8 +154,9 @@ int main(int argc, const char* argv[])
 
   stmt_stack = hkl_list_new();
   array_stack = hkl_list_new();
-  var_stack = hkl_list_new();
+  hkl_list_push_back(var_stack = hkl_list_new(), hkl_list_new());
   closure_stack = hkl_list_new();
+  id_stack = hkl_list_new();
 
   // Parse files normally
   if (interactive == false)
@@ -180,6 +183,7 @@ int main(int argc, const char* argv[])
           return 1;
         }
       }
+      else free(line);
     }
 
     yy_delete_buffer(parse_state);
@@ -188,8 +192,10 @@ int main(int argc, const char* argv[])
 
   hkl_list_free(stmt_stack);
   hkl_list_free(array_stack);
+  hkl_list_free(hkl_list_pop_back(var_stack));
   hkl_list_free(var_stack);
   hkl_list_free(closure_stack);
+  hkl_list_free(id_stack);
 
   hklr_shutdown();
 

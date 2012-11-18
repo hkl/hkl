@@ -9,14 +9,17 @@
 static void process_closures(void* key, void* closure_list)
 {
   // Search in our scope for the closed variables.
-  HklrObject* object = hklr_search((HklString*) key);
+  HklrObject* object = hklr_exists((HklString*) key);
 
-  // increment the rc of the closed variable
-  // we'll dec it when the function is destroyed
-  hklr_gc_inc(object);
+  if (object != NULL)
+  {
+    // increment the rc of the closed variable
+    // we'll dec it when the function is destroyed
+    hklr_gc_inc(object);
 
-  // Add that ref object to the closure list local to the function
-  hkl_list_push_back((HklList*) closure_list, object);
+    // Add that ref object to the closure list local to the function
+    hkl_list_push_back((HklList*) closure_list, object);
+  }
 }
 
 static void free_names(void* key, void* data)
@@ -55,6 +58,9 @@ void hklr_function_free(HklrFunction* function)
 {
   hkl_list_traverse(function->stmt_list, free_statements, NULL);
   hkl_list_free(function->stmt_list);
+
+  hkl_list_traverse(function->args_list, free_names, NULL);
+  hkl_list_free(function->args_list);
 
   hkl_list_traverse(function->closure_list, dec_closures, NULL);
   hkl_list_free(function->closure_list);

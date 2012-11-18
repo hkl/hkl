@@ -10,10 +10,15 @@ static void hklr_statement_exec_list(void* stmt, void* data)
   hklr_statement_exec((HklrStatement*) stmt);
 }
 
-void hklr_statement_call(HklrExpression* expr, HklList* list)
+static void make_locals(void* string, void* data)
+{
+  hklr_local_insert((HklString*) string, hklr_object_new(HKL_TYPE_NIL, HKL_FLAG_NONE));
+}
+
+void hklr_statement_call(HklrExpression* expr, HklList* args)
 {
   assert(expr != NULL);
-  assert(list != NULL);
+  assert(args != NULL);
 
   HklValue* value = hklr_expression_eval(expr);
   assert(value != NULL);
@@ -32,9 +37,12 @@ void hklr_statement_call(HklrExpression* expr, HklList* list)
   HklrFunction* function = value->as.function;
   hkl_value_free(value);
 
-  // execute the statements within
   hklr_scope_push();
+
+  // Make the args in the function signature local variables
+  hkl_list_traverse(function->args_list, make_locals, NULL);
   
+  // execute the statements within
   hkl_list_traverse(function->stmt_list, hklr_statement_exec_list, NULL);
 
   hklr_scope_pop();

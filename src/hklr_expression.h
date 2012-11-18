@@ -53,7 +53,6 @@ typedef enum HklOperatorType
   HKL_OP_DOT,
   HKL_OP_INDEX,
   HKL_OP_CALL,
-  HKL_OP_ASSIGN,
   HKL_OP_TYPEOF
 
 } HklOperatorType;
