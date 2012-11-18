@@ -67,13 +67,14 @@ typedef struct HklrObject {
 
   union asobject {
 
-    uint32_t           integer;
-    double             real;
-    HklString*         string;
-    HklHash*           hash;
-    struct HklrObject* object;
-    HklDeque*          deque;
-    HklType            type;
+    uint32_t             integer;
+    double               real;
+    HklString*           string;
+    HklHash*             hash;
+    struct HklrObject*   object;
+    HklDeque*            deque;
+    HklType              type;
+    struct HklrFunction* function;
   
   } as;
 

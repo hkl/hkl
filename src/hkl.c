@@ -19,6 +19,7 @@ uint32_t qualifier_builder;
 HklList* stmt_stack;
 HklList* array_stack;
 HklList* var_stack;
+HklList* closure_stack;
 
 typedef struct yy_buffer_state yy_buffer_state;
 extern yy_buffer_state* yy_scan_string(const char*);
@@ -129,6 +130,7 @@ int main(int argc, const char* argv[])
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("hklr", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("collect", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("typeof", NULL));
+  hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("function", NULL));
 
   // If there is a filename
   if (argv[1])
@@ -151,6 +153,7 @@ int main(int argc, const char* argv[])
   stmt_stack = hkl_list_new();
   array_stack = hkl_list_new();
   var_stack = hkl_list_new();
+  closure_stack = hkl_list_new();
 
   // Parse files normally
   if (interactive == false)
@@ -186,6 +189,7 @@ int main(int argc, const char* argv[])
   hkl_list_free(stmt_stack);
   hkl_list_free(array_stack);
   hkl_list_free(var_stack);
+  hkl_list_free(closure_stack);
 
   hklr_shutdown();
 

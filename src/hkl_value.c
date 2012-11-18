@@ -42,6 +42,10 @@ HklValue* hkl_value_new(HklType type, ...)
       value->as.deque = va_arg(argp, HklDeque*);
       break;
 
+    case HKL_TYPE_FUNCTION:
+      value->as.function = va_arg(argp, HklrFunction*);
+      break;
+
     default:
       break;
   }
@@ -60,19 +64,6 @@ void hkl_value_free(HklValue* value)
     case HKL_TYPE_STRING:
       hkl_string_free(value->as.string);
       break;
-
-    case HKL_TYPE_ARRAY:
-    {
-      size_t i;
-
-      for (i = 0; i < value->as.deque->size; ++i)
-      {
-        hkl_value_free((HklValue*) hkl_deque_findn(value->as.deque, i));
-      }
-
-      hkl_deque_free(value->as.deque);
-    }
-    break;
 
     default:
       break;

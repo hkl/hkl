@@ -18,6 +18,13 @@
   extern HklList* stmt_stack;
   extern HklList* var_stack;
   extern HklList* array_stack;
+  extern HklList* closure_stack;
+
+  void traverse_closures(void* string, void* data)
+  {
+    printf("'%s', ", ((HklString*) string)->utf8_data);
+  }
+
 %}
 
 // Verbose Errors
@@ -141,10 +148,12 @@
 %type <statement> assign_stmt
 %type <statement> if_stmt
 %type <statement> while_stmt
+%type <statement> call_stmt
 
 %type <list> array
 
 %type <expression> expr
+%type <expression> inline_function
 %type <expression> optional_init
 %type <expression> primary_expr
 %type <expression> variable
@@ -311,7 +320,10 @@ assign_stmt:
   | variable HKL_T_BITWISE_NOT_ASSIGN expr
 
 call_stmt:
-  variable HKL_T_LPAREN expr_list HKL_T_RPAREN
+  variable HKL_T_LPAREN { hkl_list_push_back(array_stack, hkl_list_new()); } expr_list { $<list>$ = hkl_list_pop_back(array_stack); } HKL_T_RPAREN
+  {
+    $$ = hklr_statement_new(HKL_STMT_CALL, $1, $<list>5);
+  }
 
 hklr_stmt:
   HKL_T_HKLR
@@ -517,6 +529,13 @@ type:
 variable:
   HKL_T_ID { hkl_list_push_back(var_stack, hkl_list_new()); } variable_more
   {
+    // If there we are in a function definition
+    if (closure_stack->head != NULL)
+    {
+      // Add the id as a closure
+      hkl_list_push_back((HklList*) closure_stack->tail->data, hkl_string_new_from_string($1));
+    }
+
     $$ = hklr_expression_new(HKL_EXPR_VAR, $1, hkl_list_pop_back(var_stack));
   }
 
@@ -571,7 +590,18 @@ expr_more:
   | empty 
 
 inline_function:
-  HKL_T_FUNCTION HKL_T_LPAREN id_list HKL_T_RPAREN stmt_list HKL_T_END
+  HKL_T_FUNCTION
+  {
+    hkl_list_push_back(stmt_stack, hkl_list_new());
+    hkl_list_push_back(closure_stack, hkl_list_new());
+    HKLR.scope_level++;
+  }
+  HKL_T_LPAREN id_list HKL_T_RPAREN stmt_list HKL_T_END
+  {
+    HKLR.scope_level--;
+
+    $$ = hklr_expression_new(HKL_EXPR_FUNCTION, NULL, hkl_list_pop_back(closure_stack), hkl_list_pop_back(stmt_stack));
+  }
 
 inline_class:
   HKL_T_CLASS class_content HKL_T_END

@@ -6,6 +6,7 @@
 #include "hkl_alloc.h"
 #include "hklr_expression.h"
 #include "hklr_statement.h"
+#include "hklr_function.h"
 
 extern void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs);
 
@@ -59,6 +60,12 @@ HklrExpression* hklr_expression_new(HklExpressionType type, ...)
 
     case HKL_EXPR_ARRAY:
       expr->arg[0].list = va_arg(argp, HklList*);
+      break;
+
+    case HKL_EXPR_FUNCTION:
+      expr->arg[0].list = va_arg(argp, HklList*); // args
+      expr->arg[1].list = va_arg(argp, HklList*); // closures
+      expr->arg[2].list = va_arg(argp, HklList*); // stmts
       break;
 
     case HKL_EXPR_UNARY:
@@ -147,6 +154,12 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
       hkl_list_traverse(expr->arg[0].list, hklr_array_add_list, deque);
 
       return hkl_value_new(HKL_TYPE_ARRAY, deque);
+    }
+    break;
+
+    case HKL_EXPR_FUNCTION:
+    {
+      return hkl_value_new(HKL_TYPE_FUNCTION, hklr_function_new(expr->arg[0].list, expr->arg[1].list, expr->arg[2].list));
     }
     break;
 

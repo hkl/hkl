@@ -7,7 +7,7 @@ bin_PROGRAMS = hkl testbed
 
 hkl_SOURCES = y.tab.y lex.yy.l hkl_string.c hkl_hash.c hkl_tree.c hkl.c \
 hkl_deque.c hklr.c hklr_object.c hklr_expression.c hklr_statement.c \
-hkl_value.c hkl_list.c hkl_variable.c \
+hkl_value.c hkl_list.c hkl_variable.c hklr_function.c \
 expression/hklr_op_size.c \
 expression/hklr_op_typeof.c \
 expression/hklr_op_minus.c \
@@ -23,8 +23,9 @@ expression/hklr_op_equal.c \
 statement/hklr_statement_puts.c \
 statement/hklr_statement_assign.c \
 statement/hklr_statement_if.c \
-statement/hklr_statement_while.c\
+statement/hklr_statement_while.c \
+statement/hklr_statement_call.c \
 linenoise/linenoise.c
 
-testbed_SOURCES = hkl_tree.c hkl_string.c hkl_test.c hklr.c hklr_object.c \
-hkl_deque.c hkl_hash.c hkl_list.c hkl_value.c test/hash.c test/traversal.c
+testbed_SOURCES = ${hkl_SOURCES}
+testbed_SOURCES += test/traversal.c test/hash.c
