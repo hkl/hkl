@@ -69,6 +69,7 @@ typedef struct HklrExpression
     struct HklrExpression* expression;
     HklOperatorType op;
     HklList* list;
+    HklTree* tree;
     HklType type;
 
   } arg[3];

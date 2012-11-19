@@ -64,7 +64,7 @@ HklrExpression* hklr_expression_new(HklExpressionType type, ...)
 
     case HKL_EXPR_FUNCTION:
       expr->arg[0].list = va_arg(argp, HklList*); // args
-      expr->arg[1].list = va_arg(argp, HklList*); // closures
+      expr->arg[1].tree = va_arg(argp, HklTree*); // closures
       expr->arg[2].list = va_arg(argp, HklList*); // stmts
       break;
 
@@ -159,7 +159,7 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
 
     case HKL_EXPR_FUNCTION:
     {
-      return hkl_value_new(HKL_TYPE_FUNCTION, hklr_function_new(expr->arg[0].list, expr->arg[1].list, expr->arg[2].list));
+      return hkl_value_new(HKL_TYPE_FUNCTION, hklr_function_new(expr->arg[0].list, expr->arg[1].tree, expr->arg[2].list));
     }
     break;
 

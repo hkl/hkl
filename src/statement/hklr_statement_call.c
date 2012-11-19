@@ -15,6 +15,7 @@ static void hklr_statement_exec_list(void* stmt, void* data)
 static void make_locals(void* string, void* args_head)
 {
   HklrObject* object = hklr_object_new(HKL_TYPE_NIL, HKL_FLAG_NONE);
+
   hklr_local_insert((HklString*) string, object);
 
   // If you have too few args then the rest are nil

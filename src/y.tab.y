@@ -158,7 +158,6 @@
 
 // Precedence
 
-%right HKL_T_ASSIGN
 %left HKL_T_OR
 %left HKL_T_AND
 %left HKL_T_BITWISE_OR
@@ -325,7 +324,7 @@ expr:
   {
     hkl_list_push_back(stmt_stack, hkl_list_new());
     hkl_list_push_back(id_stack, hkl_list_new());
-    hkl_list_push_back(closure_stack, hkl_list_new());
+    hkl_list_push_back(closure_stack, hkl_tree_new());
     HKLR.scope_level++;
   }
   HKL_T_LPAREN id_list HKL_T_RPAREN stat_list HKL_T_END
@@ -432,7 +431,10 @@ nobr_variable:
     if (closure_stack->head != NULL)
     {
       // Add the id as a closure
-      hkl_list_push_back((HklList*) closure_stack->tail->data, hkl_string_new_from_string($1));
+      if (hkl_tree_search((HklTree*) closure_stack->tail->data, $1) == NULL)
+      {
+        hkl_tree_insert((HklTree*) closure_stack->tail->data, $1, NULL);
+      }
     }
 
     // Seed the next variable
@@ -454,7 +456,10 @@ br_variable:
     if (closure_stack->head != NULL)
     {
       // Add the id as a closure
-      hkl_list_push_back((HklList*) closure_stack->tail->data, hkl_string_new_from_string($2));
+      if (hkl_tree_search((HklTree*) closure_stack->tail->data, $2) == NULL)
+      {
+        hkl_tree_insert((HklTree*) closure_stack->tail->data, $2, NULL);
+      }
     }
 
     // Seed the next variable
