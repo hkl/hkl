@@ -346,6 +346,9 @@ expr:
   }
   | nobr_prefix
   | HKL_T_LPAREN expr HKL_T_RPAREN
+  {
+    $$ = $2;
+  }
   | HKL_T_GETS
   {
     $$ = hklr_expression_new(HKL_EXPR_GETS);

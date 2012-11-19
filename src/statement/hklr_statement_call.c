@@ -5,14 +5,32 @@
 #include "hkl_list.h"
 #include "hklr.h"
 
+extern void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs);
+
 static void hklr_statement_exec_list(void* stmt, void* data)
 {
   hklr_statement_exec((HklrStatement*) stmt);
 }
 
-static void make_locals(void* string, void* data)
+static void make_locals(void* string, void* args_head)
 {
-  hklr_local_insert((HklString*) string, hklr_object_new(HKL_TYPE_NIL, HKL_FLAG_NONE));
+  HklrObject* object = hklr_object_new(HKL_TYPE_NIL, HKL_FLAG_NONE);
+  hklr_local_insert((HklString*) string, object);
+
+  // If you have too few args then the rest are nil
+  if ((*(HklListNode**) args_head) == NULL)
+    return;
+
+  // Some fancy pointer arithematic
+  // This iterates the argument expression
+  HklrExpression* assign = (*((HklListNode**) args_head))->data;
+  *((HklListNode**) args_head) = (*((HklListNode**) args_head))->next;
+
+  // This is a hack for now since hklr_statement_assign takes 2 expressions
+  // This just makes a fake one
+  HklrExpression* expr = hklr_expression_new(HKL_EXPR_VAR, hkl_string_new_from_string((HklString*) string), hkl_list_new());
+  hklr_statement_assign(expr, assign);
+  hklr_expression_free(expr);
 }
 
 void hklr_statement_call(HklrExpression* expr, HklList* args)
@@ -40,7 +58,9 @@ void hklr_statement_call(HklrExpression* expr, HklList* args)
   hklr_scope_push();
 
   // Make the args in the function signature local variables
-  hkl_list_traverse(function->args_list, make_locals, NULL);
+
+  HklListNode* args_head = args->head; // This is an iterator for the args
+  hkl_list_traverse(function->args_list, make_locals, &args_head);
   
   // execute the statements within
   hkl_list_traverse(function->stmt_list, hklr_statement_exec_list, NULL);
