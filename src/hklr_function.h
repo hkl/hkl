@@ -8,7 +8,7 @@ typedef struct HklrFunction {
 
   HklList* stmt_list;
   HklList* args_list;
-  HklList* closure_list;
+  HklTree* closure_list;
 
 } HklrFunction;
 

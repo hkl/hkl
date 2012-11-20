@@ -34,6 +34,13 @@ static void make_locals(void* string, void* args_head)
   hklr_expression_free(expr);
 }
 
+static void make_closures(HklPair* pair, void* data)
+{
+  // create upvals for objects that are actual closures
+  if (pair->value != NULL)
+    hklr_upval_insert(pair->key, pair->value);
+}
+
 void hklr_statement_call(HklrExpression* expr, HklList* args)
 {
   assert(expr != NULL);
@@ -58,8 +65,10 @@ void hklr_statement_call(HklrExpression* expr, HklList* args)
 
   hklr_scope_push();
 
-  // Make the args in the function signature local variables
+  // Create the closure variables
+  hkl_tree_traverse(function->closure_list, make_closures, NULL);
 
+  // Make the args in the function signature local variables
   HklListNode* args_head = args->head; // This is an iterator for the args
   hkl_list_traverse(function->args_list, make_locals, &args_head);
   
