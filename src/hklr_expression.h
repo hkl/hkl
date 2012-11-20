@@ -21,7 +21,8 @@ typedef enum HklExpressionType
   HKL_EXPR_UNARY,
   HKL_EXPR_BINARY,
   HKL_EXPR_VAR,
-  HKL_EXPR_ARRAY
+  HKL_EXPR_ARRAY,
+  HKL_EXPR_FUNCTION
 
 } HklExpressionType;
 
@@ -52,7 +53,6 @@ typedef enum HklOperatorType
   HKL_OP_DOT,
   HKL_OP_INDEX,
   HKL_OP_CALL,
-  HKL_OP_ASSIGN,
   HKL_OP_TYPEOF
 
 } HklOperatorType;
@@ -69,6 +69,7 @@ typedef struct HklrExpression
     struct HklrExpression* expression;
     HklOperatorType op;
     HklList* list;
+    HklTree* tree;
     HklType type;
 
   } arg[3];

@@ -1,0 +1,11 @@
+repeat = function(n, f)
+
+  i = 0 while i < n i = i + 1
+
+    f()
+
+  end
+  
+end
+
+repeat(3, function() puts "Hey Buddy" end)

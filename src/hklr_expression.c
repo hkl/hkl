@@ -6,6 +6,7 @@
 #include "hkl_alloc.h"
 #include "hklr_expression.h"
 #include "hklr_statement.h"
+#include "hklr_function.h"
 
 extern void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs);
 
@@ -61,6 +62,12 @@ HklrExpression* hklr_expression_new(HklExpressionType type, ...)
       expr->arg[0].list = va_arg(argp, HklList*);
       break;
 
+    case HKL_EXPR_FUNCTION:
+      expr->arg[0].list = va_arg(argp, HklList*); // args
+      expr->arg[1].tree = va_arg(argp, HklTree*); // closures
+      expr->arg[2].list = va_arg(argp, HklList*); // stmts
+      break;
+
     case HKL_EXPR_UNARY:
       expr->arg[0].op = va_arg(argp, HklOperatorType);
       expr->arg[1].expression = va_arg(argp, HklrExpression*);
@@ -85,7 +92,7 @@ static void hklr_array_add_list(void* expr, void* array)
 {
   HklValue* value = hklr_expression_eval((HklrExpression*) expr);
 
-  hkl_deque_push_front((HklDeque*) array, value);
+  hkl_deque_push_back((HklDeque*) array, value);
 }
 
 HklValue* hklr_expression_eval(HklrExpression* expr)
@@ -147,6 +154,12 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
       hkl_list_traverse(expr->arg[0].list, hklr_array_add_list, deque);
 
       return hkl_value_new(HKL_TYPE_ARRAY, deque);
+    }
+    break;
+
+    case HKL_EXPR_FUNCTION:
+    {
+      return hkl_value_new(HKL_TYPE_FUNCTION, hklr_function_new(expr->arg[0].list, expr->arg[1].tree, expr->arg[2].list));
     }
     break;
 
@@ -228,11 +241,6 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
           break;
         case HKL_OP_EQUAL:
           result = hklr_op_equal(left_value, right_value);
-          break;
-        case HKL_OP_ASSIGN:
-          hklr_statement_assign(expr->arg[0].expression, expr->arg[2].expression);
-          // This technically doesnt count as an op
-          result = hklr_expression_eval(expr->arg[0].expression);
           break;
         default:
           assert(false);

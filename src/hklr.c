@@ -95,6 +95,20 @@ void hklr_global_insert(HklString* key, HklrObject* value)
 
 HklrObject* hklr_search(HklString* key)
 {
+  HklrObject* object = hklr_exists(key);
+
+  if (object == NULL)
+  {
+    // Didn't find it, make a nil object
+    object = hklr_object_new(HKL_TYPE_NIL, HKL_FLAG_NONE);
+    hklr_local_insert(key, object);
+  }
+
+  return object;
+}
+
+HklrObject* hklr_exists(HklString* key)
+{
   assert(key != NULL);
 
   HklScope* scope = ((HklScope*) HKLR.scopes->tail->data);
@@ -138,11 +152,7 @@ HklrObject* hklr_search(HklString* key)
     return pair->value;
   }
 
-  // Didn't find it, make a nil object
-  HklrObject* object = hklr_object_new(HKL_TYPE_NIL, HKL_FLAG_NONE);
-  hklr_local_insert(key, object);
-
-  return object;
+  return NULL;
 }
 
 void hklr_gc_inc(HklrObject* object)

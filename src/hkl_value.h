@@ -7,6 +7,7 @@
 #include "hkl_hash.h"
 #include "hklr_object.h"
 #include "hkl_deque.h"
+#include "hklr_function.h"
 
 typedef struct HklValue 
 {
@@ -23,6 +24,7 @@ typedef struct HklValue
     HklDeque*          deque;
     HklrObject*        object;
     HklType            type;
+    HklrFunction*      function;
 
   } as;
 

@@ -149,4 +149,6 @@ void hklr_global_insert(HklString* key, HklrObject* value);
 // it is referencing
 HklrObject* hklr_search(HklString* key);
 
+HklrObject* hklr_exists(HklString* key);
+
 #endif // HKLR_H

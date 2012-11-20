@@ -194,16 +194,21 @@ HklPair* hkl_hash_search(const HklHash* hash, HklString *key)
   HklHashElement* element = &hash->buckets[index];
   assert(element != NULL);
 
+  // Found a collision
   if (element->data != NULL)
   {
-
     if (element->is_tree)
     {
       return hkl_tree_search((HklTree*) element->data, key);
     }
-    else
+    // I'm an idiot for not thinking to put this here... -Scott
+    else if (hkl_string_compare(((HklPair*) element->data)->key, key) == 0)
     {
       return (HklPair*) element->data;
+    }
+    else
+    {
+      return NULL;
     }
   }
   else

@@ -6,6 +6,7 @@
 #include "hklr.h"
 #include "hkl_deque.h"
 #include "hkl_value.h"
+#include "hklr_function.h"
 
 HklrObject* hklr_object_new(HklType type, HklFlag flags, ...)
 {
@@ -52,6 +53,10 @@ HklrObject* hklr_object_new(HklType type, HklFlag flags, ...)
       object->as.deque = va_arg(argp, HklDeque*);
     break;
 
+    case HKL_TYPE_FUNCTION:
+      object->as.function = va_arg(argp, HklrFunction*);
+    break;
+
     default: 
       assert(false);
     break;
@@ -91,6 +96,10 @@ HklValue* hklr_object_dereference(HklrObject* object)
     case HKL_TYPE_ARRAY:
       return hkl_value_new(HKL_TYPE_ARRAY, object->as.deque);
     break;
+
+    case HKL_TYPE_FUNCTION:
+      return hkl_value_new(HKL_TYPE_FUNCTION, object->as.function);
+    break;
     
     // A composite object reference
     case HKL_TYPE_REF:
@@ -125,6 +134,10 @@ void hklr_object_free(HklrObject* object)
 
       hkl_deque_free(object->as.deque);
     }
+    break;
+
+    case HKL_TYPE_FUNCTION:
+      hklr_function_free(object->as.function);
     break;
 
     default:
