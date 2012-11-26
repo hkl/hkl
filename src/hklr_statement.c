@@ -7,7 +7,7 @@
 
 extern void hklr_statement_puts(HklrExpression* expr);
 extern void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs);
-extern void hklr_statement_if(HklrExpression* expr, HklList* list);
+extern int hklr_statement_if(HklrExpression* expr, HklList* list);
 extern void hklr_statement_while(HklrExpression* expr, HklList* list);
 extern void hklr_statement_call(HklrExpression* expr, HklList* list);
 
@@ -51,9 +51,12 @@ HklrStatement* hklr_statement_new(HklStatementType type, ...)
   return stmt;
 }
 
-void hklr_statement_exec(HklrStatement* stmt)
+int hklr_statement_exec(HklrStatement* stmt)
 {
   assert(stmt != NULL);
+
+  // Increment numbers of completed operations
+  HKLR.ops++;
 
   switch (stmt->type)
   {
@@ -86,7 +89,7 @@ void hklr_statement_exec(HklrStatement* stmt)
     break;
 
     case HKL_STMT_IF:
-      hklr_statement_if(stmt->arg[0].expression, stmt->arg[1].list);
+      return hklr_statement_if(stmt->arg[0].expression, stmt->arg[1].list);
       break;
 
     case HKL_STMT_WHILE:
@@ -97,23 +100,30 @@ void hklr_statement_exec(HklrStatement* stmt)
       hklr_statement_call(stmt->arg[0].expression, stmt->arg[1].list);
     break;
 
+    case HKL_STMT_BREAK:
+      return 1;
+    break;
+
     default:
       break;
   }
 
-  // Increment numbers of completed operations
-  HKLR.ops++;
+  return 0;
 }
 
 // helper function to free all items in a statement list
-static void hklr_statement_free_list(void* stmt, void* data) {
+static bool hklr_statement_free_list(void* stmt, void* data) {
 
   hklr_statement_free((HklrStatement*) stmt);
+
+  return false;
 }
 
-static void hklr_expression_free_list(void* expr, void* data) {
+static bool hklr_expression_free_list(void* expr, void* data) {
 
   hklr_expression_free((HklrExpression*) expr);
+
+  return false;
 }
 
 void hklr_statement_free(HklrStatement* stmt)

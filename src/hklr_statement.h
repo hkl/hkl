@@ -16,7 +16,8 @@ typedef enum HklStatementType
   HKL_STMT_IF,
   HKL_STMT_WHILE,
   HKL_STMT_COLLECT,
-  HKL_STMT_CALL
+  HKL_STMT_CALL,
+  HKL_STMT_BREAK
 
 } HklStatementType;
 
@@ -37,7 +38,7 @@ typedef struct HklrStatement
 
 HklrStatement* hklr_statement_new(HklStatementType type, ...);
 
-void hklr_statement_exec(HklrStatement* stmt);
+int hklr_statement_exec(HklrStatement* stmt);
 
 void hklr_statement_free(HklrStatement* stmt);
 

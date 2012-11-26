@@ -2,8 +2,10 @@
 
 #include "../hkl_hash.h"
 
-void print(HklPair* pair, void* ptr){
+bool print(HklPair* pair, void* ptr){
   printf("VALUE: %s \n", hkl_string_get_utf8(pair->key));
+
+  return false;
 }
 
 void traversaltest(const char* argv[])

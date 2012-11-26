@@ -169,12 +169,13 @@ void hkl_list_clear(HklList* list)
   list->size = 0;
 }
 
-void hkl_list_traverse(HklList* list, void(*fn)(void*, void*), void* data)
+void hkl_list_traverse(HklList* list, bool(*fn)(void*, void*), void* data)
 {
   HklListNode* node = list->head;
   while (node != NULL)
   {
-    fn(node->data, data);
+    if (fn(node->data, data))
+      break;
     node = node->next;
   }
 }
