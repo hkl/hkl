@@ -1,6 +1,7 @@
 #ifndef HKL_LIST_H
 #define HKL_LIST_H
 
+#include <stdbool.h>
 #include <stddef.h>
 
 typedef struct HklListNode {
@@ -84,6 +85,6 @@ Empty all data from a list.
 */
 void hkl_list_clear(HklList* list);
 
-void hkl_list_traverse(HklList* list, void(*fn)(void*, void*), void* data);
+void hkl_list_traverse(HklList* list, bool(*fn)(void*, void*), void* data);
 
 #endif // HKL_LIST_H

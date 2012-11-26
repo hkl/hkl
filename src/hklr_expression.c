@@ -21,6 +21,7 @@ extern HklValue* hklr_op_greater(HklValue* left_value, HklValue* right_value);
 extern HklValue* hklr_op_greater_equal(HklValue* left_value, HklValue* right_value);
 extern HklValue* hklr_op_multiply(HklValue* left_value, HklValue* right_value);
 extern HklValue* hklr_op_divide(HklValue* left_value, HklValue* right_value);
+extern HklValue* hklr_op_mod(HklValue* left_value, HklValue* right_value);
 extern HklValue* hklr_op_not_equal(HklValue* left_value, HklValue* right_value);
 extern HklValue* hklr_op_equal(HklValue* left_value, HklValue* right_value);
 
@@ -88,11 +89,13 @@ HklrExpression* hklr_expression_new(HklExpressionType type, ...)
   return expr;
 }
 
-static void hklr_array_add_list(void* expr, void* array)
+static bool hklr_array_add_list(void* expr, void* array)
 {
   HklValue* value = hklr_expression_eval((HklrExpression*) expr);
 
   hkl_deque_push_back((HklDeque*) array, value);
+
+  return false;
 }
 
 HklValue* hklr_expression_eval(HklrExpression* expr)
@@ -239,6 +242,9 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
         case HKL_OP_DIVIDE:
           result = hklr_op_divide(left_value, right_value);
           break;
+        case HKL_OP_MOD:
+          result = hklr_op_mod(left_value, right_value);
+          break;
         case HKL_OP_EQUAL:
           result = hklr_op_equal(left_value, right_value);
           break;
@@ -263,9 +269,11 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
   return NULL;
 }
 
-static void hklr_array_free_list(void* expr, void* data)
+static bool hklr_array_free_list(void* expr, void* data)
 {
   hklr_expression_free(expr);
+
+  return false;
 }
 
 void hklr_expression_free(HklrExpression* expr)

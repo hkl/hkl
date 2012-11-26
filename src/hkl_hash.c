@@ -44,9 +44,11 @@ typedef struct HklHashElement
 
 } HklHashElement;
 
-static void hkl_hash_move(HklPair* pair, void* new_hash)
+static bool hkl_hash_move(HklPair* pair, void* new_hash)
 {
   hkl_hash_move_pair((HklHash*) new_hash, pair);
+
+  return false;
 }
 
 static void hkl_hash_double(HklHash* hash)
@@ -273,7 +275,7 @@ void hkl_hash_clear(HklHash* hash) {
   hash->length = 0;
 }
 
-void hkl_hash_traverse(HklHash* hash, void(*fn)(HklPair*, void*), void* data)
+void hkl_hash_traverse(HklHash* hash, bool(*fn)(HklPair*, void*), void* data)
 {
   size_t i;
   HklHashElement* element = NULL;

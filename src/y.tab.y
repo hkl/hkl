@@ -253,6 +253,10 @@ nobr_stat:
     $$ = hklr_statement_new(HKL_STMT_IF, $3, (HklList*) hkl_list_pop_back(stmt_stack));
   }
   | HKL_T_FUNCTION func_name_list HKL_T_LPAREN id_list HKL_T_RPAREN stat_list HKL_T_END
+  | HKL_T_BREAK
+  {
+    $$ = hklr_statement_new(HKL_STMT_BREAK);
+  }
   ;
 
 br_stat:
@@ -367,6 +371,10 @@ expr:
   | expr HKL_T_DIVIDE expr
   {
     $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_DIVIDE, $3);
+  }
+  | expr HKL_T_MOD expr
+  {
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_MOD, $3);
   }
   | expr HKL_T_EQUAL expr
   {

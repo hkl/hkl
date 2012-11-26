@@ -5,15 +5,19 @@
 #include "hkl_list.h"
 #include "hklr.h"
 
-static void hklr_statement_exec_list(void* stmt, void* data)
+static bool hklr_statement_exec_list(void* stmt, void* exec_code)
 {
-  hklr_statement_exec((HklrStatement*) stmt);
+  *(bool*) exec_code = hklr_statement_exec((HklrStatement*) stmt);
+
+  return *(bool*) exec_code;
 }
 
 void hklr_statement_while(HklrExpression* expr, HklList* list)
 {
   assert(expr != NULL);
   assert(list != NULL);
+
+  int exec_code = false;
 
   while (true)
   {
@@ -56,8 +60,11 @@ void hklr_statement_while(HklrExpression* expr, HklList* list)
     // execute the statements within
     hklr_scope_push();
     
-    hkl_list_traverse(list, hklr_statement_exec_list, NULL);
+    hkl_list_traverse(list, hklr_statement_exec_list, &exec_code);
 
     hklr_scope_pop();
+
+    if (exec_code)
+      break;
   }
 }
