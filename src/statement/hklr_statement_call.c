@@ -5,8 +5,6 @@
 #include "hkl_list.h"
 #include "hklr.h"
 
-extern void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs);
-
 static bool hklr_statement_exec_list(void* stmt, void* data)
 {
   hklr_statement_exec((HklrStatement*) stmt);
@@ -29,11 +27,7 @@ static bool make_locals(void* string, void* args_head)
   HklrExpression* assign = (*((HklListNode**) args_head))->data;
   *((HklListNode**) args_head) = (*((HklListNode**) args_head))->next;
 
-  // This is a hack for now since hklr_statement_assign takes 2 expressions
-  // This just makes a fake one
-  HklrExpression* expr = hklr_expression_new(HKL_EXPR_VAR, hkl_string_new_from_string((HklString*) string), hkl_list_new());
-  hklr_statement_assign(expr, assign);
-  hklr_expression_free(expr);
+  hklr_object_assign(object, assign);
 
   return false;
 }

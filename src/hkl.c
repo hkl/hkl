@@ -21,6 +21,7 @@ HklList* array_stack;
 HklList* var_stack;
 HklList* closure_stack;
 HklList* id_stack;
+HklList* pair_stack;
 
 typedef struct yy_buffer_state yy_buffer_state;
 extern yy_buffer_state* yy_scan_string(const char*);
@@ -161,6 +162,7 @@ int main(int argc, const char* argv[])
   hkl_list_push_back(var_stack = hkl_list_new(), hkl_list_new());
   closure_stack = hkl_list_new();
   id_stack = hkl_list_new();
+  pair_stack = hkl_list_new();
 
   // Parse files normally
   if (interactive == false)
@@ -200,6 +202,7 @@ int main(int argc, const char* argv[])
   hkl_list_free(var_stack);
   hkl_list_free(closure_stack);
   hkl_list_free(id_stack);
+  hkl_list_free(pair_stack);
 
   hklr_shutdown();
 

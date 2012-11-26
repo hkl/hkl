@@ -7,6 +7,7 @@
 #include "hklr_expression.h"
 #include "hklr_statement.h"
 #include "hklr_function.h"
+#include "hkl_variable.h"
 
 extern void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs);
 
@@ -63,6 +64,10 @@ HklrExpression* hklr_expression_new(HklExpressionType type, ...)
       expr->arg[0].list = va_arg(argp, HklList*);
       break;
 
+    case HKL_EXPR_HASH:
+      expr->arg[0].list = va_arg(argp, HklList*);
+      break;
+
     case HKL_EXPR_FUNCTION:
       expr->arg[0].list = va_arg(argp, HklList*); // args
       expr->arg[1].tree = va_arg(argp, HklTree*); // closures
@@ -94,6 +99,17 @@ static bool hklr_array_add_list(void* expr, void* array)
   HklValue* value = hklr_expression_eval((HklrExpression*) expr);
 
   hkl_deque_push_back((HklDeque*) array, value);
+
+  return false;
+}
+
+static bool hklr_hash_add_list(void* pair, void* hash)
+{
+  HklrObject* object = hklr_object_new(HKL_TYPE_NIL, HKL_FLAG_NONE);
+
+  hklr_object_assign(object, (HklrExpression*) ((HklPair*) pair)->value);
+
+  hkl_hash_insert((HklHash*) hash, ((HklPair*) pair)->key, object);
 
   return false;
 }
@@ -138,6 +154,37 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
 
       // apply more list items to the object to fetch deeper ones
 
+      //printf("trying\n");
+
+      HklList* list = expr->arg[1].list;
+      //printf("List size %zu\n", list->size);
+
+      if (list->size && object->type == HKL_TYPE_REF && object->as.object->type != HKL_TYPE_HASH)
+        assert(false);
+
+      if (object->type == HKL_TYPE_REF && object->as.object->type == HKL_TYPE_HASH && list->size)
+      {
+        //printf("hash\n");
+
+        HklVariable* var = list->head->data;
+        HklPair* pair = hkl_hash_search(object->as.object->as.hash, var->as.string);
+
+        if (pair == NULL)
+        {
+          //printf("added key %s\n", var->as.string->utf8_data);
+          HklrObject* post_object = hklr_object_new(HKL_TYPE_NIL, HKL_FLAG_NONE);
+          hkl_hash_insert(object->as.object->as.hash, var->as.string, post_object);
+
+          return hkl_value_new(HKL_TYPE_REF, post_object);
+        }
+
+        //printf("pair lookup %p\n", pair);
+        //HklValue* val = pair->value;
+        //assert(val->type == HKL_TYPE_REF);
+
+        return hkl_value_new(HKL_TYPE_REF, pair->value);
+      }
+
       return hkl_value_new(HKL_TYPE_REF, object);
     }
     break;
@@ -157,6 +204,16 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
       hkl_list_traverse(expr->arg[0].list, hklr_array_add_list, deque);
 
       return hkl_value_new(HKL_TYPE_ARRAY, deque);
+    }
+    break;
+
+    case HKL_EXPR_HASH:
+    {
+      HklHash* hash = hkl_hash_new();
+
+      hkl_list_traverse(expr->arg[0].list, hklr_hash_add_list, hash);
+
+      return hkl_value_new(HKL_TYPE_HASH, hash);
     }
     break;
 
@@ -276,6 +333,16 @@ static bool hklr_array_free_list(void* expr, void* data)
   return false;
 }
 
+static bool hklr_hash_free_list(void* pair, void* data)
+{
+  // each item contains a string expression pair
+
+  hklr_expression_free((HklrExpression*) ((HklPair*) pair)->value);
+  hkl_pair_free((HklPair*) pair);
+
+  return false;
+}
+
 void hklr_expression_free(HklrExpression* expr)
 {
   assert(expr != NULL);
@@ -304,6 +371,11 @@ void hklr_expression_free(HklrExpression* expr)
       
     case HKL_EXPR_ARRAY:
      hkl_list_traverse(expr->arg[0].list, hklr_array_free_list, NULL);
+     hkl_list_free(expr->arg[0].list);
+     break;
+
+    case HKL_EXPR_HASH:
+     hkl_list_traverse(expr->arg[0].list, hklr_hash_free_list, NULL);
      hkl_list_free(expr->arg[0].list);
      break;
 
