@@ -94,6 +94,6 @@ Traverse a HklHash.
 @param fn A callback function that takes a HklPair and pointer for user-data.
 @param data The user-data to pass to the traversal routine.
 */
-void hkl_hash_traverse(HklHash* hash, void(*fn)(HklPair*, void*), void* data);
+void hkl_hash_traverse(HklHash* hash, bool(*fn)(HklPair*, void*), void* data);
 
 #endif // HKL_STRING_H

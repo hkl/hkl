@@ -6,7 +6,7 @@
 #include "hklr_object.h"
 #include "hklr.h"
 
-static void process_closures(HklPair* pair, void* closure_list)
+static bool process_closures(HklPair* pair, void* closure_list)
 {
   // Search in our scope for the closed variables.
   HklrObject* object = hklr_exists(pair->key);
@@ -22,11 +22,15 @@ static void process_closures(HklPair* pair, void* closure_list)
   {
     pair->value = NULL;
   }
+
+  return false;
 }
 
-static void free_names(void* key, void* data)
+static bool free_names(void* key, void* data)
 {
   hkl_string_free((HklString*) key);
+
+  return false;
 }
 
 HklrFunction* hklr_function_new(HklList* args_list, HklTree* closure_list, HklList* stmt_list)
@@ -44,15 +48,19 @@ HklrFunction* hklr_function_new(HklList* args_list, HklTree* closure_list, HklLi
   return function;
 }
 
-static void dec_closures(HklPair* pair, void* data)
+static bool dec_closures(HklPair* pair, void* data)
 {
   if (pair->value != NULL)
     hklr_gc_dec((HklrObject*) pair->value);
+
+  return false;
 }
 
-static void free_statements(void* stmt, void* data)
+static bool free_statements(void* stmt, void* data)
 {
   hklr_statement_free((HklrStatement*) stmt);
+
+  return false;
 }
 
 void hklr_function_free(HklrFunction* function)

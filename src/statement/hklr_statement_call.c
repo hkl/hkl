@@ -7,12 +7,14 @@
 
 extern void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs);
 
-static void hklr_statement_exec_list(void* stmt, void* data)
+static bool hklr_statement_exec_list(void* stmt, void* data)
 {
   hklr_statement_exec((HklrStatement*) stmt);
+
+  return false;
 }
 
-static void make_locals(void* string, void* args_head)
+static bool make_locals(void* string, void* args_head)
 {
   HklrObject* object = hklr_object_new(HKL_TYPE_NIL, HKL_FLAG_NONE);
 
@@ -20,7 +22,7 @@ static void make_locals(void* string, void* args_head)
 
   // If you have too few args then the rest are nil
   if ((*(HklListNode**) args_head) == NULL)
-    return;
+    return true;
 
   // Some fancy pointer arithematic
   // This iterates the argument expression
@@ -32,13 +34,17 @@ static void make_locals(void* string, void* args_head)
   HklrExpression* expr = hklr_expression_new(HKL_EXPR_VAR, hkl_string_new_from_string((HklString*) string), hkl_list_new());
   hklr_statement_assign(expr, assign);
   hklr_expression_free(expr);
+
+  return false;
 }
 
-static void make_closures(HklPair* pair, void* data)
+static bool make_closures(HklPair* pair, void* data)
 {
   // create upvals for objects that are actual closures
   if (pair->value != NULL)
     hklr_upval_insert(pair->key, pair->value);
+
+  return false;
 }
 
 void hklr_statement_call(HklrExpression* expr, HklList* args)

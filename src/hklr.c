@@ -30,9 +30,11 @@ void hklr_init()
   hklr_scope_push();
 }
 
-static void hklr_gc_dec_hash(HklPair* pair, void* data)
+static bool hklr_gc_dec_hash(HklPair* pair, void* data)
 {
   hklr_gc_dec((HklrObject*) pair->value);
+
+  return false;
 }
 
 void hklr_shutdown()
@@ -232,7 +234,7 @@ void hklr_gc_dec(HklrObject* object)
 }
 
 static void hklr_gc_scanblack(HklrObject* object);
-static void hklr_gc_scanblack_hash(HklPair* pair, void* data)
+static bool hklr_gc_scanblack_hash(HklPair* pair, void* data)
 {
   HklrObject* object = (HklrObject*) pair->value;
   object->rc++;
@@ -241,6 +243,8 @@ static void hklr_gc_scanblack_hash(HklPair* pair, void* data)
   {
     hklr_gc_scanblack(object);
   }
+
+  return false;
 }
 
 static void hklr_gc_scanblack(HklrObject* object)
@@ -272,11 +276,13 @@ static void hklr_gc_scanblack(HklrObject* object)
 
 // Foward declaration
 static void hklr_gc_markgray(HklrObject* object);
-static void hklr_gc_markgray_hash(HklPair* pair, void* data)
+static bool hklr_gc_markgray_hash(HklPair* pair, void* data)
 {
   HklrObject* object = pair->value;
   object->rc--;
   hklr_gc_markgray(object);
+
+  return false;
 }
 
 static void hklr_gc_markgray(HklrObject* object)
@@ -343,9 +349,11 @@ static void hklr_gc_markroots()
 
 // Foward declaration
 static void hklr_gc_scan(HklrObject* object);
-static void hklr_gc_scan_hash(HklPair* pair, void* data)
+static bool hklr_gc_scan_hash(HklPair* pair, void* data)
 {
   hklr_gc_scan((HklrObject*) pair->value);
+
+  return false;
 }
 
 static void hklr_gc_scan(HklrObject* object)
@@ -392,9 +400,11 @@ static void hklr_gc_scanroots()
 }
 
 static void hklr_gc_collectwhite(HklrObject* object);
-static void hklr_gc_collectwhite_hash(HklPair* pair, void* data)
+static bool hklr_gc_collectwhite_hash(HklPair* pair, void* data)
 {
   hklr_gc_collectwhite((HklrObject*) pair->value);
+
+  return false;
 }
 
 static void hklr_gc_collectwhite(HklrObject* object)

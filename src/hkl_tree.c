@@ -367,7 +367,7 @@ void hkl_tree_free(HklTree* tree)
   Adaption of Morris Inorder traversal without a Stack or Recursion
 */
 static void hkl_treenode_traverse(HklTreeNode* root,
-  void(*fn)(HklPair*, void*), void* data)
+  bool(*fn)(HklPair*, void*), void* data)
 {
   
   assert(root != NULL);
@@ -424,7 +424,7 @@ static void hkl_treenode_traverse(HklTreeNode* root,
   } /* End of while */
 }
 
-void hkl_tree_traverse(HklTree* tree, void(*fn)(HklPair*, void*), void* data)
+void hkl_tree_traverse(HklTree* tree, bool(*fn)(HklPair*, void*), void* data)
 {
   assert(tree != NULL);
 

@@ -80,16 +80,20 @@ typedef struct comp_data
 } comp_data;
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
-void keywords_traverse(HklPair* pair, void* data) {
+bool keywords_traverse(HklPair* pair, void* data) {
 
   if (strncmp(((comp_data*) data)->buf, pair->key->utf8_data, MIN(((comp_data*) data)->len, pair->key->length))==0)
     linenoiseAddCompletion(((comp_data*) data)->lc, pair->key->utf8_data);
+
+  return false;
 }
 
-void vars_traverse(HklPair* pair, void* data) {
+bool vars_traverse(HklPair* pair, void* data) {
 
   if (strncmp(((comp_data*) data)->buf, pair->key->utf8_data, MIN(((comp_data*) data)->len, pair->key->length))==0)
     linenoiseAddCompletion(((comp_data*) data)->lc, pair->key->utf8_data);
+
+  return false;
 }
 
 void completion(const char* buf, linenoiseCompletions* lc) {
