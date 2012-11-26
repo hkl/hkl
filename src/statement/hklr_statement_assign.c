@@ -19,13 +19,13 @@ void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs)
   bool composite = false;
 
   HklValue* temp = value;
-  // dereference the objcet
+  // dereference the object
   if (value->type == HKL_TYPE_REF)
   {
     value = hklr_object_dereference(value->as.object);
     
     // Don't free the deque or hash since it can't be a temporary
-    if (value->type == HKL_TYPE_ARRAY)
+    if (value->type == HKL_TYPE_ARRAY || value->type == HKL_TYPE_FUNCTION)
     {
       // The right hand side is a composite
       composite = true;
@@ -51,9 +51,10 @@ void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs)
     case HKL_TYPE_REF:
       switch(object->as.object->type)
       {
-        // Double reference (Arrays and Hashes)
+        // Double reference (composite types)
         case HKL_TYPE_ARRAY:
-          // dec the rc of the array
+        case HKL_TYPE_FUNCTION:
+          // dec the rc of the object
           hklr_gc_dec(object->as.object);
         break;
 
@@ -94,19 +95,26 @@ void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs)
     break;
 
     case HKL_TYPE_ARRAY:   
+    case HKL_TYPE_FUNCTION:
 
-      // Make a reference to an array
+      // Make a reference
       object->type = HKL_TYPE_REF;
 
       if (composite)
       {
         object->as.object = temp->as.object->as.object;
-        hkl_value_free(temp); // free the temp rhsma
+        hkl_value_free(temp); // free the temp rhs
       }
-      else
+      else if (value->type == HKL_TYPE_ARRAY)
       {
         object->as.object = hklr_object_new(HKL_TYPE_ARRAY, HKL_FLAG_NONE, value->as.deque);
       }
+      else if (value->type == HKL_TYPE_FUNCTION)
+      {
+        object->as.object = hklr_object_new(HKL_TYPE_FUNCTION, HKL_FLAG_NONE, value->as.function);
+      }
+
+    break;
 
     break;
 
@@ -115,8 +123,8 @@ void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs)
     break;
   }
 
-  // Be sure not to delete the deque
-  if (value->type == HKL_TYPE_ARRAY)
+  // Be sure not to delete composties
+  if (value->type == HKL_TYPE_ARRAY || value->type == HKL_TYPE_FUNCTION)
   {
     value->type = HKL_TYPE_NIL;
   }

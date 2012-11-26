@@ -42,6 +42,10 @@ HklValue* hkl_value_new(HklType type, ...)
       value->as.deque = va_arg(argp, HklDeque*);
       break;
 
+    case HKL_TYPE_FUNCTION:
+      value->as.function = va_arg(argp, HklrFunction*);
+      break;
+
     default:
       break;
   }

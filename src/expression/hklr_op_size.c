@@ -15,7 +15,7 @@ HklValue* hklr_op_size(HklValue* value)
     value = hklr_object_dereference(value->as.object);
     
     // Don't free the deque or hash since it can't be a temporary
-    if (value->type == HKL_TYPE_ARRAY)
+    if (value->type == HKL_TYPE_ARRAY || value->type == HKL_TYPE_FUNCTION)
     {
       temporary = false;
       // simply spoof the value
@@ -46,6 +46,20 @@ HklValue* hklr_op_size(HklValue* value)
       {
         // Free the deque
         hkl_value_free(hkl_value_new(HKL_TYPE_ARRAY, deque));
+      }
+    }
+    break;
+
+    case HKL_TYPE_FUNCTION:
+    {
+      HklrFunction* function = value->as.function;
+      value->type = HKL_TYPE_INT;
+      value->as.integer = function->stmt_list->size;
+
+      if (temporary)
+      {
+        // Free the function
+        hklr_function_free(function);
       }
     }
     break;

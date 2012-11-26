@@ -9,6 +9,7 @@ extern void hklr_statement_puts(HklrExpression* expr);
 extern void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs);
 extern void hklr_statement_if(HklrExpression* expr, HklList* list);
 extern void hklr_statement_while(HklrExpression* expr, HklList* list);
+extern void hklr_statement_call(HklrExpression* expr, HklList* list);
 
 HklrStatement* hklr_statement_new(HklStatementType type, ...)
 {
@@ -35,11 +36,11 @@ HklrStatement* hklr_statement_new(HklStatementType type, ...)
 
     case HKL_STMT_IF:
     case HKL_STMT_WHILE:
+    case HKL_STMT_CALL:
 
       stmt->arg[0].expression = va_arg(argp, HklrExpression*);
       stmt->arg[1].list = va_arg(argp, HklList*);
       break;
-
 
     default:
       break;
@@ -92,6 +93,10 @@ void hklr_statement_exec(HklrStatement* stmt)
       hklr_statement_while(stmt->arg[0].expression, stmt->arg[1].list);
       break;
 
+    case HKL_STMT_CALL:
+      hklr_statement_call(stmt->arg[0].expression, stmt->arg[1].list);
+    break;
+
     default:
       break;
   }
@@ -104,6 +109,11 @@ void hklr_statement_exec(HklrStatement* stmt)
 static void hklr_statement_free_list(void* stmt, void* data) {
 
   hklr_statement_free((HklrStatement*) stmt);
+}
+
+static void hklr_expression_free_list(void* expr, void* data) {
+
+  hklr_expression_free((HklrExpression*) expr);
 }
 
 void hklr_statement_free(HklrStatement* stmt)
@@ -126,6 +136,12 @@ void hklr_statement_free(HklrStatement* stmt)
     case HKL_STMT_WHILE:
       hklr_expression_free(stmt->arg[0].expression);
       hkl_list_traverse(stmt->arg[1].list, hklr_statement_free_list, NULL);
+      hkl_list_free(stmt->arg[1].list);
+      break;
+
+    case HKL_STMT_CALL:
+      hklr_expression_free(stmt->arg[0].expression);
+      hkl_list_traverse(stmt->arg[1].list, hklr_expression_free_list, NULL);
       hkl_list_free(stmt->arg[1].list);
       break;
 
