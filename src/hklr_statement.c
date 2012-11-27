@@ -98,7 +98,7 @@ int hklr_statement_exec(HklrStatement* stmt)
 
     case HKL_STMT_CALL:
       // We should only have to eval the expression to cause the call to occur
-      hklr_expression_eval(stmt->arg[0].expression);
+      hkl_value_free(hklr_expression_eval(stmt->arg[0].expression));
     break;
 
     case HKL_STMT_BREAK:
@@ -131,6 +131,7 @@ void hklr_statement_free(HklrStatement* stmt)
   switch (stmt->type)
   {
     case HKL_STMT_PUTS:
+    case HKL_STMT_CALL:
       // Free the expression
       hklr_expression_free(stmt->arg[0].expression);
       break;
