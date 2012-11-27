@@ -118,6 +118,7 @@ HklString* string_buf = NULL;
 "|="                   return HKL_T_BITWISE_OR_ASSIGN;
 "^="                   return HKL_T_BITWISE_XOR_ASSIGN;
 "~="                   return HKL_T_BITWISE_NOT_ASSIGN;
+"as"                   return HKL_T_AS;
 
 "="                    return HKL_T_ASSIGN;
 "!"                    return HKL_T_NOT;

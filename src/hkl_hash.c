@@ -160,6 +160,9 @@ void hkl_hash_insert(HklHash* hash, HklString* key, void* value)
 
       hkl_tree_insert((HklTree*) element->data, key, value);
 
+      // The number of entries of the table increases
+      ++hash->length;
+
       // Mark the element as a tree
       element->is_tree = true;
     }

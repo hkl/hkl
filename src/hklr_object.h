@@ -97,6 +97,9 @@ HklrObject* hklr_object_new(HklType type, HklFlag flags, ...);
 
 struct HklValue* hklr_object_dereference(HklrObject* object);
 
+struct HklrExpression;
+void hklr_object_assign(HklrObject* object, struct HklrExpression* expression);
+
 /**
 Free resources used by a HklObject
 

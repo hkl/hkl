@@ -3,6 +3,8 @@
 #include "hklr_expression.h"
 #include "hklr.h"
 
+extern HklValue* hklr_as_string(HklValue* value);
+
 void hklr_statement_puts(HklrExpression* expr)
 {
   assert(expr != NULL);
@@ -28,82 +30,9 @@ void hklr_statement_puts(HklrExpression* expr)
     hkl_value_free(temp);
   }
 
-  switch (value->type)
-  {
-    case HKL_TYPE_NIL:
-      fprintf(stdout, "nil");
-      break;
-
-    case HKL_TYPE_INT:
-      fprintf(stdout, "%i", value->as.integer);
-      break;
-
-    case HKL_TYPE_TYPE:
-      switch (value->as.type)
-      {
-        case HKL_TYPE_NIL:
-          fprintf(stdout, "nil");
-        break;
-
-        case HKL_TYPE_INT:
-          fprintf(stdout, "int");
-        break;
-
-        case HKL_TYPE_TYPE:
-          fprintf(stdout, "type");
-        break;
-
-        case HKL_TYPE_REAL:
-          fprintf(stdout, "real");
-        break;
-
-        case HKL_TYPE_STRING:
-          fprintf(stdout, "string");
-        break;
-
-        case HKL_TYPE_ARRAY:
-          fprintf(stdout, "array");
-        break;
-
-        case HKL_TYPE_FUNCTION:
-          fprintf(stdout, "func");
-        break;
-
-        default:
-          assert(false);
-        break;
-      }
-      break;
-
-    case HKL_TYPE_REAL:
-      fprintf(stdout, "%lg", value->as.real);
-      break;
-
-    case HKL_TYPE_STRING:
-      fprintf(stdout, "%s", value->as.string->utf8_data);
-      break;
-
-    case HKL_TYPE_ARRAY:
-    {
-      HklDeque* deque = value->as.deque;
-      size_t i;
-      fprintf(stdout, "[");
-      for (i = 0; i < value->as.deque->size - 1; ++i)
-      {
-        fprintf(stdout, "%i, ", ((HklValue*) hkl_deque_findn(deque, i))->as.integer);
-      }
-      if (i < value->as.deque->size)
-      {
-        fprintf(stdout, "%i", ((HklValue*) hkl_deque_findn(deque, i))->as.integer);
-      }
-      fprintf(stdout, "]");
-    }
-    break;
-
-    default:
-      assert(false);
-      break;
-  }
+  HklValue* cast = hklr_as_string(value);
+  printf("%s", cast->as.string->utf8_data);
+  hkl_value_free(cast);
 
   // flush the output
   fprintf(stdout, "\n");

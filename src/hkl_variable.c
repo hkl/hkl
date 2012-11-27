@@ -35,7 +35,6 @@ HklVariable* hkl_variable_new(HklVariableType type, ...)
 
 void hkl_variable_free(HklVariable* variable)
 {
-
   switch (variable->type)
   {
     case HKL_VAR_ID:
@@ -51,4 +50,5 @@ void hkl_variable_free(HklVariable* variable)
     break;
   }
 
+  hkl_free_object(variable);
 }
