@@ -39,7 +39,7 @@
 
 // Options
 %start program
-%expect 2
+//%expect 2
 %error-verbose
 
 // YYSUNION Definition
@@ -154,8 +154,8 @@
 %token <real>    HKL_T_REAL_CONSTANT       "real constant"
 %token <string>  HKL_T_STRING_CONSTANT     "string literal"
 
-%type <statement> nobr_stat br_stat
-%type <expression> expr nobr_variable br_variable nobr_prefix nobr_call br_call
+%type <statement> nobr_stat
+%type <expression> expr nobr_variable nobr_prefix nobr_call
 %type <list> args
 %type <pair> pair
 
@@ -184,27 +184,17 @@ program:
   ;
 
 stat_list:
-  stat_list1 | stat_list2 | stat_list3 | stat_list4 | empty
+  stat_list1 | stat_list3 | empty
   ;
 
 stat_list1:
   stat1
-  | stat_list1 stat1 | stat_list2 stat1 | stat_list3 stat1 | stat_list4 stat1
-  ;
-
-stat_list2:
-  stat2
-  | stat_list3 stat2 | stat_list4 stat2
+  | stat_list1 stat1 | stat_list3 stat1
   ;
 
 stat_list3:
   stat3
-  | stat_list1 stat3 | stat_list2 stat3 | stat_list3 stat3 | stat_list4 stat3
-  ;
-
-stat_list4:
-  stat4
-  | stat_list3 stat4 | stat_list4 stat4
+  | stat_list1 stat3 | stat_list3 stat3
   ;
 
 stat1:
@@ -219,22 +209,8 @@ stat1:
   }
   ;
 
-stat2:
-  br_call
-  {
-    HklList* list = hkl_list_pop_back(var_stack);
-    $1->arg[1].list = list;
-
-    hkl_list_push_back(var_stack, hkl_list_new());
-
-    reduce_stat(hklr_statement_new(HKL_STMT_CALL, $1));
-  };
-
 stat3:
   nobr_stat { reduce_stat($1); };
-
-stat4:
-  br_stat { reduce_stat($1); };
 
 nobr_stat:
   nobr_variable
@@ -294,9 +270,6 @@ nobr_stat:
     $$ = hklr_statement_new(HKL_STMT_BREAK);
   }
   ;
-
-br_stat:
-  br_variable HKL_T_ASSIGN expr
 
 func_name_list:
   HKL_T_ID
@@ -549,38 +522,11 @@ nobr_variable:
   }
   ;
 
-br_variable:
-  HKL_T_LPAREN HKL_T_ID HKL_T_RPAREN
-  {
-    $$ = hklr_expression_new(HKL_EXPR_VAR, $2, NULL);
-
-    // If there we are in a function definition
-    if (closure_stack->head != NULL)
-    {
-      // Add the id as a closure
-      if (hkl_tree_search((HklTree*) closure_stack->tail->data, $2) == NULL)
-      {
-        hkl_tree_insert((HklTree*) closure_stack->tail->data, $2, NULL);
-      }
-    }
-  }
-  | HKL_T_LPAREN expr HKL_T_RPAREN HKL_T_LBRACKET expr HKL_T_RBRACKET // call then index
-  | HKL_T_LPAREN expr HKL_T_RPAREN HKL_T_DOT HKL_T_ID // call then id
-  ;
-
 nobr_call:
   nobr_prefix args
   {
     hkl_list_push_back((HklList*) var_stack->tail->data, hkl_variable_new(HKL_VAR_CALL, $2));
     $$ = $1;
-  }
-  ;
-
-br_call:
-  HKL_T_LPAREN expr HKL_T_RPAREN args
-  {
-    hkl_list_push_back((HklList*) var_stack->tail->data, hkl_variable_new(HKL_VAR_CALL, $4));
-    $$ = $2;
   }
   ;
 
