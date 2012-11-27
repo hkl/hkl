@@ -9,7 +9,6 @@ extern void hklr_statement_puts(HklrExpression* expr);
 extern void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs);
 extern int hklr_statement_if(HklrExpression* expr, HklList* list);
 extern void hklr_statement_while(HklrExpression* expr, HklList* list);
-extern void hklr_statement_call(HklrExpression* expr);
 
 HklrStatement* hklr_statement_new(HklStatementType type, ...)
 {
