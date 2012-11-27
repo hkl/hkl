@@ -9,7 +9,6 @@ extern void hklr_statement_puts(HklrExpression* expr);
 extern void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs);
 extern int hklr_statement_if(HklrExpression* expr, HklList* list);
 extern void hklr_statement_while(HklrExpression* expr, HklList* list);
-extern void hklr_statement_call(HklrExpression* expr, HklList* list);
 
 HklrStatement* hklr_statement_new(HklStatementType type, ...)
 {
@@ -24,7 +23,8 @@ HklrStatement* hklr_statement_new(HklStatementType type, ...)
   switch (type)
   {
     case HKL_STMT_PUTS:
-      // puts requires 1 expression
+    case HKL_STMT_RETURN:
+    case HKL_STMT_CALL:
       stmt->arg[0].expression = va_arg(argp, HklrExpression*);
       break;
 
@@ -36,7 +36,6 @@ HklrStatement* hklr_statement_new(HklStatementType type, ...)
 
     case HKL_STMT_IF:
     case HKL_STMT_WHILE:
-    case HKL_STMT_CALL:
 
       stmt->arg[0].expression = va_arg(argp, HklrExpression*);
       stmt->arg[1].list = va_arg(argp, HklList*);
@@ -97,11 +96,16 @@ int hklr_statement_exec(HklrStatement* stmt)
       break;
 
     case HKL_STMT_CALL:
-      hklr_statement_call(stmt->arg[0].expression, stmt->arg[1].list);
+      // We should only have to eval the expression to cause the call to occur
+      hkl_value_free(hklr_expression_eval(stmt->arg[0].expression));
     break;
 
     case HKL_STMT_BREAK:
       return 1;
+    break;
+
+    case HKL_STMT_RETURN:
+      return 3;
     break;
 
     default:
@@ -119,13 +123,6 @@ static bool hklr_statement_free_list(void* stmt, void* data) {
   return false;
 }
 
-static bool hklr_expression_free_list(void* expr, void* data) {
-
-  hklr_expression_free((HklrExpression*) expr);
-
-  return false;
-}
-
 void hklr_statement_free(HklrStatement* stmt)
 {
   assert(stmt != NULL);
@@ -133,6 +130,7 @@ void hklr_statement_free(HklrStatement* stmt)
   switch (stmt->type)
   {
     case HKL_STMT_PUTS:
+    case HKL_STMT_CALL:
       // Free the expression
       hklr_expression_free(stmt->arg[0].expression);
       break;
@@ -146,12 +144,6 @@ void hklr_statement_free(HklrStatement* stmt)
     case HKL_STMT_WHILE:
       hklr_expression_free(stmt->arg[0].expression);
       hkl_list_traverse(stmt->arg[1].list, hklr_statement_free_list, NULL);
-      hkl_list_free(stmt->arg[1].list);
-      break;
-
-    case HKL_STMT_CALL:
-      hklr_expression_free(stmt->arg[0].expression);
-      hkl_list_traverse(stmt->arg[1].list, hklr_expression_free_list, NULL);
       hkl_list_free(stmt->arg[1].list);
       break;
 

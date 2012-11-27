@@ -67,6 +67,7 @@
 %token HKL_T_RETURN                        "return"
 %token HKL_T_BREAK                         "break"
 %token HKL_T_CONTINUE                      "continue"
+%token HKL_T_LOAD                          "load"
 %token HKL_T_ASSERT                        "assert"
 %token HKL_T_COLLECT                       "collect"
 
@@ -153,8 +154,8 @@
 %token <real>    HKL_T_REAL_CONSTANT       "real constant"
 %token <string>  HKL_T_STRING_CONSTANT     "string literal"
 
-%type <statement> nobr_stat br_stat br_call nobr_call
-%type <expression> expr nobr_variable br_variable nobr_prefix
+%type <statement> nobr_stat br_stat
+%type <expression> expr nobr_variable br_variable nobr_prefix nobr_call br_call
 %type <list> args
 %type <pair> pair
 
@@ -207,10 +208,27 @@ stat_list4:
   ;
 
 stat1:
-  nobr_call { reduce_stat($1); };
+  nobr_call
+  {
+    HklList* list = hkl_list_pop_back(var_stack);
+    $1->arg[1].list = list;
+
+    hkl_list_push_back(var_stack, hkl_list_new());
+
+    reduce_stat(hklr_statement_new(HKL_STMT_CALL, $1));
+  }
+  ;
 
 stat2:
-  br_call { reduce_stat($1); };
+  br_call
+  {
+    HklList* list = hkl_list_pop_back(var_stack);
+    $1->arg[1].list = list;
+
+    hkl_list_push_back(var_stack, hkl_list_new());
+
+    reduce_stat(hklr_statement_new(HKL_STMT_CALL, $1));
+  };
 
 stat3:
   nobr_stat { reduce_stat($1); };
@@ -243,6 +261,10 @@ nobr_stat:
   | HKL_T_COLLECT
   {
     $$ = hklr_statement_new(HKL_STMT_COLLECT);
+  }
+  | HKL_T_RETURN expr
+  {
+    $$ = hklr_statement_new(HKL_STMT_RETURN, $2);
   }
   | HKL_T_WHILE
   {
@@ -549,20 +571,16 @@ br_variable:
 nobr_call:
   nobr_prefix args
   {
-    HklList* list = hkl_list_pop_back(var_stack);
-
-    $1->arg[1].list = list;
-
-    hkl_list_push_back(var_stack, hkl_list_new());
-  
-    $$ = hklr_statement_new(HKL_STMT_CALL, $1, $2);
+    hkl_list_push_back((HklList*) var_stack->tail->data, hkl_variable_new(HKL_VAR_CALL, $2));
+    $$ = $1;
   }
   ;
 
 br_call:
   HKL_T_LPAREN expr HKL_T_RPAREN args
   {
-    $$ = hklr_statement_new(HKL_STMT_CALL, $2, $4);
+    hkl_list_push_back((HklList*) var_stack->tail->data, hkl_variable_new(HKL_VAR_CALL, $4));
+    $$ = $2;
   }
   ;
 

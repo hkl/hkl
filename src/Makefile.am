@@ -28,7 +28,6 @@ statement/hklr_statement_puts.c \
 statement/hklr_statement_assign.c \
 statement/hklr_statement_if.c \
 statement/hklr_statement_while.c \
-statement/hklr_statement_call.c \
 linenoise/linenoise.c
 
 testbed_SOURCES = ${hkl_SOURCES}

@@ -61,7 +61,7 @@ HklString* hkl_string_new_from_real(double real)
   // create a buffer to store the integer
   HklString* string = hkl_string_new();
 
-  string->size = sprintf(conversion_buffer, "%lg", real) + 1;
+  string->size = sprintf(conversion_buffer, "%lf", real) + 1;
   string->utf8_data = realloc(string->utf8_data, string->size);
   memcpy(string->utf8_data, conversion_buffer, string->size);
   string->length = utf8_length(string->utf8_data);
