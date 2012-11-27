@@ -30,7 +30,7 @@ HklValue* hklr_as_real(HklValue* value)
       break;
 
     case HKL_TYPE_STRING:
-      sscanf(value->as.string->utf8_data, "%lg", &cast->as.real);
+      sscanf(value->as.string->utf8_data, "%lf", &cast->as.real);
       break;
 
     default:

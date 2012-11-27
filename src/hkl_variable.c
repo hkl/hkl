@@ -23,6 +23,10 @@ HklVariable* hkl_variable_new(HklVariableType type, ...)
       variable->as.expression = va_arg(argp, HklrExpression*);
     break;
 
+    case HKL_VAR_CALL:
+      variable->as.list = va_arg(argp, HklList*);
+    break;
+
     default:
       assert(false);
     break;
@@ -31,6 +35,13 @@ HklVariable* hkl_variable_new(HklVariableType type, ...)
   va_end(argp);
 
   return variable;
+}
+
+static bool hklr_expression_free_list(void* expr, void* data) {
+
+  hklr_expression_free((HklrExpression*) expr);
+
+  return false;
 }
 
 void hkl_variable_free(HklVariable* variable)
@@ -43,6 +54,11 @@ void hkl_variable_free(HklVariable* variable)
 
     case HKL_VAR_INDEX:
       hklr_expression_free(variable->as.expression);
+    break;
+
+    case HKL_VAR_CALL:
+      hkl_list_traverse(variable->as.list, hklr_expression_free_list, NULL);
+      hkl_list_free(variable->as.list);
     break;
 
     default:

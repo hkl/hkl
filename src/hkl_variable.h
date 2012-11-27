@@ -10,7 +10,8 @@ typedef enum HklVariableType
 {
   HKL_VAR_NONE,
   HKL_VAR_ID,
-  HKL_VAR_INDEX
+  HKL_VAR_INDEX,
+  HKL_VAR_CALL
 
 } HklVariableType;
 
@@ -22,6 +23,7 @@ typedef struct HklVariable
 
     HklString* string;
     HklrExpression* expression;
+    HklList* list;
 
   } as;
 

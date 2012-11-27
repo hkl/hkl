@@ -117,6 +117,42 @@ static bool hklr_hash_add_list(void* pair, void* hash)
   return false;
 }
 
+static bool hklr_statement_exec_list(void* stmt, void* data)
+{
+  hklr_statement_exec((HklrStatement*) stmt);
+
+  return false;
+}
+
+static bool make_locals(void* string, void* args_head)
+{
+  HklrObject* object = hklr_object_new(HKL_TYPE_NIL, HKL_FLAG_NONE);
+
+  hklr_local_insert((HklString*) string, object);
+
+  // If you have too few args then the rest are nil
+  if ((*(HklListNode**) args_head) == NULL)
+    return true;
+
+  // Some fancy pointer arithematic
+  // This iterates the argument expression
+  HklrExpression* assign = (*((HklListNode**) args_head))->data;
+  *((HklListNode**) args_head) = (*((HklListNode**) args_head))->next;
+
+  hklr_object_assign(object, assign);
+
+  return false;
+}
+
+static bool make_closures(HklPair* pair, void* data)
+{
+  // create upvals for objects that are actual closures
+  if (pair->value != NULL)
+    hklr_upval_insert(pair->key, pair->value);
+
+  return false;
+}
+
 HklValue* hklr_expression_eval(HklrExpression* expr)
 {
   assert(expr != NULL);
@@ -157,33 +193,60 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
 
       // apply more list items to the object to fetch deeper ones
 
-      //printf("trying\n");
-
       HklList* list = expr->arg[1].list;
 
       if (list->size && object->type != HKL_TYPE_REF)
         assert(false);
 
       HklListNode* node = list->head;
-      while (object->type == HKL_TYPE_REF && object->as.object->type == HKL_TYPE_HASH && node)
+      while (node && object->type == HKL_TYPE_REF)
       {
         HklVariable* var = node->data;
-        HklPair* pair = hkl_hash_search(object->as.object->as.hash, var->as.string);
 
-        // This is a new key, create it
-        if (pair == NULL)
+        if (object->type == HKL_TYPE_REF && object->as.object->type == HKL_TYPE_FUNCTION)
         {
-          HklrObject* post_object = hklr_object_new(HKL_TYPE_NIL, HKL_FLAG_NONE);
-          hkl_hash_insert(object->as.object->as.hash, var->as.string, post_object);
+          // Try a function call
+          HklrFunction* function = object->as.object->as.function;
+          assert(var->type == HKL_VAR_CALL);
+          HklList* args = var->as.list;
 
-          return hkl_value_new(HKL_TYPE_REF, post_object);
+          hklr_scope_push();
+
+          // Create the closure variables
+          hkl_tree_traverse(function->closure_list, make_closures, NULL);
+
+          // Make the args in the function signature local variables
+          HklListNode* args_head = args->head; // This is an iterator for the args
+          hkl_list_traverse(function->args_list, make_locals, &args_head);
+
+          // execute the statements within
+          hkl_list_traverse(function->stmt_list, hklr_statement_exec_list, NULL);
+
+          hklr_scope_pop();
+
+          // the post_object is the function return value
+          return hkl_value_new(HKL_TYPE_NIL);
+        }
+        else if (object->type == HKL_TYPE_REF && object->as.object->type == HKL_TYPE_HASH)
+        {
+          HklPair* pair = hkl_hash_search(object->as.object->as.hash, var->as.string);
+
+          // This key doesnt exist just create it
+          if (pair == NULL)
+          {
+            HklrObject* post_object = hklr_object_new(HKL_TYPE_NIL, HKL_FLAG_NONE);
+            hkl_hash_insert(object->as.object->as.hash, var->as.string, post_object);
+
+            return hkl_value_new(HKL_TYPE_REF, post_object);
+          }
+
+          if (node->next == NULL)
+            return hkl_value_new(HKL_TYPE_REF, pair->value);
+
+          object = pair->value;
         }
 
-        if (node->next == NULL)
-          return hkl_value_new(HKL_TYPE_REF, pair->value);
-
         node = node->next;
-        object = pair->value;
       }
 
       return hkl_value_new(HKL_TYPE_REF, object);
