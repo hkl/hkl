@@ -39,7 +39,6 @@
 
 // Options
 %start program
-//%expect 2
 %error-verbose
 
 // YYSUNION Definition
@@ -531,12 +530,16 @@ nobr_call:
   ;
 
 args:
-  HKL_T_LPAREN { hkl_list_push_back(array_stack, hkl_list_new()); } HKL_T_RPAREN
+  HKL_T_LPAREN HKL_T_RPAREN { $$ = hkl_list_new(); }
+  | HKL_T_LPAREN
   {
-    $$ = hkl_list_pop_back(array_stack);
+    hkl_list_push_back(array_stack, hkl_list_new());
+    // You have to push an extra var stack sice new vars may be used as args
+    hkl_list_push_back(var_stack, hkl_list_new());
   }
-  | HKL_T_LPAREN { hkl_list_push_back(array_stack, hkl_list_new()); } expr_list HKL_T_RPAREN
+  expr_list HKL_T_RPAREN
   {
+    hkl_list_pop_back(var_stack);
     $$ = hkl_list_pop_back(array_stack);
   }
   ;

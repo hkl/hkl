@@ -228,12 +228,17 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
           // execute the statements within
           hkl_list_traverse(function->stmt_list, hklr_statement_exec_list, NULL);
 
-          hklr_scope_pop();
-
           // the post_object is the function return value
           if (HKLR.reg_return == NULL)
             HKLR.reg_return = hkl_value_new(HKL_TYPE_NIL);
-          
+
+          // if the return value is an object be sure to increase the ref count
+          // Though, this count needs to be decced afterwards
+          if (HKLR.reg_return->type == HKL_TYPE_REF)
+            hklr_gc_inc(HKLR.reg_return->as.object);
+
+          hklr_scope_pop();
+
           return HKLR.reg_return;
         }
         else if (object->type == HKL_TYPE_REF && object->as.object->type == HKL_TYPE_HASH)
@@ -307,12 +312,12 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
           switch (value->type)
           {
             case HKL_TYPE_INT:
-              value->as.integer = -(value->as.integer);
+              value->as.integer = -value->as.integer;
               return value;
               break;
 
             case HKL_TYPE_REAL:
-              value->as.real = -(value->as.real);
+              value->as.real = -value->as.real;
               return value;
               break;
 

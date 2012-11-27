@@ -4,8 +4,6 @@
 #include "hkl_string.h"
 #include "hkl_alloc.h"
 
-static char conversion_buffer[16];
-
 // Get length of utf8-encoded string
 static size_t utf8_length(const char* utf8_data) {
    size_t i = 0, j = 0;
@@ -48,9 +46,9 @@ HklString* hkl_string_new_from_integer(int integer)
   // create a buffer to store the integer
   HklString* string = hkl_string_new();
 
-  string->size = sprintf(conversion_buffer, "%d", integer) + 1;
+  string->size = snprintf(NULL, 0, "%i", integer) + 1;
   string->utf8_data = realloc(string->utf8_data, string->size);
-  memcpy(string->utf8_data, conversion_buffer, string->size);
+  snprintf(string->utf8_data, string->size, "%i", integer);
   string->length = utf8_length(string->utf8_data);
   
   return string;
@@ -61,9 +59,9 @@ HklString* hkl_string_new_from_real(double real)
   // create a buffer to store the integer
   HklString* string = hkl_string_new();
 
-  string->size = sprintf(conversion_buffer, "%lf", real) + 1;
+  string->size = snprintf(NULL, 0, "%lf", real) + 1;
   string->utf8_data = realloc(string->utf8_data, string->size);
-  memcpy(string->utf8_data, conversion_buffer, string->size);
+  snprintf(string->utf8_data, string->size, "%lf", real);
   string->length = utf8_length(string->utf8_data);
 
   return string;

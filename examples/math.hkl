@@ -1,0 +1,14 @@
+Math = {}
+Math.PI = 3.1415926
+Math.TAU = Math.PI * 2
+
+Math.abs = function(n)
+
+  if n < 0   
+    return 0-n
+  end
+
+  return n
+end
+
+puts Math.abs(Math.PI)

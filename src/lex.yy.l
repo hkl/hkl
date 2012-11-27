@@ -121,6 +121,21 @@ HklString* string_buf = NULL;
 "~="                   return HKL_T_BITWISE_NOT_ASSIGN;
 "as"                   return HKL_T_AS;
 
+[a-zA-Z_][a-zA-Z_0-9]* {
+  yylval.string = hkl_string_new_from_utf8(yytext);
+  return HKL_T_ID;
+}
+
+[0-9]+ {
+  sscanf(yytext, "%i", &yylval.integer);
+  return HKL_T_INT_CONSTANT;
+}
+
+[0-9]*\.?[0-9]+([eE][\-\+]?[0-9]+)? {
+  sscanf(yytext, "%lf", &yylval.real);
+  return HKL_T_REAL_CONSTANT;
+}
+
 "="                    return HKL_T_ASSIGN;
 "!"                    return HKL_T_NOT;
 "+"                    return HKL_T_PLUS;
@@ -135,20 +150,6 @@ HklString* string_buf = NULL;
 "#"                    return HKL_T_CRUNCH;
 ".."                   return HKL_T_RANGE;
 
-[a-zA-Z_][a-zA-Z_0-9]* {
-  yylval.string = hkl_string_new_from_utf8(yytext);
-  return HKL_T_ID;
-}
-
-[0-9]+ {
-  sscanf(yytext, "%i", &yylval.integer);
-  return HKL_T_INT_CONSTANT;
-}
-
-([0-9]+\.[0-9]+) {
-  sscanf(yytext, "%lf", &yylval.real);
-  return HKL_T_REAL_CONSTANT;
-}
 
 \"                         { BEGIN stringbuild; string_buf = hkl_string_new(); }
 <includebuild>[\n]         { hkl_string_cat_utf8(string_buf, "\n"); yylineno++; }

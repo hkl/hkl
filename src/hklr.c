@@ -384,7 +384,7 @@ static void hklr_gc_scan(HklrObject* object)
           break;
 
         default:
-          assert(false);
+          //assert(false);
         break;
       }
     }
