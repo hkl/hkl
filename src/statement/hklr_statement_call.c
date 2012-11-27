@@ -41,10 +41,13 @@ static bool make_closures(HklPair* pair, void* data)
   return false;
 }
 
-void hklr_statement_call(HklrExpression* expr, HklList* args)
+void hklr_statement_call(HklrExpression* expr)
 {
+    HklList* args = NULL;
+
   assert(expr != NULL);
   assert(args != NULL);
+
 
   HklValue* value = hklr_expression_eval(expr);
   assert(value != NULL);

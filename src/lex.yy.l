@@ -32,6 +32,7 @@ HklString* string_buf = NULL;
 "break"                return HKL_T_BREAK;
 "continue"             return HKL_T_CONTINUE;
 "assert"               return HKL_T_ASSERT;
+"load"                 return HKL_T_LOAD;
 "collect"              return HKL_T_COLLECT;
 
 "include"              BEGIN includebuild;
@@ -145,7 +146,7 @@ HklString* string_buf = NULL;
 }
 
 ([0-9]+\.[0-9]+) {
-  sscanf(yytext, "%lg", &yylval.real);
+  sscanf(yytext, "%lf", &yylval.real);
   return HKL_T_REAL_CONSTANT;
 }
 
