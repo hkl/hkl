@@ -159,30 +159,31 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
       HklList* list = expr->arg[1].list;
       //printf("List size %zu\n", list->size);
 
-      if (list->size && object->type == HKL_TYPE_REF && object->as.object->type != HKL_TYPE_HASH)
+      if (list->size && object->type != HKL_TYPE_REF)
         assert(false);
 
-      if (object->type == HKL_TYPE_REF && object->as.object->type == HKL_TYPE_HASH && list->size)
+      HklListNode* node = list->head;
+      printf("List size %zu\n", list->size);
+      while (object->type == HKL_TYPE_REF && object->as.object->type == HKL_TYPE_HASH && node)
       {
-        //printf("hash\n");
-
-        HklVariable* var = list->head->data;
+        HklVariable* var = node->data;
         HklPair* pair = hkl_hash_search(object->as.object->as.hash, var->as.string);
 
+        // This is a new key, create it
         if (pair == NULL)
         {
-          //printf("added key %s\n", var->as.string->utf8_data);
+          printf("Null key\n");
           HklrObject* post_object = hklr_object_new(HKL_TYPE_NIL, HKL_FLAG_NONE);
           hkl_hash_insert(object->as.object->as.hash, var->as.string, post_object);
 
           return hkl_value_new(HKL_TYPE_REF, post_object);
         }
 
-        //printf("pair lookup %p\n", pair);
-        //HklValue* val = pair->value;
-        //assert(val->type == HKL_TYPE_REF);
+        if (node->next == NULL)
+          return hkl_value_new(HKL_TYPE_REF, pair->value);
 
-        return hkl_value_new(HKL_TYPE_REF, pair->value);
+        node = node->next;
+        object = pair->value;
       }
 
       return hkl_value_new(HKL_TYPE_REF, object);
@@ -343,6 +344,15 @@ static bool hklr_hash_free_list(void* pair, void* data)
   return false;
 }
 
+static bool hklr_var_free_list(void* var, void* data)
+{
+  // each item contains a var
+
+  hkl_variable_free((HklVariable*) var);
+
+  return false;
+}
+
 void hklr_expression_free(HklrExpression* expr)
 {
   assert(expr != NULL);
@@ -364,8 +374,8 @@ void hklr_expression_free(HklrExpression* expr)
       break;
 
     case HKL_EXPR_VAR:
-
       hkl_string_free(expr->arg[0].string);
+      hkl_list_traverse(expr->arg[1].list, hklr_var_free_list, NULL);
       hkl_list_free(expr->arg[1].list);
       break;
       

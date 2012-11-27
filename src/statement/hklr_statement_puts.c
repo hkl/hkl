@@ -65,6 +65,10 @@ void hklr_statement_puts(HklrExpression* expr)
           fprintf(stdout, "array");
         break;
 
+        case HKL_TYPE_HASH:
+          fprintf(stdout, "hash");
+        break;
+
         case HKL_TYPE_FUNCTION:
           fprintf(stdout, "func");
         break;

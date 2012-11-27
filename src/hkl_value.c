@@ -68,7 +68,7 @@ void hkl_value_free(HklValue* value)
     case HKL_TYPE_STRING:
       hkl_string_free(value->as.string);
       break;
-
+      
     case HKL_TYPE_ARRAY:
     {
       size_t i;

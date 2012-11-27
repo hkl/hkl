@@ -220,7 +220,7 @@ nobr_stat:
   nobr_variable
   {
     HklList* list = hkl_list_pop_back(var_stack);
-    //printf("var stack size %zu\n", list->size);
+
     $1->arg[1].list = list;
     $<expression>$ = $1;
 
@@ -376,6 +376,14 @@ expr:
     $$ = hklr_expression_new(HKL_EXPR_HASH, hkl_list_new());
   }
   | nobr_prefix
+  {
+    HklList* list = hkl_list_pop_back(var_stack);
+
+    $1->arg[1].list = list;
+    $<expression>$ = $1;
+
+    hkl_list_push_back(var_stack, hkl_list_new());
+  }
   | HKL_T_LPAREN expr HKL_T_RPAREN
   {
     $$ = $2;
@@ -465,26 +473,25 @@ pair_list:
   ;
 
 pair:
-  HKL_T_STRING_CONSTANT HKL_T_COLON expr
+  HKL_T_STRING_CONSTANT colon_or_equal expr
   {
     $$ = hkl_pair_new_from_data($1, $3);
+    hkl_string_free($1);
   }
-  | HKL_T_ID HKL_T_COLON expr
+  | HKL_T_ID colon_or_equal expr
   {
     $$ = hkl_pair_new_from_data($1, $3);
+    hkl_string_free($1);
   }
+  ;
+
+colon_or_equal:
+  HKL_T_COLON
+  | HKL_T_ASSIGN
   ;
 
 nobr_prefix:
   nobr_variable
-  {
-    HklList* list = hkl_list_pop_back(var_stack);
-    //printf("var stack size %zu\n", list->size);
-    $1->arg[1].list = list;
-    $$ = $1;
-
-    hkl_list_push_back(var_stack, hkl_list_new());
-  }
   | nobr_call
   ;
 
@@ -502,9 +509,6 @@ nobr_variable:
         hkl_tree_insert((HklTree*) closure_stack->tail->data, $1, NULL);
       }
     }
-
-    // Seed the next variable
-    //hkl_list_push_back(var_stack, hkl_list_new());
   }
   //| nobr_prefix HKL_T_LBRACKET expr HKL_T_RBRACKET // index
   | nobr_prefix HKL_T_LBRACKET HKL_T_STRING_CONSTANT HKL_T_RBRACKET
@@ -513,7 +517,7 @@ nobr_variable:
   }
   | nobr_prefix HKL_T_DOT HKL_T_ID
   {
-    //printf("adding\n");
+    printf("Adding %zu\n", ((HklList*) var_stack->tail->data)->size);
     hkl_list_push_back((HklList*) var_stack->tail->data, hkl_variable_new(HKL_VAR_ID, $3));
   }
   ;
@@ -521,7 +525,7 @@ nobr_variable:
 br_variable:
   HKL_T_LPAREN HKL_T_ID HKL_T_RPAREN
   {
-    $$ = hklr_expression_new(HKL_EXPR_VAR, $2, hkl_list_pop_back(var_stack));
+    $$ = hklr_expression_new(HKL_EXPR_VAR, $2, NULL);
 
     // If there we are in a function definition
     if (closure_stack->head != NULL)
@@ -532,9 +536,6 @@ br_variable:
         hkl_tree_insert((HklTree*) closure_stack->tail->data, $2, NULL);
       }
     }
-
-    // Seed the next variable
-    hkl_list_push_back(var_stack, hkl_list_new());
   }
   | HKL_T_LPAREN expr HKL_T_RPAREN HKL_T_LBRACKET expr HKL_T_RBRACKET // call then index
   | HKL_T_LPAREN expr HKL_T_RPAREN HKL_T_DOT HKL_T_ID // call then id
