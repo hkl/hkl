@@ -50,6 +50,8 @@ HklrFunction* hklr_function_new(HklList* args_list, HklTree* closure_list, HklLi
 
 static bool dec_closures(HklPair* pair, void* data)
 {
+  printf("Deccing %s\n", pair->key->utf8_data);
+
   if (pair->value != NULL)
     hklr_gc_dec((HklrObject*) pair->value);
 

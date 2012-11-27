@@ -223,7 +223,7 @@ void hklr_gc_dec(HklrObject* object)
   assert(object != NULL);
 
   object->rc--;
-  if (object->rc == 0)
+  if (object->rc == 0 && object->color != HKL_COLOR_GREEN)
   {
     hklr_gc_release(object);
   }
@@ -269,7 +269,7 @@ static void hklr_gc_scanblack(HklrObject* object)
       break;
 
     default:
-      assert(false);
+      //assert(false);
     break;
   }
 }
@@ -310,7 +310,7 @@ static void hklr_gc_markgray(HklrObject* object)
         break;
 
       default:
-        assert(false);
+        //assert(false);
       break;
     }
   }
