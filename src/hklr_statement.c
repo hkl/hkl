@@ -105,6 +105,7 @@ int hklr_statement_exec(HklrStatement* stmt)
     break;
 
     case HKL_STMT_RETURN:
+      HKLR.reg_return = hklr_expression_eval(stmt->arg[0].expression);
       return 3;
     break;
 
@@ -131,6 +132,7 @@ void hklr_statement_free(HklrStatement* stmt)
   {
     case HKL_STMT_PUTS:
     case HKL_STMT_CALL:
+    case HKL_STMT_RETURN:
       // Free the expression
       hklr_expression_free(stmt->arg[0].expression);
       break;

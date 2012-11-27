@@ -27,6 +27,8 @@ void hklr_init()
   HKLR.scopes = hkl_list_new();
   HKLR.scope_level = 0;
 
+  HKLR.reg_return = NULL;
+
   hklr_scope_push();
 }
 

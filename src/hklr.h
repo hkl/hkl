@@ -2,6 +2,7 @@
 #define HKLR_H
 
 #include "hklr_object.h"
+#include "hkl_value.h"
 #include "hkl_list.h"
 
 typedef struct HklScope {
@@ -34,6 +35,8 @@ typedef struct HklRuntime
   HklList* scopes;      // Runtime stack frames
   size_t scope_level;   // Current scope depth (while parsing)
   size_t ops;           // Number of executed operations
+
+  HklValue* reg_return; // Function return register
 
 } HklRuntime;
 

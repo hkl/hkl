@@ -119,7 +119,11 @@ static bool hklr_hash_add_list(void* pair, void* hash)
 
 static bool hklr_statement_exec_list(void* stmt, void* data)
 {
-  hklr_statement_exec((HklrStatement*) stmt);
+  int status = hklr_statement_exec((HklrStatement*) stmt);
+
+  // Return from the function
+  if (status == 3)
+    return true;
 
   return false;
 }
@@ -205,6 +209,8 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
 
         if (object->type == HKL_TYPE_REF && object->as.object->type == HKL_TYPE_FUNCTION)
         {
+          HKLR.reg_return = NULL;
+
           // Try a function call
           HklrFunction* function = object->as.object->as.function;
           assert(var->type == HKL_VAR_CALL);
@@ -225,7 +231,10 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
           hklr_scope_pop();
 
           // the post_object is the function return value
-          return hkl_value_new(HKL_TYPE_NIL);
+          if (HKLR.reg_return == NULL)
+            HKLR.reg_return = hkl_value_new(HKL_TYPE_NIL);
+          
+          return HKLR.reg_return;
         }
         else if (object->type == HKL_TYPE_REF && object->as.object->type == HKL_TYPE_HASH)
         {
