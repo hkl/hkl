@@ -231,6 +231,9 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
           hklr_scope_pop();
 
           // the post_object is the function return value
+          if (HKLR.reg_return == NULL)
+            HKLR.reg_return = hkl_value_new(HKL_TYPE_NIL);
+          
           return HKLR.reg_return;
         }
         else if (object->type == HKL_TYPE_REF && object->as.object->type == HKL_TYPE_HASH)
