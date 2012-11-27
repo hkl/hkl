@@ -242,7 +242,7 @@ void hklr_object_assign(HklrObject* object, HklrExpression* expression)
   }
 
   // Be sure not to delete composties
-  if (value->type == HKL_TYPE_ARRAY || value->type == HKL_TYPE_ARRAY || value->type == HKL_TYPE_FUNCTION)
+  if (value->type == HKL_TYPE_ARRAY || value->type == HKL_TYPE_HASH || value->type == HKL_TYPE_FUNCTION)
   {
     value->type = HKL_TYPE_NIL;
   }

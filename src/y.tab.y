@@ -132,6 +132,7 @@
 %token HKL_T_BITWISE_OR_ASSIGN             "|="
 %token HKL_T_BITWISE_XOR_ASSIGN            "^="
 %token HKL_T_BITWISE_NOT_ASSIGN            "~="
+%token HKL_T_AS                            "as"
 
 %token HKL_T_ASSIGN                        "="
 %token HKL_T_NOT                           "!"
@@ -170,6 +171,7 @@
 %left HKL_T_LESS HKL_T_GREATER HKL_T_LESS_EQUAL HKL_T_GREATER_EQUAL
 %left HKL_T_PLUS HKL_T_MINUS
 %left HKL_T_DIVIDE HKL_T_ASTERISK HKL_T_MOD
+%left HKL_T_AS
 
 %nonassoc UNARY_OPS
 
@@ -436,6 +438,10 @@ expr:
   {
     $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_GREATER_EQUAL, $3);
   }
+  | expr HKL_T_AS expr
+  {
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_AS, $3);
+  }
   | HKL_T_MINUS expr %prec UNARY_OPS
   {
     $$ = hklr_expression_new(HKL_EXPR_UNARY, HKL_OP_UNARY_MINUS, $2);
@@ -517,7 +523,6 @@ nobr_variable:
   }
   | nobr_prefix HKL_T_DOT HKL_T_ID
   {
-    printf("Adding %zu\n", ((HklList*) var_stack->tail->data)->size);
     hkl_list_push_back((HklList*) var_stack->tail->data, hkl_variable_new(HKL_VAR_ID, $3));
   }
   ;
@@ -544,6 +549,12 @@ br_variable:
 nobr_call:
   nobr_prefix args
   {
+    HklList* list = hkl_list_pop_back(var_stack);
+
+    $1->arg[1].list = list;
+
+    hkl_list_push_back(var_stack, hkl_list_new());
+  
     $$ = hklr_statement_new(HKL_STMT_CALL, $1, $2);
   }
   ;

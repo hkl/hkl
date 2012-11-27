@@ -50,4 +50,5 @@ void hkl_variable_free(HklVariable* variable)
     break;
   }
 
+  hkl_free_object(variable);
 }

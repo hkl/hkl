@@ -13,6 +13,9 @@ extern void hklr_statement_assign(HklrExpression* lhs, HklrExpression* rhs);
 
 extern HklValue* hklr_op_size(HklValue* value);
 extern HklValue* hklr_op_typeof(HklValue* value);
+extern HklValue* hklr_as_integer(HklValue* value);
+extern HklValue* hklr_as_real(HklValue* value);
+extern HklValue* hklr_as_string(HklValue* value);
 
 extern HklValue* hklr_op_plus(HklValue* left_value, HklValue* right_value);
 extern HklValue* hklr_op_minus(HklValue* left_value, HklValue* right_value);
@@ -157,13 +160,11 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
       //printf("trying\n");
 
       HklList* list = expr->arg[1].list;
-      //printf("List size %zu\n", list->size);
 
       if (list->size && object->type != HKL_TYPE_REF)
         assert(false);
 
       HklListNode* node = list->head;
-      printf("List size %zu\n", list->size);
       while (object->type == HKL_TYPE_REF && object->as.object->type == HKL_TYPE_HASH && node)
       {
         HklVariable* var = node->data;
@@ -172,7 +173,6 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
         // This is a new key, create it
         if (pair == NULL)
         {
-          printf("Null key\n");
           HklrObject* post_object = hklr_object_new(HKL_TYPE_NIL, HKL_FLAG_NONE);
           hkl_hash_insert(object->as.object->as.hash, var->as.string, post_object);
 
@@ -306,6 +306,32 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
         case HKL_OP_EQUAL:
           result = hklr_op_equal(left_value, right_value);
           break;
+        case HKL_OP_AS:
+        {
+          assert(right_value->type == HKL_TYPE_TYPE);
+
+          switch (right_value->as.type)
+          {
+            case HKL_TYPE_INT:
+              result = hklr_as_integer(left_value);
+            break;
+
+            case HKL_TYPE_REAL:
+              result = hklr_as_real(left_value);
+            break;
+
+            case HKL_TYPE_STRING:
+              result = hklr_as_string(left_value);
+            break;
+
+            default:
+              assert(false);
+            break;
+          }
+
+        }
+        break;
+
         default:
           assert(false);
           break;
