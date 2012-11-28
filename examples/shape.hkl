@@ -1,9 +1,18 @@
 Shape = {}
 
-Shape.Kind = {SQUARE: 1, CIRCLE: 2}
+Shape.Kind = {SQUARE, CIRCLE}
+Shape.Color = {RED, GREEN, BLUE, YELLOW}
 
 Shape.new = function(kind, color)
   
+  if kind == nil
+    kind = Shape.Kind.SQUARE
+  end
+
+  if color == nil
+    color = Shape.Color.RED
+  end
+
   shape = {kind: kind, color: color}
 
   return shape
@@ -30,6 +39,6 @@ Shape.print = function(shape)
 
 end
 
-shape = Shape.new(Shape.Kind.CIRCLE, "green")
+shape = Shape.new()
 
 Shape.print(shape)

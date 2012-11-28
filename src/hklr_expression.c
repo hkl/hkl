@@ -106,13 +106,26 @@ static bool hklr_array_add_list(void* expr, void* array)
   return false;
 }
 
-static bool hklr_hash_add_list(void* pair, void* hash)
+struct hash_index {
+
+  int index;
+  HklHash* hash;
+};
+
+static bool hklr_hash_add_list(void* pair, void* hash_index)
 {
   HklrObject* object = hklr_object_new(HKL_TYPE_NIL, HKL_FLAG_NONE);
 
+  // If the user didnt give a value
+  // Give them an integer corresponding to the index in the hash
+  if (((HklPair*) pair)->value == NULL)
+  {
+    ((HklPair*) pair)->value = hklr_expression_new(HKL_EXPR_STRING, hkl_string_new_from_string(((HklPair*) pair)->key));
+  }
+
   hklr_object_assign(object, (HklrExpression*) ((HklPair*) pair)->value);
 
-  hkl_hash_insert((HklHash*) hash, ((HklPair*) pair)->key, object);
+  hkl_hash_insert(((struct hash_index*) hash_index)->hash, ((HklPair*) pair)->key, object);
 
   return false;
 }
@@ -307,7 +320,12 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
     {
       HklHash* hash = hkl_hash_new();
 
-      hkl_list_traverse(expr->arg[0].list, hklr_hash_add_list, hash);
+      struct hash_index hash_index;
+
+      hash_index.index = 0;
+      hash_index.hash = hash;
+
+      hkl_list_traverse(expr->arg[0].list, hklr_hash_add_list, &hash_index);
 
       return hkl_value_new(HKL_TYPE_HASH, hash);
     }

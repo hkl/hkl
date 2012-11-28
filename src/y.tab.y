@@ -483,6 +483,17 @@ pair:
     $$ = hkl_pair_new_from_data($1, $3);
     hkl_string_free($1);
   }
+  |
+  HKL_T_STRING_CONSTANT
+  {
+    $$ = hkl_pair_new_from_data($1, NULL);
+    hkl_string_free($1);
+  }
+  | HKL_T_ID
+  {
+    $$ = hkl_pair_new_from_data($1, NULL);
+    hkl_string_free($1);
+  }
   ;
 
 colon_or_equal:

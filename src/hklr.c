@@ -146,10 +146,6 @@ HklrObject* hklr_exists(HklString* key)
   {
     scope = ((HklScope*) node->data);
 
-    // If this is a blocking/lambda scope
-    if (scope->blocking == true)
-      break;
-
     // check locals first then upvals
     pair = hkl_hash_search(scope->locals, key);
     if (!pair) pair = hkl_hash_search(scope->upvals, key);    
@@ -163,6 +159,10 @@ HklrObject* hklr_exists(HklString* key)
     }
 
     node = node->last;
+
+    // If this is a blocking/lambda scope
+    if (scope->blocking == true)
+      break;
   }
 
   // Finally try global scope
