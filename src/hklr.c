@@ -63,6 +63,18 @@ void hklr_scope_push()
 
   scope->locals = hkl_hash_new();
   scope->upvals = hkl_hash_new();
+  scope->blocking = false;
+
+  hkl_list_push_back(HKLR.scopes, scope);
+}
+
+void hklr_scope_push_full(bool blocking, HklHash* locals, HklHash* upvals)
+{
+  HklScope* scope = hkl_alloc_object(HklScope);
+
+  scope->locals = locals;
+  scope->upvals = upvals;
+  scope->blocking = blocking;
 
   hkl_list_push_back(HKLR.scopes, scope);
 }
@@ -133,6 +145,11 @@ HklrObject* hklr_exists(HklString* key)
   while(node != NULL)
   {
     scope = ((HklScope*) node->data);
+
+    // If this is a blocking/lambda scope
+    if (scope->blocking == true)
+      break;
+
     // check locals first then upvals
     pair = hkl_hash_search(scope->locals, key);
     if (!pair) pair = hkl_hash_search(scope->upvals, key);    
