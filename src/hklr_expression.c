@@ -28,6 +28,7 @@ extern HklValue* hklr_op_divide(HklValue* left_value, HklValue* right_value);
 extern HklValue* hklr_op_mod(HklValue* left_value, HklValue* right_value);
 extern HklValue* hklr_op_not_equal(HklValue* left_value, HklValue* right_value);
 extern HklValue* hklr_op_equal(HklValue* left_value, HklValue* right_value);
+extern HklValue* hklr_op_coalesce(HklValue* left_value, HklValue* right_value);
 
 HklrExpression* hklr_expression_new(HklExpressionType type, ...)
 {
@@ -419,6 +420,18 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
         case HKL_OP_EQUAL:
           result = hklr_op_equal(left_value, right_value);
           break;
+        case HKL_OP_COALESCE:
+          result = hklr_op_coalesce(left_value, right_value);
+          if (result == left_value) {
+            result = hkl_value_new(left_value->type);
+            result->as = left_value->as;
+            left_value->type = HKL_TYPE_NIL;
+          } else if (result == right_value) {
+            result = hkl_value_new(right_value->type);
+            result->as = right_value->as;
+            right_value->type = HKL_TYPE_NIL;
+          }
+        break;
         case HKL_OP_AS:
         {
           assert(right_value->type == HKL_TYPE_TYPE);

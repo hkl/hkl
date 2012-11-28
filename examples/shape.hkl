@@ -5,15 +5,7 @@ Shape.Color = {RED, GREEN, BLUE, YELLOW}
 
 Shape.new = function(kind, color)
   
-  if kind == nil
-    kind = Shape.Kind.SQUARE
-  end
-
-  if color == nil
-    color = Shape.Color.RED
-  end
-
-  shape = {kind: kind, color: color}
+  shape = {kind: kind? Shape.Kind.SQUARE, color: color? Shape.Color.RED}
 
   return shape
 

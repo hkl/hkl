@@ -139,6 +139,7 @@ HklString* string_buf = NULL;
 "="                    return HKL_T_ASSIGN;
 "!"                    return HKL_T_NOT;
 "+"                    return HKL_T_PLUS;
+"?"                    return HKL_T_COALESCE;
 "-"                    return HKL_T_MINUS;
 "*"                    return HKL_T_ASTERISK;
 "/"                    return HKL_T_DIVIDE;

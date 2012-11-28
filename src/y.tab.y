@@ -137,6 +137,7 @@
 %token HKL_T_ASSIGN                        "="
 %token HKL_T_NOT                           "!"
 %token HKL_T_PLUS                          "+"
+%token HKL_T_COALESCE                      "?"
 %token HKL_T_MINUS                         "-"
 %token HKL_T_ASTERISK                      "*"
 %token HKL_T_DIVIDE                        "/"
@@ -171,6 +172,7 @@
 %left HKL_T_LESS HKL_T_GREATER HKL_T_LESS_EQUAL HKL_T_GREATER_EQUAL
 %left HKL_T_PLUS HKL_T_MINUS
 %left HKL_T_DIVIDE HKL_T_ASTERISK HKL_T_MOD
+%left HKL_T_COALESCE
 %left HKL_T_AS
 
 %nonassoc UNARY_OPS
@@ -387,6 +389,10 @@ expr:
   | HKL_T_GETS
   {
     $$ = hklr_expression_new(HKL_EXPR_GETS);
+  }
+  | expr HKL_T_COALESCE expr
+  {
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_COALESCE, $3);
   }
   | expr HKL_T_PLUS expr
   {
