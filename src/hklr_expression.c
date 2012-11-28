@@ -28,6 +28,7 @@ extern HklValue* hklr_op_divide(HklValue* left_value, HklValue* right_value);
 extern HklValue* hklr_op_mod(HklValue* left_value, HklValue* right_value);
 extern HklValue* hklr_op_not_equal(HklValue* left_value, HklValue* right_value);
 extern HklValue* hklr_op_equal(HklValue* left_value, HklValue* right_value);
+extern HklValue* hklr_op_coalesce(HklValue* left_value, HklValue* right_value);
 
 HklrExpression* hklr_expression_new(HklExpressionType type, ...)
 {
@@ -106,13 +107,26 @@ static bool hklr_array_add_list(void* expr, void* array)
   return false;
 }
 
-static bool hklr_hash_add_list(void* pair, void* hash)
+struct hash_index {
+
+  int index;
+  HklHash* hash;
+};
+
+static bool hklr_hash_add_list(void* pair, void* hash_index)
 {
   HklrObject* object = hklr_object_new(HKL_TYPE_NIL, HKL_FLAG_NONE);
 
+  // If the user didnt give a value
+  // Give them an integer corresponding to the index in the hash
+  if (((HklPair*) pair)->value == NULL)
+  {
+    ((HklPair*) pair)->value = hklr_expression_new(HKL_EXPR_STRING, hkl_string_new_from_string(((HklPair*) pair)->key));
+  }
+
   hklr_object_assign(object, (HklrExpression*) ((HklPair*) pair)->value);
 
-  hkl_hash_insert((HklHash*) hash, ((HklPair*) pair)->key, object);
+  hkl_hash_insert(((struct hash_index*) hash_index)->hash, ((HklPair*) pair)->key, object);
 
   return false;
 }
@@ -128,31 +142,45 @@ static bool hklr_statement_exec_list(void* stmt, void* data)
   return false;
 }
 
-static bool make_locals(void* string, void* args_head)
+// This is used to carry a temporary scope to allow
+// locals in a yet to be pushed scope to be defined ahead of time
+struct scope_carier {
+
+  HklListNode* arg;
+  HklHash* locals;
+  HklHash* upvals;
+
+};
+
+static bool make_locals(void* string, void* carrier)
 {
   HklrObject* object = hklr_object_new(HKL_TYPE_NIL, HKL_FLAG_NONE);
 
-  hklr_local_insert((HklString*) string, object);
+  //hklr_local_insert((HklString*) string, object);
+  hkl_hash_insert(((struct scope_carier*) carrier)->locals, (HklString*) string, object);
 
   // If you have too few args then the rest are nil
-  if ((*(HklListNode**) args_head) == NULL)
+  if (((struct scope_carier*) carrier)->arg == NULL)
     return true;
 
   // Some fancy pointer arithematic
   // This iterates the argument expression
-  HklrExpression* assign = (*((HklListNode**) args_head))->data;
-  *((HklListNode**) args_head) = (*((HklListNode**) args_head))->next;
+  HklrExpression* assign = ((struct scope_carier*) carrier)->arg->data;
+  ((struct scope_carier*) carrier)->arg = ((struct scope_carier*) carrier)->arg->next;
 
   hklr_object_assign(object, assign);
 
   return false;
 }
 
-static bool make_closures(HklPair* pair, void* data)
+static bool make_closures(HklPair* pair, void* carrier)
 {
   // create upvals for objects that are actual closures
   if (pair->value != NULL)
-    hklr_upval_insert(pair->key, pair->value);
+  {
+    hkl_hash_insert(((struct scope_carier*) carrier)->upvals, pair->key, pair->value);
+    //hklr_upval_insert(pair->key, pair->value);
+  }
 
   return false;
 }
@@ -216,24 +244,33 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
           assert(var->type == HKL_VAR_CALL);
           HklList* args = var->as.list;
 
-          hklr_scope_push();
+          struct scope_carier carrier;
+          carrier.locals = hkl_hash_new();
+          carrier.upvals = hkl_hash_new();
+          carrier.arg = args->head;
 
           // Create the closure variables
-          hkl_tree_traverse(function->closure_list, make_closures, NULL);
+          hkl_tree_traverse(function->closure_list, make_closures, &carrier);
 
           // Make the args in the function signature local variables
-          HklListNode* args_head = args->head; // This is an iterator for the args
-          hkl_list_traverse(function->args_list, make_locals, &args_head);
+          hkl_list_traverse(function->args_list, make_locals, &carrier);
+
+          hklr_scope_push_full(true, carrier.locals, carrier.upvals);
 
           // execute the statements within
           hkl_list_traverse(function->stmt_list, hklr_statement_exec_list, NULL);
 
-          hklr_scope_pop();
-
           // the post_object is the function return value
           if (HKLR.reg_return == NULL)
             HKLR.reg_return = hkl_value_new(HKL_TYPE_NIL);
-          
+
+          // if the return value is an object be sure to increase the ref count
+          // Though, this count needs to be decced afterwards
+          if (HKLR.reg_return->type == HKL_TYPE_REF)
+            hklr_gc_inc(HKLR.reg_return->as.object);
+
+          hklr_scope_pop();
+
           return HKLR.reg_return;
         }
         else if (object->type == HKL_TYPE_REF && object->as.object->type == HKL_TYPE_HASH)
@@ -284,7 +321,12 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
     {
       HklHash* hash = hkl_hash_new();
 
-      hkl_list_traverse(expr->arg[0].list, hklr_hash_add_list, hash);
+      struct hash_index hash_index;
+
+      hash_index.index = 0;
+      hash_index.hash = hash;
+
+      hkl_list_traverse(expr->arg[0].list, hklr_hash_add_list, &hash_index);
 
       return hkl_value_new(HKL_TYPE_HASH, hash);
     }
@@ -307,12 +349,12 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
           switch (value->type)
           {
             case HKL_TYPE_INT:
-              value->as.integer = -(value->as.integer);
+              value->as.integer = -value->as.integer;
               return value;
               break;
 
             case HKL_TYPE_REAL:
-              value->as.real = -(value->as.real);
+              value->as.real = -value->as.real;
               return value;
               break;
 
@@ -378,6 +420,18 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
         case HKL_OP_EQUAL:
           result = hklr_op_equal(left_value, right_value);
           break;
+        case HKL_OP_COALESCE:
+          result = hklr_op_coalesce(left_value, right_value);
+          if (result == left_value) {
+            result = hkl_value_new(left_value->type);
+            result->as = left_value->as;
+            left_value->type = HKL_TYPE_NIL;
+          } else if (result == right_value) {
+            result = hkl_value_new(right_value->type);
+            result->as = right_value->as;
+            right_value->type = HKL_TYPE_NIL;
+          }
+        break;
         case HKL_OP_AS:
         {
           assert(right_value->type == HKL_TYPE_TYPE);

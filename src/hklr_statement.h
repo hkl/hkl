@@ -18,6 +18,7 @@ typedef enum HklStatementType
   HKL_STMT_COLLECT,
   HKL_STMT_CALL,
   HKL_STMT_BREAK,
+  HKL_STMT_CONTINUE,
   HKL_STMT_RETURN
 
 } HklStatementType;

@@ -1,0 +1,36 @@
+Shape = {}
+
+Shape.Kind = {SQUARE, CIRCLE}
+Shape.Color = {RED, GREEN, BLUE, YELLOW}
+
+Shape.new = function(kind, color)
+  
+  shape = {kind: kind? Shape.Kind.SQUARE, color: color? Shape.Color.RED}
+
+  return shape
+
+end
+
+Shape.print_color = function(shape)
+
+  puts shape.color
+
+end
+
+Shape.print_type = function(shape)
+
+  puts shape.kind
+
+end
+
+Shape.print = function(shape)
+
+  puts "Shape Info:"
+  puts "Kind: " + shape.kind
+  puts "Color: " + shape.color
+
+end
+
+shape = Shape.new()
+
+Shape.print(shape)

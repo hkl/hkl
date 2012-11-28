@@ -28,7 +28,7 @@ HklValue* hklr_op_divide(HklValue* left_value, HklValue* right_value)
         case HKL_TYPE_INT:
           result = hkl_value_new(HKL_TYPE_INT,
             left_value->as.integer / right_value->as.integer);
-          break;
+        break;
 
         case HKL_TYPE_REAL:
           result = hkl_value_new(HKL_TYPE_REAL,

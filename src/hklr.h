@@ -9,6 +9,7 @@ typedef struct HklScope {
 
   HklHash* locals;
   HklHash* upvals;
+  bool blocking;
 
 } HklScope;
 
@@ -93,6 +94,17 @@ Creates a new stack frame in the HKLR and initializes it
 as the current context.
 */
 void hklr_scope_push();
+
+/**
+Push a new blocking HKLR stack frame.
+
+Creates a new stack frame in the HKLR and initializes it
+as the current context.
+
+This is a special form that blocks upval searching.
+This is useful for function stack frames.
+*/
+void hklr_scope_push_full(bool blocking, HklHash* locals, HklHash* upvals);
 
 /**
 Pop the current HKLR stack frame.

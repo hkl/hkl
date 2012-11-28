@@ -104,6 +104,10 @@ int hklr_statement_exec(HklrStatement* stmt)
       return 1;
     break;
 
+    case HKL_STMT_CONTINUE:
+      return 2;
+    break;
+
     case HKL_STMT_RETURN:
       HKLR.reg_return = hklr_expression_eval(stmt->arg[0].expression);
       return 3;

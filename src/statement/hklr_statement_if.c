@@ -7,9 +7,9 @@
 
 static bool hklr_statement_exec_list(void* stmt, void* exec_code)
 {
-  *(bool*) exec_code = hklr_statement_exec((HklrStatement*) stmt);
+  *(int*) exec_code = hklr_statement_exec((HklrStatement*) stmt);
 
-  return *(bool*) exec_code;
+  return *(int*) exec_code;
 }
 
 int hklr_statement_if(HklrExpression* expr, HklList* list)

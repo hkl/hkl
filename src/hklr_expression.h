@@ -55,7 +55,8 @@ typedef enum HklOperatorType
   HKL_OP_INDEX,
   HKL_OP_CALL,
   HKL_OP_TYPEOF,
-  HKL_OP_AS
+  HKL_OP_AS,
+  HKL_OP_COALESCE
 
 } HklOperatorType;
 
