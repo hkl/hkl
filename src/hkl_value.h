@@ -17,7 +17,7 @@ typedef struct HklValue
 
   union asvalue {
 
-    uint32_t           integer;
+    int                integer;
     double             real;
     HklString*         string;
     HklHash*           hash;

@@ -21,6 +21,7 @@ expression/hklr_op_divide.c \
 expression/hklr_op_mod.c \
 expression/hklr_op_not_equal.c \
 expression/hklr_op_equal.c \
+expression/hklr_op_coalesce.c \
 expression/hklr_as_integer.c \
 expression/hklr_as_real.c \
 expression/hklr_as_string.c \

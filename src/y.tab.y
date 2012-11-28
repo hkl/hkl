@@ -39,7 +39,6 @@
 
 // Options
 %start program
-//%expect 2
 %error-verbose
 
 // YYSUNION Definition
@@ -138,6 +137,7 @@
 %token HKL_T_ASSIGN                        "="
 %token HKL_T_NOT                           "!"
 %token HKL_T_PLUS                          "+"
+%token HKL_T_COALESCE                      "?"
 %token HKL_T_MINUS                         "-"
 %token HKL_T_ASTERISK                      "*"
 %token HKL_T_DIVIDE                        "/"
@@ -172,6 +172,7 @@
 %left HKL_T_LESS HKL_T_GREATER HKL_T_LESS_EQUAL HKL_T_GREATER_EQUAL
 %left HKL_T_PLUS HKL_T_MINUS
 %left HKL_T_DIVIDE HKL_T_ASTERISK HKL_T_MOD
+%left HKL_T_COALESCE
 %left HKL_T_AS
 
 %nonassoc UNARY_OPS
@@ -389,6 +390,10 @@ expr:
   {
     $$ = hklr_expression_new(HKL_EXPR_GETS);
   }
+  | expr HKL_T_COALESCE expr
+  {
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_COALESCE, $3);
+  }
   | expr HKL_T_PLUS expr
   {
     $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_PLUS, $3);
@@ -484,6 +489,17 @@ pair:
     $$ = hkl_pair_new_from_data($1, $3);
     hkl_string_free($1);
   }
+  |
+  HKL_T_STRING_CONSTANT
+  {
+    $$ = hkl_pair_new_from_data($1, NULL);
+    hkl_string_free($1);
+  }
+  | HKL_T_ID
+  {
+    $$ = hkl_pair_new_from_data($1, NULL);
+    hkl_string_free($1);
+  }
   ;
 
 colon_or_equal:
@@ -531,12 +547,16 @@ nobr_call:
   ;
 
 args:
-  HKL_T_LPAREN { hkl_list_push_back(array_stack, hkl_list_new()); } HKL_T_RPAREN
+  HKL_T_LPAREN HKL_T_RPAREN { $$ = hkl_list_new(); }
+  | HKL_T_LPAREN
   {
-    $$ = hkl_list_pop_back(array_stack);
+    hkl_list_push_back(array_stack, hkl_list_new());
+    // You have to push an extra var stack sice new vars may be used as args
+    hkl_list_push_back(var_stack, hkl_list_new());
   }
-  | HKL_T_LPAREN { hkl_list_push_back(array_stack, hkl_list_new()); } expr_list HKL_T_RPAREN
+  expr_list HKL_T_RPAREN
   {
+    hkl_list_pop_back(var_stack);
     $$ = hkl_list_pop_back(array_stack);
   }
   ;

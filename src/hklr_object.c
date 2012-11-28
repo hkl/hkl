@@ -137,7 +137,7 @@ void hklr_object_assign(HklrObject* object, HklrExpression* expression)
   if (value->type == HKL_TYPE_REF)
   {
     value = hklr_object_dereference(value->as.object);
-    
+
     // Don't free the deque or hash since it can't be a temporary
     if (value->type == HKL_TYPE_ARRAY || value->type == HKL_TYPE_HASH || value->type == HKL_TYPE_FUNCTION)
     {
