@@ -6,7 +6,7 @@
 #include "hklr_object.h"
 #include "hklr.h"
 
-static bool process_closures(HklPair* pair, void* closure_list)
+static bool process_closures(HklPair* pair, void* data)
 {
   // Search in our scope for the closed variables.
   HklrObject* object = hklr_exists(pair->key);
@@ -33,17 +33,31 @@ static bool free_names(void* key, void* data)
   return false;
 }
 
+/*static bool copy_statement_list(void* statement, void* list)
+{
+  hkl_list_push_back((HklList*) list, hklr_statement_new_from_statement((HklrStatement*) statement));
+
+  return false;
+}
+
+static bool copy_args_list(void* arg, void* list)
+{
+  hkl_list_push_back((HklList*) list, hkl_string_new_from_string((HklString*) arg));
+
+  return false;
+}*/
+
 HklrFunction* hklr_function_new(HklList* args_list, HklTree* closure_list, HklList* stmt_list)
 {
   HklrFunction* function = hkl_alloc_object(HklrFunction);
 
   function->stmt_list = stmt_list;
+  //hkl_list_traverse(stmt_list, copy_statement_list, function->stmt_list);
+
   function->args_list = args_list;
   function->closure_list = closure_list;
 
-  hkl_tree_traverse(closure_list, process_closures, closure_list);
-
-  // free the closure names, as we don't need them anymore
+  hkl_tree_traverse(closure_list, process_closures, NULL);
 
   return function;
 }

@@ -119,6 +119,7 @@ int main(int argc, const char* argv[])
   keywords_map = hkl_tree_new();
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("if", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("while", NULL));
+  hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("break", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("end", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("include", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("nil", NULL));
@@ -138,6 +139,7 @@ int main(int argc, const char* argv[])
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("collect", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("typeof", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("function", NULL));
+  hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("return", NULL));
 
   // If there is a filename
   if (argv[1])

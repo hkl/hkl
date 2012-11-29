@@ -334,6 +334,9 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
 
     case HKL_EXPR_FUNCTION:
     {
+      // The function can't own the lists and trees.
+      // Like a string, it needs to make a copy.
+      
       return hkl_value_new(HKL_TYPE_FUNCTION, hklr_function_new(expr->arg[0].list, expr->arg[1].tree, expr->arg[2].list));
     }
     break;
