@@ -442,6 +442,25 @@ expr:
   {
     $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_AS, $3);
   }
+
+  | expr HKL_T_BITWISE_AND expr
+  {
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_BITWISE_AND, $3);
+  }  
+  | expr HKL_T_BITWISE_OR expr
+  {
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_BITWISE_OR, $3);
+  }
+  | expr HKL_T_BITWISE_XOR expr
+  {
+    $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_BITWISE_XOR, $3);
+  }
+  | HKL_T_BITWISE_NOT expr %prec UNARY_OPS
+  {
+    $$ = hklr_expression_new(HKL_EXPR_UNARY, HKL_OP_BITWISE_NOT, $2);
+  }
+
+
   | HKL_T_MINUS expr %prec UNARY_OPS
   {
     $$ = hklr_expression_new(HKL_EXPR_UNARY, HKL_OP_UNARY_MINUS, $2);
