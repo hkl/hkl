@@ -30,6 +30,11 @@ extern HklValue* hklr_op_not_equal(HklValue* left_value, HklValue* right_value);
 extern HklValue* hklr_op_equal(HklValue* left_value, HklValue* right_value);
 extern HklValue* hklr_op_coalesce(HklValue* left_value, HklValue* right_value);
 
+extern HklValue* hklr_op_bitwise_or(HklValue* left_value, HklValue* right_value);
+extern HklValue* hklr_op_bitwise_and(HklValue* left_value, HklValue* right_value);
+extern HklValue* hklr_op_bitwise_xor(HklValue* left_value, HklValue* right_value);
+
+
 HklrExpression* hklr_expression_new(HklExpressionType type, ...)
 {
   assert(type != HKL_EXPR_NONE);
@@ -372,6 +377,19 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
           return hklr_op_typeof(value);
           break; // HKL_OP_TYPE
 
+        case HKL_OP_BITWISE_NOT:
+          switch (value->type)
+          {
+            case HKL_TYPE_INT:
+              value->as.integer = ~value->as.integer;
+              return value;
+              break;
+
+            default:
+              assert(false);
+              break;
+          }
+
         default:
           assert(false);
           break;
@@ -432,6 +450,18 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
             right_value->type = HKL_TYPE_NIL;
           }
         break;
+
+        case HKL_OP_BITWISE_AND:
+          result = hklr_op_bitwise_and(left_value, right_value);
+          break;
+        case HKL_OP_BITWISE_OR:
+          result = hklr_op_bitwise_or(left_value, right_value);
+          break;
+
+        case HKL_OP_BITWISE_XOR:
+          result = hklr_op_bitwise_xor(left_value, right_value);
+          break;
+
         case HKL_OP_AS:
         {
           assert(right_value->type == HKL_TYPE_TYPE);
