@@ -36,10 +36,8 @@ statement/hklr_statement_while.c \
 linenoise/linenoise.c
 
 math_SOURCES = module/math.c
-math_SOURCES += hklr.c hkl_value.c hklr_expression.c
+math_SOURCES += hkl_value.c
 math_LDFLAGS = -shared -nostartfiles
 math_LDADD = -lm
 math_CFLAGS = $(AM_CFLAGS)
 math_CFLAGS +=  -fPIC
-
-
