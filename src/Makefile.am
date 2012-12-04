@@ -43,7 +43,7 @@ math_CFLAGS = $(AM_CFLAGS)
 math_CFLAGS += -fPIC
 
 io_SOURCES = module/io.c
-io_SOURCES += $(hkl_SOURCES)
+io_SOURCES += hkl_value.c hkl_string.c
 io_LDFLAGS = -shared -nostartfiles
 io_CFLAGS = $(AM_CFLAGS)
 io_CFLAGS += -fPIC
