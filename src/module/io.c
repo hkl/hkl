@@ -2,7 +2,6 @@
 #include <assert.h>
 
 #include "hkl_value.h"
-#include "hklr_object.h"
 #include "hkl_string.h"
 
 HklValue* hklapi_open(HklList* args)
