@@ -4,6 +4,8 @@
 # Binaries
 hkl
 testbed
+io
+math
 *.exe
 *.out
 
