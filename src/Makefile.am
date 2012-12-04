@@ -37,8 +37,9 @@ linenoise/linenoise.c
 
 math_SOURCES = module/math.c
 math_SOURCES += hklr.c hkl_value.c hklr_expression.c
+math_LDFLAGS = -shared -nostartfiles
 math_LDADD = -lm
 math_CFLAGS = $(AM_CFLAGS)
-math_CFLAGS += -shared -nostartfiles -fPIC
+math_CFLAGS +=  -fPIC
 
 
