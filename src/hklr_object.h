@@ -79,6 +79,7 @@ typedef struct HklrObject {
     HklType              type;
     struct HklrFunction* function;
     struct HklValue* (*cfunction)(HklList*);
+    void*                cdata;
   
   } as;
 

@@ -7,6 +7,7 @@ Math = interface "src/math"
   tan: cfunc
   log: cfunc
   log10: cfunc
+  sqrt: cfunc
   pow: cfunc
 
 end

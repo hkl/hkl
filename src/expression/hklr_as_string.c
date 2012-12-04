@@ -79,6 +79,10 @@ HklValue* hklr_as_string(HklValue* value)
           cast->as.string = hkl_string_new_from_utf8("cfunc");
         break;
 
+        case HKL_TYPE_CDATA:
+          cast->as.string = hkl_string_new_from_utf8("cdata");
+        break;
+
         default:
           assert(false);
         break;

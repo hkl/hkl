@@ -25,6 +25,8 @@ typedef struct HklValue
     HklrObject*        object;
     HklType            type;
     HklrFunction*      function;
+    struct HklValue*   (*cfunction)(HklList*);
+    void*              cdata;
 
   } as;
 
