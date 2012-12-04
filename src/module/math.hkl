@@ -1,0 +1,12 @@
+Math = interface "src/math"
+
+  random: cfunc
+  PI: real
+  sin: cfunc
+  cos: cfunc
+  tan: cfunc
+  log: cfunc
+  log10: cfunc
+  pow: cfunc
+
+end

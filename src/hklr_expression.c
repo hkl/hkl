@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <dlfcn.h>
 
 #include "hklr.h"
 #include "hkl_alloc.h"
@@ -81,6 +82,11 @@ HklrExpression* hklr_expression_new(HklExpressionType type, ...)
       expr->arg[0].list = va_arg(argp, HklList*); // args
       expr->arg[1].tree = va_arg(argp, HklTree*); // closures
       expr->arg[2].list = va_arg(argp, HklList*); // stmts
+      break;
+
+    case HKL_EXPR_INTERFACE:
+      expr->arg[0].string = va_arg(argp, HklString*); // file
+      expr->arg[1].list = va_arg(argp, HklList*); // objects
       break;
 
     case HKL_EXPR_UNARY:
@@ -190,6 +196,64 @@ static bool make_closures(HklPair* pair, void* carrier)
   return false;
 }
 
+struct interface_carrier
+{
+  HklHash* hash;
+  void* library;
+};
+
+static bool load_interface(void* pair, void* carrier)
+{
+  HklValue* type = hklr_expression_eval((HklrExpression*) ((HklPair*) pair)->value);
+  HklrObject* object = NULL;
+
+  HklString* symbol_name = hkl_string_new_from_utf8("hklapi_");
+  hkl_string_cat(symbol_name, ((HklPair*) pair)->key);
+
+  void* sym = dlsym(((struct interface_carrier*) carrier)->library, symbol_name->utf8_data);
+
+  hkl_string_free(symbol_name);
+
+  assert(sym != NULL);
+
+  switch (type->as.type)
+  {
+    case HKL_TYPE_REAL:
+      object = hklr_object_new(HKL_TYPE_REAL, HKL_FLAG_NONE, *(double*) sym);
+    break;
+
+    case HKL_TYPE_CFUNC:
+      object = hklr_object_new(HKL_TYPE_CFUNC, HKL_FLAG_NONE, sym);
+    break;
+
+    default:
+      assert(false);
+    break;
+  }
+
+  hkl_hash_insert(((struct interface_carrier*) carrier)->hash, ((HklPair*) pair)->key, object);
+
+  hkl_value_free(type);
+
+  return false; 
+}
+
+static bool cfunction_args(void* expr, void* list)
+{
+  HklValue* value = hklr_expression_eval((HklrExpression*) expr);
+
+  if (value->type == HKL_TYPE_REF)
+  {
+    HklValue* temp = value;
+    value = hklr_object_dereference(value->as.object);
+    hkl_value_free(temp);
+  }
+
+  hkl_list_push_back((HklList*) list, value);
+
+  return false;
+}
+
 HklValue* hklr_expression_eval(HklrExpression* expr)
 {
   assert(expr != NULL);
@@ -236,7 +300,7 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
         assert(false);
 
       HklListNode* node = list->head;
-      while (node && object->type == HKL_TYPE_REF)
+      while (node)
       {
         HklVariable* var = node->data;
 
@@ -296,6 +360,19 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
 
           object = pair->value;
         }
+        else if (object->type == HKL_TYPE_CFUNC)
+        {
+          // run the function
+          assert(var->type == HKL_VAR_CALL);
+          HklList* args = var->as.list;
+          HklList* call = hkl_list_new();
+          hkl_list_traverse(args, cfunction_args, call);
+
+          HklValue* ret_val = object->as.cfunction(call);
+
+          // need to free the args
+          return ret_val;
+        }
 
         node = node->next;
       }
@@ -339,7 +416,25 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
 
     case HKL_EXPR_FUNCTION:
     {
+      // The function can't own the lists and trees.
+      // Like a string, it needs to make a copy.
+      
       return hkl_value_new(HKL_TYPE_FUNCTION, hklr_function_new(expr->arg[0].list, expr->arg[1].tree, expr->arg[2].list));
+    }
+    break;
+
+    case HKL_EXPR_INTERFACE:
+    {
+      // Open the interface
+      struct interface_carrier carrier;
+      carrier.hash = hkl_hash_new();
+      carrier.library = dlopen(expr->arg[0].string->utf8_data, RTLD_LAZY);
+
+      assert(carrier.library != NULL);
+
+      hkl_list_traverse(expr->arg[1].list, load_interface, &carrier);
+
+      return hkl_value_new(HKL_TYPE_HASH, carrier.hash);
     }
     break;
 

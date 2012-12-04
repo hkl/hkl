@@ -6,6 +6,7 @@
 #include "hkl_string.h"
 #include "hkl_hash.h"
 #include "hkl_deque.h"
+#include "hkl_list.h"
 
 typedef enum HklColor
 {
@@ -53,6 +54,8 @@ typedef enum HklType
 @authors Barrett Lewis, Scott LaVigne 
 @date 10/8/2012
 */
+struct HklRuntime;
+struct HklValue;
 typedef struct HklrObject {
 
   // Used for garbage collection
@@ -75,6 +78,7 @@ typedef struct HklrObject {
     HklDeque*            deque;
     HklType              type;
     struct HklrFunction* function;
+    struct HklValue* (*cfunction)(HklList*);
   
   } as;
 

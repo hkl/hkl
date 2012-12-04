@@ -21,6 +21,7 @@
   extern HklList* closure_stack;
   extern HklList* pair_stack;
   extern HklList* id_stack;
+  extern HklList* interface_stack;
 
   void reduce_stat(HklrStatement* stmt)
   {
@@ -69,6 +70,7 @@
 %token HKL_T_LOAD                          "load"
 %token HKL_T_ASSERT                        "assert"
 %token HKL_T_COLLECT                       "collect"
+%token HKL_T_INTERFACE                     "interface"
 
 %token HKL_T_CLASS                         "class"
 %token HKL_T_FUNCTION                      "function"
@@ -81,6 +83,7 @@
 %token HKL_T_TYPE                          "type"
 %token HKL_T_INSTANCE                      "instance"
 %token HKL_T_FUNC                          "func"
+%token HKL_T_CFUNC                         "cfunc"
 %token HKL_T_SWITCH                        "switch"
 %token HKL_T_CASE                          "case"
 %token HKL_T_DEFAULT                       "default"
@@ -155,7 +158,7 @@
 %token <string>  HKL_T_STRING_CONSTANT     "string literal"
 
 %type <statement> nobr_stat
-%type <expression> expr nobr_variable nobr_prefix nobr_call
+%type <expression> type expr nobr_variable nobr_prefix nobr_call
 %type <list> args
 %type <pair> pair
 
@@ -306,34 +309,7 @@ expr:
   {
     $$ = hklr_expression_new(HKL_EXPR_STRING, $1);
   }
-  | HKL_T_INT
-  {
-    $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_INT);
-  }
-  | HKL_T_REAL
-  {
-    $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_REAL);
-  }
-  | HKL_T_STRING
-  {
-    $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_STRING);
-  }
-  | HKL_T_HASH
-  {
-    $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_HASH);
-  }
-  | HKL_T_ARRAY
-  {
-    $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_ARRAY);
-  }
-  | HKL_T_FUNC
-  {
-    $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_FUNCTION);
-  }
-  | HKL_T_TYPE
-  {
-    $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_TYPE);
-  }
+  | type
   | HKL_T_FUNCTION
   {
     hkl_list_push_back(stmt_stack, hkl_list_new());
@@ -442,7 +418,6 @@ expr:
   {
     $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_AS, $3);
   }
-
   | expr HKL_T_BITWISE_AND expr
   {
     $$ = hklr_expression_new(HKL_EXPR_BINARY, $1, HKL_OP_BITWISE_AND, $3);
@@ -459,8 +434,6 @@ expr:
   {
     $$ = hklr_expression_new(HKL_EXPR_UNARY, HKL_OP_BITWISE_NOT, $2);
   }
-
-
   | HKL_T_MINUS expr %prec UNARY_OPS
   {
     $$ = hklr_expression_new(HKL_EXPR_UNARY, HKL_OP_UNARY_MINUS, $2);
@@ -472,6 +445,68 @@ expr:
   | HKL_T_TYPEOF expr %prec UNARY_OPS
   {
     $$ = hklr_expression_new(HKL_EXPR_UNARY, HKL_OP_TYPEOF, $2);
+  }
+  |
+  HKL_T_INTERFACE HKL_T_STRING_CONSTANT
+  {
+    hkl_list_push_back(interface_stack, hkl_list_new());
+    HKLR.scope_level++;
+  } 
+  interface_list HKL_T_END
+  {
+    HKLR.scope_level--;
+    $$ = hklr_expression_new(HKL_EXPR_INTERFACE, $2, hkl_list_pop_back(interface_stack));
+  }
+  ;
+
+type:
+  HKL_T_INT
+  {
+    $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_INT);
+  }
+  | HKL_T_REAL
+  {
+    $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_REAL);
+  }
+  | HKL_T_STRING
+  {
+    $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_STRING);
+  }
+  | HKL_T_HASH
+  {
+    $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_HASH);
+  }
+  | HKL_T_ARRAY
+  {
+    $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_ARRAY);
+  }
+  | HKL_T_FUNC
+  {
+    $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_FUNCTION);
+  }
+  | HKL_T_CFUNC
+  {
+    $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_CFUNC);
+  }
+  | HKL_T_TYPE
+  {
+    $$ = hklr_expression_new(HKL_EXPR_TYPE, HKL_TYPE_TYPE);
+  }
+  ;
+
+interface_list:
+  interface
+  | interface_list interface
+  ;
+
+interface:
+  HKL_T_STRING_CONSTANT HKL_T_COLON type
+  {
+    hkl_list_push_back((HklList*) interface_stack->tail->data, hkl_pair_new_from_data($1, $3));
+  }
+  | HKL_T_ID HKL_T_COLON type
+  {
+    hkl_list_push_back((HklList*) interface_stack->tail->data, hkl_pair_new_from_data($1, $3));
   }
   ;
 

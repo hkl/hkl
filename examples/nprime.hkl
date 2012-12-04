@@ -1,0 +1,45 @@
+sqrt = function(n)
+
+  i = (n / 2) + 1
+  j = (i + (n / i)) / 2
+
+  while j < i
+    i = j
+    j = (i + (n / i)) / 2
+  end
+
+  return i
+end
+
+isprime = function(n)
+
+  sqn = sqrt(n)
+
+  ok = true
+
+  m = 2 while m <= sqn
+
+    if n % m == 0 ok = false break end
+    m = m + 1
+
+  end
+
+  return ok
+
+end
+
+puts "What prime?"
+n = gets as int
+
+j = 2
+prime = 0 while prime < n
+
+  if isprime(j)
+    prime = prime + 1
+  end
+  
+  j = j + 1
+
+end
+
+puts "The " + n +"th prime is " + (j - 1)

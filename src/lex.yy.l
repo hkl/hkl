@@ -34,6 +34,7 @@ HklString* string_buf = NULL;
 "assert"               return HKL_T_ASSERT;
 "load"                 return HKL_T_LOAD;
 "collect"              return HKL_T_COLLECT;
+"interface"            return HKL_T_INTERFACE;
 
 "include"              BEGIN includebuild;
 <includebuild>[ \t\r]  /* Ignore Whitespace */
@@ -71,6 +72,7 @@ HklString* string_buf = NULL;
 "type"                 return HKL_T_TYPE;
 "instance"             return HKL_T_INSTANCE;
 "func"                 return HKL_T_FUNC;
+"cfunc"                return HKL_T_CFUNC;
 
 "self"                 return HKL_T_SELF;
 
