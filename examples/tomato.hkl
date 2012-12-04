@@ -1,0 +1,17 @@
+Tomato = {}
+
+Tomato.Color = {red, green, blue, yellow}
+
+Tomato.new = function(color)
+  return {color: color? Tomato.Color.red}
+end
+
+Tomato.throw = function(tmto)
+  puts "Threw a " + tmto.color + " tomato"
+end
+
+tmto = Tomato.new()
+tmto2 = Tomato.new(Tomato.Color.blue)
+
+Tomato.throw(tmto)
+Tomato.throw(tmto2)

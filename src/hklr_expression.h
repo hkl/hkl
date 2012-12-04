@@ -23,7 +23,8 @@ typedef enum HklExpressionType
   HKL_EXPR_VAR,
   HKL_EXPR_ARRAY,
   HKL_EXPR_HASH,
-  HKL_EXPR_FUNCTION
+  HKL_EXPR_FUNCTION,
+  HKL_EXPR_INTERFACE
 
 } HklExpressionType;
 
