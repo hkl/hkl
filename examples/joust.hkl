@@ -1,0 +1,151 @@
+include "src/module/math.hkl"
+
+Knight = {
+
+  new = function(name, stamina, weapon, armor, shield)
+
+    return {
+              name: name? "Starry Knight",
+              stamina: stamina? 0,
+              weapon: weapon,
+              armor: armor,
+              shield: shield
+           }
+  end
+}
+
+Weapon = {
+  new = function(name, stamina, hit_chance)
+    return {name: name, stamina: stamina, hit_chance: hit_chance}
+  end
+}
+
+//-- Borrow new function from Weapon
+Armor = { new = Weapon.new }
+Shield = { new = Armor.new }
+
+puts "Joust Tester"
+
+init = function(first_or_second)
+
+  puts "What is the name of the " + first_or_second + " knight?"
+  kname = gets
+  puts "How many stamina points does he have?"
+  kstamina = gets as real
+
+  puts "What is the name of his weapon?"
+  name = gets
+  puts "What is the hit ratio (0 - 100)% of the weapon?"
+  hit_chance = gets as real
+  puts "How many stamina points does it take to wield such a weapon?"
+  weapon1 = Weapon.new(name, gets as real, hit_chance)
+
+  puts "What is the name of his armor?"
+  name = gets
+  puts "What is the hit reduction ratio (0 - 100)% of the armor?"
+  hit_chance = gets as real
+  puts "How many stamina points does it take to wear?"
+  armor1 = Armor.new(name, gets as real, hit_chance)
+
+  puts "What is the name of his shield?"
+  name = gets
+  puts "What is the hit reduction ratio (0 - 100)% of the shield?"
+  hit_chance = gets as real
+  puts "How many stamina points does it take to carry?"
+  shield1 = Armor.new(name, gets as real, hit_chance)
+
+  return Knight.new(kname, kstamina, weapon1, armor1, shield1)
+end
+
+Joust = {}
+Joust.match = function(knight1, knight2)
+
+  Joust.knight1 = knight1
+  Joust.knight2 = knight2
+  Joust.num_rounds = 0
+
+  while Joust.round() end
+end
+
+Joust.round = function()
+
+  k1falls = false
+  k2falls = false
+
+  puts "Round " + Joust.num_rounds
+
+  newstam = knight1.stamina
+            - knight1.weapon.stamina
+            - knight1.armor.stamina
+            - knight1.shield.stamina
+
+  if newstam < 0 newstam = 0 end
+
+  knight1.stamina = newstam
+
+  newstam = knight2.stamina
+            - knight2.weapon.stamina
+            - knight2.armor.stamina
+            - knight2.shield.stamina
+
+  if newstam < 0 newstam = 0 end
+
+  knight2.stamina = newstam
+
+  chance = 0 - knight1.armor.hit_chance
+           - knight1.shield.hit_chance
+           + knight2.weapon.hit_chance
+
+  if chance < 0 chance = 0 end
+
+  puts "\t" + knight1.name + " has a " + chance + "% chance to fall off."
+
+  if Math.random()%100 <= chance
+    k1falls = true
+  end
+
+  chance = 0 - knight2.armor.hit_chance
+           - knight2.shield.hit_chance
+           + knight1.weapon.hit_chance
+
+  if chance < 0 chance = 0 end
+
+  puts "\t" + knight2.name + " has a " + chance + "% chance to fall off."
+
+  if Math.random()%100 <= chance
+    k2falls = true
+  end
+
+  if k1falls
+    puts "\t" + knight2.name + "'s " + knight2.weapon.name + " threw " + knight1.name + "off his horse."
+  end
+
+  if k2falls
+    puts "\t" + knight1.name + "'s " + knight1.weapon.name + " threw " + knight2.name + "off his horse."
+  end
+  
+  if k1falls == knight1.stamina
+    puts "\t" + knight1.name + " collapsed from exhaustion!"
+    k1falls = true
+  end
+
+  if k2falls == knight2.stamina
+    puts "\t" + knight2.name + " collapsed from exhaustion!"
+    k2falls = true
+  end
+
+  if k1falls
+    return false
+  end
+  
+  if k2falls
+    return false
+  end
+
+  Joust.num_rounds = Joust.num_rounds + 1
+
+  return true
+
+end
+
+Joust.match(init("first"), init("second"))

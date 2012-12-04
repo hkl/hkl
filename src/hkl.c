@@ -22,6 +22,7 @@ HklList* var_stack;
 HklList* closure_stack;
 HklList* id_stack;
 HklList* pair_stack;
+HklList* interface_stack;
 
 typedef struct yy_buffer_state yy_buffer_state;
 extern yy_buffer_state* yy_scan_string(const char*);
@@ -119,6 +120,7 @@ int main(int argc, const char* argv[])
   keywords_map = hkl_tree_new();
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("if", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("while", NULL));
+  hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("break", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("end", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("include", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("nil", NULL));
@@ -128,6 +130,7 @@ int main(int argc, const char* argv[])
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("array", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("hash", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("func", NULL));
+  hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("cfunc", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("type", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("true", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("false", NULL));
@@ -138,6 +141,8 @@ int main(int argc, const char* argv[])
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("collect", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("typeof", NULL));
   hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("function", NULL));
+  hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("return", NULL));
+  hkl_tree_move_pair(keywords_map, hkl_pair_new_from_utf8("interface", NULL));
 
   // If there is a filename
   if (argv[1])
@@ -163,6 +168,7 @@ int main(int argc, const char* argv[])
   closure_stack = hkl_list_new();
   id_stack = hkl_list_new();
   pair_stack = hkl_list_new();
+  interface_stack = hkl_list_new();
 
   // Parse files normally
   if (interactive == false)
@@ -203,6 +209,7 @@ int main(int argc, const char* argv[])
   hkl_list_free(closure_stack);
   hkl_list_free(id_stack);
   hkl_list_free(pair_stack);
+  hkl_list_free(interface_stack);
 
   hklr_shutdown();
 

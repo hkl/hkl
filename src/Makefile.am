@@ -1,9 +1,10 @@
 AM_CFLAGS = -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-function -std=gnu99
-AM_LDFLAGS =
 AM_YFLAGS = -d -v
 AM_LFLAGS =
 
-bin_PROGRAMS = hkl testbed
+bin_PROGRAMS = hkl math
+
+hkl_LDADD = -ldl
 
 hkl_SOURCES = y.tab.y lex.yy.l hkl_string.c hkl_hash.c hkl_tree.c hkl.c \
 hkl_deque.c hklr.c hklr_object.c hklr_expression.c hklr_statement.c \
@@ -34,5 +35,10 @@ statement/hklr_statement_if.c \
 statement/hklr_statement_while.c \
 linenoise/linenoise.c
 
-testbed_SOURCES = ${hkl_SOURCES}
-testbed_SOURCES += test/traversal.c test/hash.c
+math_SOURCES = module/math.c
+math_SOURCES += hklr.c hkl_value.c hklr_expression.c
+math_LDADD = -lm
+math_CFLAGS = $(AM_CFLAGS)
+math_CFLAGS += -shared -nostartfiles -fPIC
+
+

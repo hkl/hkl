@@ -4,8 +4,7 @@
 
 HklValue* hklr_op_typeof(HklValue* value)
 {
-
-  //bool temporary = true;
+  bool temporary = true;
 
   // Dereference
   if (value->type == HKL_TYPE_REF)
@@ -15,9 +14,9 @@ HklValue* hklr_op_typeof(HklValue* value)
     value = hklr_object_dereference(value->as.object);
     
     // Don't free the deque or hash since it can't be a temporary
-    if (value->type == HKL_TYPE_ARRAY)
+    if (value->type == HKL_TYPE_ARRAY || value->type == HKL_TYPE_HASH || value->type == HKL_TYPE_FUNCTION)
     {
-      //temporary = false;
+      temporary = false;
       // simply spoof the value
       temp->type = HKL_TYPE_NIL;
     }
@@ -26,6 +25,11 @@ HklValue* hklr_op_typeof(HklValue* value)
   }
 
   HklType type = value->type;
+
+  // Spoof the value if it not temporary
+  if (temporary == false)
+    value->type = HKL_TYPE_NIL;
+
   hkl_value_free(value);
 
   value = hkl_value_new(HKL_TYPE_TYPE, type);

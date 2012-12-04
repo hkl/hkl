@@ -62,6 +62,10 @@ HklrObject* hklr_object_new(HklType type, HklFlag flags, ...)
       object->as.function = va_arg(argp, HklrFunction*);
     break;
 
+    case HKL_TYPE_CFUNC:
+      object->as.cfunction = va_arg(argp, HklValue* (*)(HklList*));
+    break;
+
     default: 
       assert(false);
     break;
@@ -108,6 +112,10 @@ HklValue* hklr_object_dereference(HklrObject* object)
 
     case HKL_TYPE_FUNCTION:
       return hkl_value_new(HKL_TYPE_FUNCTION, object->as.function);
+    break;
+
+    case HKL_TYPE_CFUNC:
+      return hkl_value_new(HKL_TYPE_CFUNC, object->as.cfunction);
     break;
     
     // A composite object reference

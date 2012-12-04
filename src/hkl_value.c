@@ -86,6 +86,10 @@ void hkl_value_free(HklValue* value)
       hkl_hash_free(value->as.hash);
     break;
 
+    case HKL_TYPE_FUNCTION:
+      hklr_function_free(value->as.function);
+    break;
+
     default:
       break;
   }
