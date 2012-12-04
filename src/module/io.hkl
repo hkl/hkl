@@ -1,0 +1,7 @@
+IO = interface "src/io"
+
+  open: cfunc
+  close: cfunc
+  write: cfunc
+
+end

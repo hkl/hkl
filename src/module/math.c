@@ -3,7 +3,6 @@
 #include <math.h>
 
 #include "hkl_value.h"
-#include "hklr_expression.h"
 
 double hklapi_PI = 3.1415926;
 double hklapi_TAU = 2.0*3.1415926;
@@ -56,6 +55,15 @@ HklValue* hklapi_log10(HklList* args) {
   hkl_value_free(value);
 
   return hkl_value_new(HKL_TYPE_REAL, log10(d));
+}
+
+HklValue* hklapi_sqrt(HklList* args) {
+  
+  HklValue* value = args->head->data;
+  double d = value->as.real;
+  hkl_value_free(value);
+
+  return hkl_value_new(HKL_TYPE_REAL, sqrt(d));
 }
 
 HklValue* hklapi_pow(HklList* args) {

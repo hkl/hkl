@@ -1,0 +1,10 @@
+include "src/module/io.hkl"
+
+file = IO.open("sometest.txt", "a+")
+
+puts "What to write?"
+text = gets
+
+IO.write(file, text)
+
+IO.close(file)

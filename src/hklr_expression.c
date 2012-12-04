@@ -370,6 +370,9 @@ HklValue* hklr_expression_eval(HklrExpression* expr)
 
           HklValue* ret_val = object->as.cfunction(call);
 
+          if (ret_val == NULL)
+            ret_val = hkl_value_new(HKL_TYPE_NIL);
+
           // need to free the args
           return ret_val;
         }

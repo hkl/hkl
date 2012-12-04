@@ -66,6 +66,10 @@ HklrObject* hklr_object_new(HklType type, HklFlag flags, ...)
       object->as.cfunction = va_arg(argp, HklValue* (*)(HklList*));
     break;
 
+    case HKL_TYPE_CDATA:
+      object->as.cdata = va_arg(argp, void*);
+    break;
+
     default: 
       assert(false);
     break;
@@ -116,6 +120,10 @@ HklValue* hklr_object_dereference(HklrObject* object)
 
     case HKL_TYPE_CFUNC:
       return hkl_value_new(HKL_TYPE_CFUNC, object->as.cfunction);
+    break;
+
+    case HKL_TYPE_CDATA:
+      return hkl_value_new(HKL_TYPE_CDATA, object->as.cdata);
     break;
     
     // A composite object reference
@@ -242,6 +250,16 @@ void hklr_object_assign(HklrObject* object, HklrExpression* expression)
         object->as.object = hklr_object_new(HKL_TYPE_FUNCTION, HKL_FLAG_NONE, value->as.function);
       }
 
+    break;
+
+    case HKL_TYPE_CFUNC:
+      object->type = HKL_TYPE_CFUNC;
+      object->as.cfunction = value->as.cfunction;
+    break;
+
+    case HKL_TYPE_CDATA:
+      object->type = HKL_TYPE_CDATA;
+      object->as.cdata = value->as.cdata;
     break;
 
     default:
