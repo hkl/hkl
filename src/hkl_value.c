@@ -50,6 +50,10 @@ HklValue* hkl_value_new(HklType type, ...)
       value->as.function = va_arg(argp, HklrFunction*);
       break;
 
+    case HKL_TYPE_CDATA:
+      value->as.cdata = va_arg(argp, void*);
+      break;
+
     default:
       break;
   }
@@ -86,9 +90,7 @@ void hkl_value_free(HklValue* value)
       hkl_hash_free(value->as.hash);
     break;
 
-    case HKL_TYPE_FUNCTION:
-      hklr_function_free(value->as.function);
-    break;
+  
 
     default:
       break;

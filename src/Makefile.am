@@ -2,7 +2,7 @@ AM_CFLAGS = -Wall -Wextra -Werror -Wno-unused-parameter -Wno-unused-function -st
 AM_YFLAGS = -d -v
 AM_LFLAGS =
 
-bin_PROGRAMS = hkl math
+bin_PROGRAMS = hkl math io
 
 hkl_LDADD = -ldl
 
@@ -40,4 +40,10 @@ math_SOURCES += hkl_value.c
 math_LDFLAGS = -shared -nostartfiles
 math_LDADD = -lm
 math_CFLAGS = $(AM_CFLAGS)
-math_CFLAGS +=  -fPIC
+math_CFLAGS += -fPIC
+
+io_SOURCES = module/io.c
+io_SOURCES += $(hkl_SOURCES)
+io_LDFLAGS = -shared -nostartfiles
+io_CFLAGS = $(AM_CFLAGS)
+io_CFLAGS += -fPIC
