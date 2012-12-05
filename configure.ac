@@ -14,3 +14,4 @@ AC_CHECK_LIB(dl, dlopen, LIBDL="-ldl")
 
 AC_OUTPUT
 
+AM_PROG_CC_C_O

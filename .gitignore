@@ -11,6 +11,7 @@ math
 # Automake generated files and folders
 Makefile
 src/Makefile
+compile
 config.log
 config.status
 *.Po
