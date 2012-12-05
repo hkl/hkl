@@ -37,12 +37,12 @@ linenoise/linenoise.c
 
 math_SOURCES = module/math.c
 math_SOURCES += $(hkl_SOURCES)
-math_LDFLAGS = -Wl-dy,-G,--allow-shlib-undefined -shared -nostartfiles
+math_LDFLAGS = -shared -nostartfiles
 math_CFLAGS = $(AM_CFLAGS)
 math_CFLAGS += -fPIC
 
 io_SOURCES = module/io.c
 io_SOURCES += $(hkl_SOURCES)
-io_LDFLAGS = -Wl-dy,-G,--allow-shlib-undefined -shared -nostartfiles
+io_LDFLAGS = -shared -nostartfiles
 io_CFLAGS = $(AM_CFLAGS)
 io_CFLAGS += -fPIC
