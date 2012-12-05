@@ -2,4 +2,5 @@ language: c
 compiler: 
   - clang
   - gcc
-script: ./auto-build-env && make
+install: ./auto-build-env && make
+script: bundle install && rcomp test
