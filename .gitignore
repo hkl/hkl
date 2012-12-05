@@ -7,7 +7,6 @@ testbed
 io
 math
 *.exe
-*.out
 
 # Automake generated files and folders
 Makefile
@@ -54,3 +53,6 @@ __pycache__/
 Icon?
 ehthumbs.db
 Thumbs.db
+
+# RComp
+test/results
