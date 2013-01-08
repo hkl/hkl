@@ -207,7 +207,7 @@ static HklTreeNode* hkl_treenode_fixup(HklTreeNode* node)
   if (hkl_treenode_isred(node->left) && hkl_treenode_isred(node->left->left))
     node = hkl_treenode_rotright(node);
 
-  if (hkl_treenode_isred(node->left) && hkl_treenode_isred(node->left))
+  if (hkl_treenode_isred(node->left))
     hkl_treenode_colorflip(node);
   
   return node;
