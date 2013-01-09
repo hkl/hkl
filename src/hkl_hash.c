@@ -144,6 +144,7 @@ void hkl_hash_insert(HklHash* hash, HklString* key, void* value)
   HklHashElement* element = &hash->buckets[index];
   assert(element != NULL);
 
+  // Collision
   if (element->data != NULL)
   {
     if (element->is_tree)
@@ -160,13 +161,11 @@ void hkl_hash_insert(HklHash* hash, HklString* key, void* value)
 
       hkl_tree_insert((HklTree*) element->data, key, value);
 
-      // The number of entries of the table increases
-      ++hash->length;
-
       // Mark the element as a tree
       element->is_tree = true;
     }
   }
+  // No Collision
   else
   {
     // Nothing exists here. Make a pair
@@ -177,10 +176,7 @@ void hkl_hash_insert(HklHash* hash, HklString* key, void* value)
 
     // If the hash table is 75% full
     if (hash->length >= 0.75*hash->size)
-    {
-      // Grow the table
       hkl_hash_double(hash);
-    }
   }
 }
 
