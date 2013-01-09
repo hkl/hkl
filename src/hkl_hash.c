@@ -160,6 +160,8 @@ void hkl_hash_insert(HklHash* hash, HklString* key, void* value)
       hkl_tree_move_pair((HklTree*) element->data, pair);
 
       hkl_tree_insert((HklTree*) element->data, key, value);
+      
+      ++hash->length;
 
       // Mark the element as a tree
       element->is_tree = true;
@@ -239,7 +241,18 @@ void hkl_hash_remove(HklHash* hash, HklString *key)
 
     if (element->is_tree)
     {
-      hkl_tree_remove((HklTree*) element->data, key);
+      HklTree* tree = element->data;
+      
+      // Keep track of the old tree size
+      size_t old_size = tree->size;
+
+      // Attempt to remove the element from the tree
+      hkl_tree_remove(tree, key);
+
+      // Subtract the difference between the old and new
+      // tree sizes from the hash length
+      assert((old_size - tree->size) <= 1);
+      hash->length -= old_size - tree->size;
     }
     else
     {

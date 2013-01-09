@@ -17,7 +17,11 @@ typedef struct HklHash
 {
   
   struct HklHashElement* buckets;
+  
+  // Total number of elements (not buckets)
   size_t length;
+
+  // Total number of buckets
   size_t size;
 
 } HklHash;
