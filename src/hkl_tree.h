@@ -1,26 +1,46 @@
 #ifndef HKL_TREE_H
 #define HKL_TREE_H
 
+#include <stddef.h>
+
 #include "hkl_string.h"
 
 /**
 @struct HklTree A simple Associative array implementation based off of the paper
 "Left-leaning Red-Black Trees" by Robert Sedgewick
 
-@authors Scott LaVigne
+@authors Scott LaVigne, Chris Knadler
 @date 9/19/2012
 */
-typedef struct HklTree HklTree;
 
 /**
 @struct HklPair a key-value pair container for hkl associative arrays.
 */
 typedef struct HklPair {
-
   HklString* key;
   void* value;
-
 } HklPair;
+
+/**
+@struct HklTreeNode a node in the HklTree.
+*/
+typedef struct HklTreeNode
+{
+  HklPair* pair;
+  struct HklTreeNode* left;
+  struct HklTreeNode* right;
+  bool isred;
+} HklTreeNode;
+
+/**
+@struct HklTree the tree object.
+*/
+
+typedef struct HklTree
+{
+  HklTreeNode* root;
+  size_t size;
+} HklTree;
 
 /**
 Allocate a new Key-Value pair.
