@@ -1,6 +1,0 @@
-{
-	"name": "GC Free Hash and Ref",
-	"binary": "./src/testbed",
-	"args": ["gc"],
-	"input": ""
-}
