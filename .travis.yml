@@ -2,5 +2,5 @@ language: c
 compiler: 
   - clang
   - gcc
-install: ./auto-build-env && make
+install: rake && make
 script: bundle install && rcomp init && rcomp test
