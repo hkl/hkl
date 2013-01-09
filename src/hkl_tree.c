@@ -7,6 +7,10 @@
 #include "hkl_tree.h"
 #include "hkl_alloc.h"
 
+/*
+ * HklPair
+ */
+
 HklPair* hkl_pair_new()
 {
   HklPair* pair = hkl_alloc_object(HklPair);
@@ -54,18 +58,9 @@ void hkl_pair_free(HklPair* pair)
   hkl_free_object(pair);
 }
 
-typedef struct HklTreeNode
-{
-  HklPair* pair;
-  struct HklTreeNode *left, *right;
-  bool isred;
-
-} HklTreeNode;
-
-struct HklTree
-{
-  struct HklTreeNode* root;
-};
+/*
+ * HklTreeNode
+ */
 
 static HklTreeNode* hkl_treenode_new(HklString* key, void* value)
 {
@@ -173,20 +168,24 @@ static HklTreeNode* hkl_treenode_redright(HklTreeNode* node)
 }
 
 static HklTreeNode*
-hkl_treenode_insert(HklTreeNode* node, HklString* key, void* value)
+hkl_treenode_insert(HklTree* tree, HklTreeNode* node, HklString* key, void* value)
 {
   assert(key != NULL);
 
+  // Insert in an empty node
   if (node == NULL)
+  { 
+    ++tree->size;
     return hkl_treenode_new(key, value);
+  }
 
   if (hkl_treenode_isred(node->left) && hkl_treenode_isred(node->right))
     hkl_treenode_colorflip(node);
 
   int cmp = hkl_string_compare(node->pair->key, key);
   if (cmp == 0)     node->pair->value = value;
-  else if (cmp < 0) node->left = hkl_treenode_insert(node->left, key, value);
-  else              node->right = hkl_treenode_insert(node->right, key, value);
+  else if (cmp < 0) node->left = hkl_treenode_insert(tree, node->left, key, value);
+  else              node->right = hkl_treenode_insert(tree, node->right, key, value);
 
   if (hkl_treenode_isred(node->right) && !hkl_treenode_isred(node->left))
     node = hkl_treenode_rotleft(node);
@@ -213,18 +212,19 @@ static HklTreeNode* hkl_treenode_fixup(HklTreeNode* node)
   return node;
 }
 
-static HklTreeNode* hkl_treenode_removemin(HklTreeNode* node)
+static HklTreeNode* hkl_treenode_removemin(HklTree* tree, HklTreeNode* node)
 {
   if (node->left == NULL)
   {
-    hkl_treenode_free(node);    
+    --tree->size;
+    hkl_treenode_free(node);
     return NULL;
   }
  
   if (!hkl_treenode_isred(node->left) && !hkl_treenode_isred(node->left->left))
     node = hkl_treenode_redleft(node);
 
-  node->left = hkl_treenode_removemin(node->left);
+  node->left = hkl_treenode_removemin(tree, node->left);
 
   return hkl_treenode_fixup(node);
 }
@@ -237,11 +237,13 @@ static HklTreeNode* hkl_treenode_findmin(HklTreeNode* node)
   return node;
 }
 
-static HklTreeNode* hkl_treenode_remove(HklTreeNode* node, HklString* key)
+static HklTreeNode*
+hkl_treenode_remove(HklTree* tree, HklTreeNode* node, HklString* key)
 {
   assert(node != NULL);
   assert(key != NULL);
 
+  // If key < current node key, go left
   if (hkl_string_compare(key, node->pair->key) < 0)
   {
     if (node->left != NULL)
@@ -249,7 +251,7 @@ static HklTreeNode* hkl_treenode_remove(HklTreeNode* node, HklString* key)
       if (!hkl_treenode_isred(node->left) && hkl_treenode_isred(node->left->left))
         node = hkl_treenode_redleft(node);
 
-      node->left = hkl_treenode_remove(node->left, key);
+      node->left = hkl_treenode_remove(tree, node->left, key);
     }
   }
   else
@@ -259,6 +261,7 @@ static HklTreeNode* hkl_treenode_remove(HklTreeNode* node, HklString* key)
 
     if (hkl_string_compare(key, node->pair->key) == 0 && (node->right == NULL))
     {
+      --tree->size;
       hkl_treenode_free(node);
       return NULL;
     }
@@ -272,11 +275,11 @@ static HklTreeNode* hkl_treenode_remove(HklTreeNode* node, HklString* key)
       if (hkl_string_compare(key, node->pair->key) == 0)
       {
         node->pair->value = hkl_treenode_findmin(node->right)->pair->value;
-        node->right = hkl_treenode_removemin(node->right);
+        node->right = hkl_treenode_removemin(tree, node->right);
       }
       else
       {
-        node->right = hkl_treenode_remove(node->right, key);
+        node->right = hkl_treenode_remove(tree, node->right, key);
       }
     }
   }
@@ -284,11 +287,62 @@ static HklTreeNode* hkl_treenode_remove(HklTreeNode* node, HklString* key)
   return hkl_treenode_fixup(node);
 }
 
+/**
+  Adaption of Morris Inorder traversal without a Stack or Recursion
+*/
+static void hkl_treenode_traverse(HklTreeNode* root,
+  bool(*fn)(HklPair*, void*), void* data)
+{
+  
+  assert(root != NULL);
+
+  HklTreeNode *current, *pre;
+
+  if(root == NULL)
+     return;
+
+  current = root;
+  while(current != NULL)
+  {
+    if(current->left == NULL)
+    {
+      fn(current->pair, data);
+      current = current->right;
+    }
+    else
+    {
+      /* Find the inorder predecessor of current */
+      pre = current->left;
+      while(pre->right != NULL && pre->right != current)
+        pre = pre->right;
+
+      /* Make current as right child of its inorder predecessor */
+      if(pre->right == NULL)
+      {
+        pre->right = current;
+        current = current->left;
+      }
+      // Revert the changes in the tree
+      else
+      {
+        pre->right = NULL;
+        fn(current->pair, data);
+        current = current->right;
+      }
+    }
+  } 
+}
+
+/*
+ * HklTree
+ */
+
 HklTree* hkl_tree_new()
 {
   HklTree* tree = hkl_alloc_object(HklTree);
 
   tree->root = NULL;
+  tree->size = 0;
 
   return tree;
 }
@@ -327,8 +381,10 @@ void hkl_tree_insert(HklTree* tree, HklString* key, void* value)
   assert(tree != NULL);
   assert(key != NULL);
 
-  tree->root = hkl_treenode_insert(tree->root, key, value);
+  tree->root = hkl_treenode_insert(tree, tree->root, key, value);
   tree->root->isred = false;
+
+  ++tree->size;
 }
 
 void hkl_tree_remove(HklTree* tree, HklString* key)
@@ -338,7 +394,7 @@ void hkl_tree_remove(HklTree* tree, HklString* key)
 
   if (tree->root != NULL)
   {
-    tree->root = hkl_treenode_remove(tree->root, key);
+    tree->root = hkl_treenode_remove(tree, tree->root, key);
 
     if (tree->root != NULL)
     {
@@ -354,6 +410,7 @@ void hkl_tree_clear(HklTree* tree)
   if (tree->root != NULL)
     hkl_treenode_free(tree->root);
   
+  tree->size = 0;
   tree->root = NULL;
 }
 
@@ -361,67 +418,6 @@ void hkl_tree_free(HklTree* tree)
 {
   hkl_tree_clear(tree);
   hkl_free_object(tree);
-}
-
-/**
-  Adaption of Morris Inorder traversal without a Stack or Recursion
-*/
-static void hkl_treenode_traverse(HklTreeNode* root,
-  bool(*fn)(HklPair*, void*), void* data)
-{
-  
-  assert(root != NULL);
-
-  /*
-  if (node->left != NULL)
-    hkl_treenode_traverse(node->left, fn, data);
-
-  fn(node->pair, data);
-
-  if (node->right != NULL)
-      hkl_treenode_traverse(node->right, fn, data);
-  */
-
-  HklTreeNode *current,*pre;
-
-  if(root == NULL)
-     return;
-
-  current = root;
-  while(current != NULL)
-  {
-    if(current->left == NULL)
-    {
-      //printf("VALUE: %s \n", hkl_string_get_utf8(current->pair->key));
-      fn(current->pair, data);
-      current = current->right;
-    }
-    else
-    {
-      /* Find the inorder predecessor of current */
-      pre = current->left;
-      while(pre->right != NULL && pre->right != current)
-        pre = pre->right;
-
-      /* Make current as right child of its inorder predecessor */
-      if(pre->right == NULL)
-      {
-        pre->right = current;
-        current = current->left;
-      }
-
-     // MAGIC OF RESTORING the Tree happens here: 
-      /* Revert the changes made in if part to restore the original
-        tree i.e., fix the right child of predecssor */
-      else
-      {
-        pre->right = NULL;
-        //printf("VALUE: %s \n", hkl_string_get_utf8(current->pair->key));
-        fn(current->pair, data);
-        current = current->right;
-      } /* End of if condition pre->right == NULL */
-    } /* End of if condition current->left == NULL*/
-  } /* End of while */
 }
 
 void hkl_tree_traverse(HklTree* tree, bool(*fn)(HklPair*, void*), void* data)
