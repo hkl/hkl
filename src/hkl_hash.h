@@ -17,7 +17,11 @@ typedef struct HklHash
 {
   
   struct HklHashElement* buckets;
+  
+  // Total number of elements (not buckets)
   size_t length;
+
+  // Total number of buckets
   size_t size;
 
 } HklHash;
@@ -96,4 +100,4 @@ Traverse a HklHash.
 */
 void hkl_hash_traverse(HklHash* hash, bool(*fn)(HklPair*, void*), void* data);
 
-#endif // HKL_STRING_H
+#endif // HKL_HASH_H
