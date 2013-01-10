@@ -10,8 +10,12 @@ To build right now:
 
 You _should_ only have to do this once.
 
-`$ ./auto-build-env`
+```bash
+$ rake
+```
 
 Then as normal:
 
-`$ make`
+```
+$ make
+```
