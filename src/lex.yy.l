@@ -56,7 +56,7 @@ HklString* string_buf = NULL;
                        }
 <includename>.         return yyerror(yytext);
 
-"case"				         return HKL_T_CASE;
+"case"                 return HKL_T_CASE;
 "switch"               return HKL_T_SWITCH;
 "default"              return HKL_T_DEFAULT;
 
